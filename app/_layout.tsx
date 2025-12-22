@@ -6,6 +6,9 @@ import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import "../global.css";
 
+import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
+import '@/global.css';
+
 export default function RootLayout() {
   const [loaded] = useFonts({
     "Nunito-Black": require("../assets/fonts/Nunito-Black.ttf"),
@@ -23,7 +26,9 @@ export default function RootLayout() {
   }
 
   return (
-    <SafeAreaProvider>
+    
+    <GluestackUIProvider mode="dark">
+      <SafeAreaProvider>
         <StatusBar style="light" />
         <Stack
           screenOptions={{
@@ -35,5 +40,7 @@ export default function RootLayout() {
           <Stack.Screen name="(app)" />
         </Stack>
     </SafeAreaProvider>
+    </GluestackUIProvider>
+  
   );
 }

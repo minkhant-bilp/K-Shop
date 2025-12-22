@@ -64,7 +64,7 @@ const ScreenWrapper: React.FC<ScreenWrapperProps> = ({
 
   return (
     <ContainerComponent style={[containerStyle, safeAreaPadding]} {...props}>
-      <StatusBar backgroundColor={backgroundColor} />
+      <StatusBar  />
       
       {headerShown && (
         <Header
