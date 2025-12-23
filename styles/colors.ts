@@ -21,4 +21,4 @@ export const roseColor = 'color-[#FD7279]' as const;
 export const roseColorCode = '#FD7279' as const;
 export const redColorCode = '#DC3807' as const;
 export const goldenColorCode = '#FFD700' as const;
-export const primaryColor = '#44C0F0' as const;
+export const primaryColor = '#FF3232' as const;

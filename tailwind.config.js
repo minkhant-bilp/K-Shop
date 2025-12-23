@@ -1,3 +1,6 @@
+
+import { primaryColor, roseColorCode, successCode } from './styles/colors';
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: process.env.DARK_MODE ? process.env.DARK_MODE : 'class',
@@ -19,6 +22,9 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        'brand-color': primaryColor,
+        'brand-rose': roseColorCode,
+        'brand-success': successCode,
         primary: {
           0: 'rgb(var(--color-primary-0)/<alpha-value>)',
           50: 'rgb(var(--color-primary-50)/<alpha-value>)',

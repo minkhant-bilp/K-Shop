@@ -1,21 +1,21 @@
 // import DynamicText from "@/components/ui/dynamic-text/dynamic-text";
 // import ErrorText from "@/components/ui/dynamic-text/error-text";
 // import { MaterialIcons } from "@expo/vector-icons";
-// import React, { useState } from "react";
+// import React from "react";
 // import { Controller, useFormContext } from "react-hook-form";
 // import {
-//   Pressable,
-//   StyleSheet,
-//   TextInput,
-//   TextInputProps,
-//   TextStyle,
-//   View,
-//   ViewStyle,
+//     Pressable,
+//     StyleSheet,
+//     TextInput,
+//     TextInputProps,
+//     TextStyle,
+//     View,
+//     ViewStyle,
 // } from "react-native";
-// import CountryPicker, {
-//   Country,
-//   CountryCode,
-// } from "react-native-country-picker-modal";
+// // import CountryPicker, {
+// //   Country,
+// //   CountryCode,
+// // } from "react-native-country-picker-modal";
 
 // interface FormInputProps {
 //   name: string;
@@ -54,14 +54,14 @@
 //   const { control, formState } = useFormContext();
 //   const error = formState.errors[name];
 
-//   const [countryCode, setCountryCode] = useState<CountryCode>("US");
-//   const [country, setCountry] = useState<Country | null>(null);
-//   const [pickerVisible, setPickerVisible] = useState(false);
+// //   const [countryCode, setCountryCode] = useState<CountryCode>("US");
+// //   const [country, setCountry] = useState<Country | null>(null);
+// //   const [pickerVisible, setPickerVisible] = useState(false);
 
-//   const onSelect = (country: Country) => {
-//     setCountryCode(country.cca2);
-//     setCountry(country);
-//   };
+// //   const onSelect = (country: Country) => {
+// //     setCountryCode(country.cca2);
+// //     setCountry(country);
+// //   };
 
 //   return (
 //     <View style={[styles.container, containerStyle]}>
@@ -84,16 +84,10 @@
 //         name={name}
 //         rules={rules}
 //         render={({ field: { onChange, onBlur, value } }) => {
-//           const onSelect = (selectedCountry: Country) => {
-//             setCountryCode(selectedCountry.cca2);
-//             setCountry(selectedCountry);
-//             // ✅ Auto-fill calling code in the input
-//             onChange(`+${selectedCountry.callingCode[0] || ""}`);
-//           };
-
+     
 //           return (
 //             <View style={styles.inputWrapper}>
-//               {showCountryPicker && (
+//               {/* {showCountryPicker && (
 //                 <Pressable
 //                   style={styles.iconLeft}
 //                   onPress={() => setPickerVisible(true)}
@@ -109,7 +103,7 @@
 //                     onClose={() => setPickerVisible(false)}
 //                   />
 //                 </Pressable>
-//               )}
+//               )} */}
 //               <TextInput
 //                 editable={!disabled}
 //                 style={[
