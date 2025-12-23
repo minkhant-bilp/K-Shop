@@ -20,8 +20,10 @@ import {
 } from "@gluestack-ui/themed";
 
 import { Divider } from "@/components/ui/divider";
+import { AntDesign } from '@expo/vector-icons';
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { TouchableOpacity } from "react-native";
+
 
 const blurhash =
   "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
@@ -33,6 +35,7 @@ const LoginScreen = () => {
   const [passwordInvalid, setPasswordInvalid] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const router = useRouter()
 
   const validateForm = () => {
     let isValid = true;
@@ -179,7 +182,7 @@ const LoginScreen = () => {
             </FormControl>
             <VStack className="">
               <Text
-                className="self-end text-blue-700 underline mt-[-10px]"
+                className="self-end text-blue-700 underline mt-[-10px] mr-3"
                 bold
               >
                 Forget Password
@@ -198,34 +201,44 @@ const LoginScreen = () => {
                 Create is new account?
               </Text>
               <Divider className="my-0.5 mt-4 bg-gray-400" />
-              <Button size="xl" className="bg-brand-color mt-5">
+              <Button size="xl" className="bg-brand-color mt-5" onPress={() => router.navigate("/sign-up")}>
                 <ButtonText className="text-white">Register</ButtonText>
               </Button>
-              <HStack className="mt-6 items-center gap-6 justify-center ">
-                <TouchableOpacity className="bg-gray-200 w-12 h-12 rounded-full items-center">
-                  <Image
-                    style={{ width: 43, height: 43, borderRadius: 21 }}
-                    source={require("@/constants/imagedata/google.png")}
-                    placeholder={{ blurhash }}
-                    contentFit="cover"
-                    transition={1000}
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity className="bg-gray-200 w-[46px] h-[46px] rounded-full items-center">
-                  <Image
-                    style={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: 21,
-                      marginTop: 5,
-                    }}
-                    source={require("@/constants/imagedata/facebook.png")}
-                    placeholder={{ blurhash }}
-                    contentFit="cover"
-                    transition={1000}
-                  />
-                </TouchableOpacity>
-              </HStack>
+              <VStack className="w-full mt-6">
+  
+    <Divider className="mb-4 bg-gray-400"/>
+  
+
+
+  <HStack space="md" className="w-full">
+    
+    {/* Google Button */}
+    <Button 
+      variant="outline" 
+      className="flex-1 h-12 bg-white border border-gray-200 rounded-lg flex-row items-center justify-center gap-2"
+      onPress={() => console.log("Google Login")}
+    >
+      
+       <AntDesign name="google" size={20} color="black" />
+       <ButtonText className="text-gray-700 font-bold ml-2">
+         Google
+       </ButtonText>
+    </Button>
+
+  
+    <Button 
+      variant="outline" 
+      className="flex-1 h-12 bg-white border border-gray-200 rounded-lg flex-row items-center justify-center gap-2"
+      onPress={() => console.log("Facebook Login")}
+    >
+       {/* Facebook Logo (AntDesign Icon) */}
+       <AntDesign name="facebook-square" size={20} color="#1877F2" />
+       <ButtonText className="text-gray-700 font-bold ml-2">
+         Facebook
+       </ButtonText>
+    </Button>
+
+  </HStack></VStack>
             </VStack>
           </VStack>
         </VStack>
