@@ -1,5 +1,5 @@
 
-import { primaryColor, roseColorCode, successCode } from './styles/colors';
+import { primaryColor, roseColorCode, successCode } from './structure/styles/colors';
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {

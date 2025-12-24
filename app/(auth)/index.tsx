@@ -88,7 +88,7 @@ const LoginScreen = () => {
           <HStack className="items-center justify-end">
             <Image
               style={{ width: 65, height: 65 }}
-              source={require("@/constants/imagedata/klogo.png")}
+              source={require("@/assets/images/klogo.png")}
               placeholder={{ blurhash }}
               contentFit="cover"
               transition={1000}
