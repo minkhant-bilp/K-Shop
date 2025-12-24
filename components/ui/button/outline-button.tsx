@@ -1,5 +1,6 @@
-import { cn } from '@/lib/utils/utils';
-import { primaryColorCode } from '@/styles/colors';
+
+import { primaryColorCode } from '@/structure/styles/colors';
+import { cn } from '@/structure/utils';
 import React, { PropsWithChildren } from 'react';
 import { TouchableOpacity, TouchableOpacityProps, View } from 'react-native';
 import DynamicText from '../dynamic-text/dynamic-text';

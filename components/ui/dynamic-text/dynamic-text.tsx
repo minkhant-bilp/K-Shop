@@ -1,5 +1,5 @@
-import { fontColorCode } from "@/styles/colors";
-import { fontStyles } from "@/styles/fonts";
+import { fontColorCode } from "@/structure/styles/colors";
+import { fontStyles } from "@/structure/styles/fonts";
 import React, { PropsWithChildren, useMemo } from "react";
 import { Text, TextStyle } from "react-native";
 

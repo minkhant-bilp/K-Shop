@@ -1,5 +1,6 @@
-import { cn } from "@/lib/utils/utils";
-import { bgDefault } from "@/styles/colors";
+
+import { bgDefault } from "@/structure/styles/colors";
+import { cn } from "@/structure/utils";
 import React, { PropsWithChildren } from "react";
 import { TouchableOpacity, TouchableOpacityProps } from "react-native";
 import DynamicText from "../dynamic-text/dynamic-text";

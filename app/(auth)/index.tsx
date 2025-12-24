@@ -20,10 +20,9 @@ import {
 } from "@gluestack-ui/themed";
 
 import { Divider } from "@/components/ui/divider";
-import { AntDesign } from '@expo/vector-icons';
+import { AntDesign } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-
 
 const blurhash =
   "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
@@ -35,7 +34,7 @@ const LoginScreen = () => {
   const [passwordInvalid, setPasswordInvalid] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  const router = useRouter()
+  const router = useRouter();
 
   const validateForm = () => {
     let isValid = true;
@@ -201,44 +200,46 @@ const LoginScreen = () => {
                 Create is new account?
               </Text>
               <Divider className="my-0.5 mt-4 bg-gray-400" />
-              <Button size="xl" className="bg-brand-color mt-5" onPress={() => router.navigate("/sign-up")}>
+              <Button
+                size="xl"
+                className="bg-brand-color mt-5"
+                onPress={() => router.navigate("/sign-up")}
+              >
                 <ButtonText className="text-white">Register</ButtonText>
               </Button>
               <VStack className="w-full mt-6">
-  
-    <Divider className="mb-4 bg-gray-400"/>
-  
+                <Divider className="mb-4 bg-gray-400" />
 
+                <HStack space="md" className="w-full">
+                  {/* Google Button */}
+                  <Button
+                    variant="outline"
+                    className="flex-1 h-12 bg-white border border-gray-200 rounded-lg flex-row items-center justify-center gap-2"
+                    onPress={() => console.log("Google Login")}
+                  >
+                    <AntDesign name="google" size={20} color="black" />
+                    <ButtonText className="text-gray-700 font-bold ml-2">
+                      Google
+                    </ButtonText>
+                  </Button>
 
-  <HStack space="md" className="w-full">
-    
-    {/* Google Button */}
-    <Button 
-      variant="outline" 
-      className="flex-1 h-12 bg-white border border-gray-200 rounded-lg flex-row items-center justify-center gap-2"
-      onPress={() => console.log("Google Login")}
-    >
-      
-       <AntDesign name="google" size={20} color="black" />
-       <ButtonText className="text-gray-700 font-bold ml-2">
-         Google
-       </ButtonText>
-    </Button>
-
-  
-    <Button 
-      variant="outline" 
-      className="flex-1 h-12 bg-white border border-gray-200 rounded-lg flex-row items-center justify-center gap-2"
-      onPress={() => console.log("Facebook Login")}
-    >
-       {/* Facebook Logo (AntDesign Icon) */}
-       <AntDesign name="facebook-square" size={20} color="#1877F2" />
-       <ButtonText className="text-gray-700 font-bold ml-2">
-         Facebook
-       </ButtonText>
-    </Button>
-
-  </HStack></VStack>
+                  <Button
+                    variant="outline"
+                    className="flex-1 h-12 bg-white border border-gray-200 rounded-lg flex-row items-center justify-center gap-2"
+                    onPress={() => console.log("Facebook Login")}
+                  >
+                    {/* Facebook Logo (AntDesign Icon) */}
+                    <AntDesign
+                      name="facebook-square"
+                      size={20}
+                      color="#1877F2"
+                    />
+                    <ButtonText className="text-gray-700 font-bold ml-2">
+                      Facebook
+                    </ButtonText>
+                  </Button>
+                </HStack>
+              </VStack>
             </VStack>
           </VStack>
         </VStack>

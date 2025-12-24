@@ -1,12 +1,14 @@
-import Button from "@/components/ui/button/button";
-import DynamicText from "@/components/ui/dynamic-text/dynamic-text";
-import { cn } from "@/lib/utils/utils";
-import { bgWhiteCode } from "@/styles/colors";
+
+
+import { bgWhiteCode } from "@/structure/styles/colors";
+import { cn } from "@/structure/utils";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { router } from "expo-router";
 import React, { useCallback } from "react";
 import { Platform, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Button from "../button/button";
+import DynamicText from "../dynamic-text/dynamic-text";
 
 const isIOS = Platform.OS === "ios";
 

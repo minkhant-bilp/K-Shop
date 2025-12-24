@@ -1,5 +1,5 @@
 import DynamicText from "@/components/ui/dynamic-text/dynamic-text";
-import { primaryColor } from "@/styles/colors";
+import { primaryColor } from "@/structure/styles/colors";
 import React, { useCallback } from "react";
 import { Pressable, View } from "react-native";
 import Animated, {

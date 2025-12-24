@@ -1,5 +1,5 @@
 import Loading from '@/components/common/Loading/Loading';
-import { bgWhiteCode } from '@/styles/colors';
+import { bgWhiteCode } from '@/structure/styles/colors';
 import { StatusBar } from 'expo-status-bar';
 import React, { PropsWithChildren, ReactNode } from 'react';
 import { ScrollView, StyleProp, StyleSheet, View, ViewProps, ViewStyle } from 'react-native';

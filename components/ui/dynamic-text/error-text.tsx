@@ -1,4 +1,4 @@
-import { redColorCode } from '@/styles/colors';
+import { redColorCode } from '@/structure/styles/colors';
 import React from 'react';
 import { View } from 'react-native';
 import DynamicText from './dynamic-text';

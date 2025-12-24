@@ -47,7 +47,7 @@ const SignUpScreen = () => {
           
       </HStack>
       
-      <HStack className='mt-7 '>
+      <HStack className='mt-7'>
       <Heading className='text-black leading-[40px]' size='3xl'>Sign Up {"\n"}to create an Account</Heading>
       </HStack>
       <HStack className='items-center mt-5 gap-3'>

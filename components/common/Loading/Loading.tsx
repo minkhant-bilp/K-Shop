@@ -1,4 +1,4 @@
-import { primaryColorCode } from '@/styles/colors';
+import { primaryColorCode } from '@/structure/styles/colors';
 import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 
