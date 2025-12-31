@@ -15,6 +15,7 @@ import {
   Input,
   InputField,
 } from "@gluestack-ui/themed";
+import { router } from "expo-router";
 
 const blurhash =
   "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
@@ -27,9 +28,9 @@ const SignUpScreen = () => {
   const passwordsMatch = password.length > 0 && password === confirmPassword;
 
   return (
-    <ScreenWrapper  isScrollable={true} headerShown={false} isSafeArea={false}>
+    <ScreenWrapper isScrollable={true} headerShown={false} isSafeArea={false}>
       <VStack className="flex-1 mt-4 px-6">
-        <HStack className="justify-end items-center gap-2">
+        <HStack className="justify-end items-center gap-2 mt-4">
           <Image
             style={{ width: 65, height: 65 }}
             source={require("@/assets/images/klogo.png")}
@@ -118,7 +119,7 @@ const SignUpScreen = () => {
               />
             </Input>
           </FormControl>
-          <Button size="xl" className="bg-brand-color mt-4 rounded-lg">
+          <Button size="xl" className="bg-brand-color mt-4 rounded-lg" onPress={() => router.navigate("/(app)/home/home")}>
             <ButtonText className="text-white">Sign up</ButtonText>
           </Button>
         </VStack>
