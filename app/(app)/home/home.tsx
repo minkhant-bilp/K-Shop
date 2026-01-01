@@ -1,5 +1,7 @@
 // screens/HomeScreen.tsx
 import FlashSaleList from "@/components/pager/Category";
+import Popular from "@/components/pager/Popular";
+import Products from "@/components/pager/Products";
 import SeeMore from "@/components/pager/SeeMore";
 import ViewPager from "@/components/pager/ViewPager";
 import DynamicText from "@/components/ui/dynamic-text/dynamic-text";
@@ -16,7 +18,7 @@ import {
   Ticket,
 } from "lucide-react-native";
 import React from "react";
-import { TouchableOpacity, View } from "react-native";
+import { ScrollView, TouchableOpacity, View } from "react-native";
 
 const icons = [
   { id: 1, title: "Popular", icon: Flame },
@@ -34,30 +36,34 @@ const HomeScreen = () => {
     <ScreenWrapper headerShown={false} isSafeArea={false}>
       <GameTopUpHeader />
       <ViewPager />
-      <View className="flex-row flex-wrap justify-between px-4 mt-7">
-        {icons.map((item) => (
-          <TouchableOpacity key={item.id} className="items-center w-[22%] mb-6">
-            {/* Icon Container */}
-            <View className="w-12 h-12 bg-gray-100 rounded-xl items-center justify-center mb-2 border border-gray-200">
-              <item.icon size={24} color="#333" strokeWidth={1.5} />
-            </View>
+      <ScrollView>
+        <View className="flex-row flex-wrap justify-between px-4 mt-7">
+          {icons.map((item) => (
+            <TouchableOpacity key={item.id} className="items-center w-[22%] mb-6">
+              <View className="w-12 h-12 bg-gray-100 rounded-xl items-center justify-center mb-2 border border-gray-200">
+                <item.icon size={24} color="#333" strokeWidth={1.5} />
+              </View>
 
-            <DynamicText
-              fontWeight="bold"
-              fontSize="xs"
-              fontColor="gray"
-              text-xs
-              text-gray-600
-              font-medium
-              text-center
-            >
-              {item.title}
-            </DynamicText>
-          </TouchableOpacity>
-        ))}
-      </View>
-      <SeeMore />
-      <FlashSaleList />
+              <DynamicText
+                fontWeight="bold"
+                fontSize="xs"
+                fontColor="gray"
+                text-xs
+                text-gray-600
+                font-medium
+                text-center
+              >
+                {item.title}
+              </DynamicText>
+            </TouchableOpacity>
+          ))}
+        </View>
+        <SeeMore />
+        <FlashSaleList />
+        <Popular />
+        <Products />
+      </ScrollView>
+      <View className="h-24"></View>
     </ScreenWrapper>
   );
 };
