@@ -26,7 +26,6 @@ export default function RootLayout() {
   }
 
   return (
-    
     <GluestackUIProvider mode="dark">
       <SafeAreaProvider>
         <StatusBar style="light" />

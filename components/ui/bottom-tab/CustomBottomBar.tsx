@@ -15,7 +15,7 @@ const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
 
 const PRIMARY_COLOR = "#FFF";
-const SECONDARY_COLOR = ["#5956E9", "#FAB8C4"];
+const SECONDARY_COLOR = ["#FF3232", "#000000"];
 
 const CustomNavBar: React.FC<BottomTabBarProps> = ({
   state,
@@ -43,14 +43,12 @@ const CustomNavBar: React.FC<BottomTabBarProps> = ({
         paddingBottom: Platform.OS === "ios" ? insets.bottom : 10,
         backgroundColor: PRIMARY_COLOR,
         alignSelf: "center",
-        borderTopEndRadius: 30,
-        borderTopStartRadius: 30,
-        paddingVertical: 15,
-        shadowColor: "#000",
+        shadowColor: "#000000",
         shadowOffset: { width: 0, height: 5 },
         shadowOpacity: 0.3,
         paddingHorizontal: 20,
         shadowRadius: 5,
+        elevation: 20,
       }}
     >
       {state.routes.map((route, index) => {

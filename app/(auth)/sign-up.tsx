@@ -119,7 +119,7 @@ const SignUpScreen = () => {
               />
             </Input>
           </FormControl>
-          <Button size="xl" className="bg-brand-color mt-4 rounded-lg" onPress={() => router.navigate("/(app)/home/home")}>
+          <Button size="xl" className="bg-brand-color mt-4 rounded-lg" onPress={() => router.navigate("/(app)/(bottom-tab)/home")}>
             <ButtonText className="text-white">Sign up</ButtonText>
           </Button>
         </VStack>

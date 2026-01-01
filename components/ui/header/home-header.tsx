@@ -1,44 +1,86 @@
-// import { MenuIcon, SearchHIcon } from "@/assets/svg";
-// import React from "react";
-// import { TouchableOpacity, View } from "react-native";
-// import DynamicText from "../dynamic-text/dynamic-text";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { LinearGradient } from "expo-linear-gradient";
+import { router } from "expo-router";
+import React, { useCallback } from "react";
+import { Platform, StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Button from "../button/button";
+import DynamicText from "../dynamic-text/dynamic-text";
 
-// interface Props {
-//   showMiddleIcon?: boolean;
-// }
+const SECONDARY_COLOR = ["#FF3232", "#000000"];
+const isIOS = Platform.OS === "ios";
 
-// const CommonHeader : React.FC<Props> = ({
-//   showMiddleIcon = false
-// }) => {
-//   return (
-//     <View className="flex-row items-center justify-between bg-white px-4 mx-4 my-10 pt-4 pb-2 ">
-//      <View>
-//          <MenuIcon />
-//         <DynamicText fontColor="">
-//           Gita Music
-//         </DynamicText>
-//      </View>
-//       {
-//         showMiddleIcon && (
-//           <View className="flex-row items-center">
-//             <TouchableOpacity className="mr-4 bg-[#D9D9D9] py-2 px-4 rounded-full">
-//               <DynamicText fontSize="xs" fontWeight="bold">
-//                 Discover
-//               </DynamicText>
-//             </TouchableOpacity>
-//              <TouchableOpacity>
-//               <DynamicText fontSize="xs" fontWeight="bold">
-//                 Following
-//               </DynamicText>
-//             </TouchableOpacity>
-//           </View>
-//         )
-//       }
-//       <TouchableOpacity>
-//         <SearchHIcon />
-//       </TouchableOpacity>
-//     </View>
-//   );
-// };
+interface GameShopHeaderProps {
+  title?: string;
+  onSearchPress?: () => void;
+  onNotiPress?: () => void;
+}
 
-// export default CommonHeader;
+const GameShopHeader: React.FC<GameShopHeaderProps> = ({
+  title = "Game Shop",
+  onSearchPress,
+  onNotiPress,
+}) => {
+  const insets = useSafeAreaInsets();
+
+  const onPressBack = useCallback(() => {
+    router.back();
+  }, []);
+
+  return (
+    <LinearGradient
+      colors={SECONDARY_COLOR as any}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 0 }}
+      style={[
+        styles.container,
+        {
+          paddingTop: insets.top,
+        },
+      ]}
+    >
+      {/* <View style={styles.left}> */}
+        {/* <Button onPress={onPressBack} style={styles.iconButton}>
+          <AntDesign name="left" size={22} color="#fff" />
+        </Button> */}
+        <DynamicText fontSize="2xl" fontWeight="bold" fontColor="#fff">
+          {title}
+        </DynamicText>
+      {/* </View> */}
+
+      <View style={styles.right}>
+        <Button onPress={onSearchPress} style={styles.iconButton}>
+          <Ionicons name="search-outline" size={22} color="#fff" />
+        </Button>
+        <Button onPress={onNotiPress} style={styles.iconButton}>
+          <Ionicons name="notifications-outline" size={22} color="#fff" />
+        </Button>
+      </View>
+    </LinearGradient>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    minHeight: 88,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+  },
+  left: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  right: {
+    flexDirection: "row",
+    alignItems: "center",
+    // gap: 4,
+  },
+  iconButton: {
+    padding: 6,
+  },
+});
+
+export default GameShopHeader;

@@ -1,4 +1,3 @@
-
 import CustomNavBar from "@/components/ui/bottom-tab/CustomBottomBar";
 import { Tabs } from "expo-router";
 import React from "react";
@@ -10,7 +9,7 @@ export default function TabLayout() {
         headerShown: false,
         tabBarStyle: { display: "none" },
       }}
-      tabBar={props => <CustomNavBar {...props} />}
+      tabBar={(props) => <CustomNavBar {...props} />}
     >
       <Tabs.Screen name="home" />
       <Tabs.Screen name="feed" />

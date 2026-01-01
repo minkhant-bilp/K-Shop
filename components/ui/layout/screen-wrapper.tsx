@@ -1,14 +1,21 @@
-import Loading from '@/components/common/Loading/Loading';
-import { bgWhiteCode } from '@/structure/styles/colors';
-import { StatusBar } from 'expo-status-bar';
-import React, { PropsWithChildren, ReactNode } from 'react';
-import { ScrollView, StyleProp, StyleSheet, View, ViewProps, ViewStyle } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Header from '../header/header';
+import Loading from "@/components/common/Loading/Loading";
+import { bgWhiteCode } from "@/structure/styles/colors";
+import { StatusBar } from "expo-status-bar";
+import React, { PropsWithChildren, ReactNode } from "react";
+import {
+  ScrollView,
+  StyleProp,
+  StyleSheet,
+  View,
+  ViewProps,
+  ViewStyle,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Header from "../header/header";
 
 type ScreenWrapperProps = PropsWithChildren<{}> &
   ViewProps & {
-    statusBarStyle?: 'default' | 'light-content' | 'dark-content';
+    statusBarStyle?: "default" | "light-content" | "dark-content";
     backgroundColor?: string;
     isSafeArea?: boolean;
     headerShown?: boolean;
@@ -22,7 +29,6 @@ type ScreenWrapperProps = PropsWithChildren<{}> &
     isLoading?: boolean;
     rightIcon?: React.ReactNode;
     press?: () => void;
-    // Updated type definition for style to be more standard
     style?: StyleProp<ViewStyle>;
     headerRightComponent?: ReactNode;
   };
@@ -30,42 +36,33 @@ type ScreenWrapperProps = PropsWithChildren<{}> &
 const ScreenWrapper: React.FC<ScreenWrapperProps> = ({
   style: propStyle,
   children,
-  statusBarStyle = 'dark-content',
   backgroundColor = bgWhiteCode,
-  isSafeArea = false, // Default is false per your code
+  isSafeArea = false,
   headerShown = true,
   showBackButton = true,
   isScrollable = false,
   isFlex = true,
   headerName,
-  image,
-  showImage = false,
   leftIcon,
   isLoading,
   headerRightComponent,
-  press,
   ...props
 }) => {
   const { top, bottom } = useSafeAreaInsets();
 
-  const containerStyle = [
-    styles.container,
-    isFlex && styles.flex,
-    { backgroundColor }, // Move background color here
-    propStyle,
-  ];
-
-  const safeAreaPadding = isSafeArea ? { paddingTop: top, paddingBottom: bottom } : {};
-
-
-  const ContainerComponent = View; 
-
-  const contentWrapperStyle = [styles.content];
-
   return (
-    <ContainerComponent style={[containerStyle, safeAreaPadding]} {...props}>
-      <StatusBar  />
-      
+    <View
+      style={[
+        styles.container,
+        isFlex && styles.flex,
+        { backgroundColor },
+        isSafeArea && { paddingTop: top, paddingBottom: bottom },
+        propStyle,
+      ]}
+      {...props}
+    >
+      <StatusBar />
+
       {headerShown && (
         <Header
           showBackButton={showBackButton}
@@ -76,15 +73,18 @@ const ScreenWrapper: React.FC<ScreenWrapperProps> = ({
       )}
 
       {isScrollable ? (
-        <ScrollView contentContainerStyle={[contentWrapperStyle, styles.scrollable]}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
           {children}
         </ScrollView>
       ) : (
-        <View style={contentWrapperStyle}>{children}</View>
+        <View style={styles.content}>{children}</View>
       )}
 
       {isLoading && <Loading />}
-    </ContainerComponent>
+    </View>
   );
 };
 
@@ -95,11 +95,11 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
-  scrollable: {
-    flexGrow: 1,
-  },
   content: {
     flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 120,
   },
 });
 

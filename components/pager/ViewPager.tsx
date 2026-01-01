@@ -3,21 +3,18 @@ import React from "react";
 import { Animated, Dimensions, StyleSheet, View } from "react-native";
 import type { PagerViewOnPageScrollEventData } from "react-native-pager-view";
 import PagerView from "react-native-pager-view";
-import SearchBar from "./SearchBar";
 
 const p1 = require("@/assets/game_image/viewPager1.png");
 const p2 = require("@/assets/game_image/viewPager2.png");
 const p3 = require("@/assets/game_image/viewPager3.png");
 
-
 const sample = [
   { key: 1, image: p1 },
   { key: 2, image: p2 },
   { key: 3, image: p3 },
-
 ];
 
-const { width, height } = Dimensions.get("window");
+const { width } = Dimensions.get("window");
 const DOT_SIZE = 20;
 
 const blurhash =
@@ -33,30 +30,22 @@ const Pagination = ({
   const inputRange = [0, sample.length];
   const translateX = Animated.add(
     scrollOffsetAnimatedValue,
-    positionAnimatedValue,
+    positionAnimatedValue
   ).interpolate({
     inputRange,
     outputRange: [0, sample.length * DOT_SIZE],
   });
 
   return (
-    <View style={[styles.pagination]}>
+    <View style={styles.pagination}>
       <Animated.View
-        style={[
-          styles.paginationIndicator,
-          {
-            position: "absolute",
-            transform: [{ translateX: translateX }],
-          },
-        ]}
+        style={[styles.paginationIndicator, { transform: [{ translateX }] }]}
       />
-      {sample.map((item) => {
-        return (
-          <View key={item.key} style={styles.paginationDotContainer}>
-            <View style={styles.paginationDot} />
-          </View>
-        );
-      })}
+      {sample.map((item) => (
+        <View key={item.key} style={styles.paginationDotContainer}>
+          <View style={styles.paginationDot} />
+        </View>
+      ))}
     </View>
   );
 };
@@ -72,6 +61,7 @@ const ViewPager = () => {
       <AnimatedPagerView
         initialPage={0}
         style={styles.pagerView}
+        overScrollMode="never"
         onPageScroll={Animated.event<PagerViewOnPageScrollEventData>(
           [
             {
@@ -81,55 +71,53 @@ const ViewPager = () => {
               },
             },
           ],
-          {
-
-            useNativeDriver: true,
-          },
+          { useNativeDriver: true }
         )}
       >
         {sample.map((item) => (
-          <View collapsable={false} key={item.key}>
+          <View key={item.key}>
             <Image
               style={styles.image}
               source={item.image}
               placeholder={{ blurhash }}
               contentFit="cover"
-              transition={1000}
+              transition={300}
             />
           </View>
         ))}
       </AnimatedPagerView>
+
       <Pagination
         scrollOffsetAnimatedValue={scrollOffsetAnimatedValue}
         positionAnimatedValue={positionAnimatedValue}
       />
-      <SearchBar />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    width: width,
-    height: height / 3,
+    width,
+    paddingHorizontal: 20,
+    marginTop: 15,
   },
-  pagerView: { height: height / 2 },
+  pagerView: {
+    height: 220,
+  },
   image: {
     width: "100%",
-    aspectRatio: 16 / 14,
+    height: 200,
+    borderRadius: 16,
   },
   pagination: {
-    position: "absolute",
-    right: width / 6 - DOT_SIZE * 2,
-    bottom: - 60,
-
     flexDirection: "row",
+    alignSelf: "center",
     height: DOT_SIZE,
   },
   paginationDot: {
     width: DOT_SIZE * 0.4,
     height: DOT_SIZE * 0.4,
-    borderRadius: DOT_SIZE * 0.20,
+    borderRadius: DOT_SIZE * 0.2,
     backgroundColor: "red",
   },
   paginationDotContainer: {
@@ -138,6 +126,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   paginationIndicator: {
+    position: "absolute",
     width: DOT_SIZE,
     height: DOT_SIZE,
     borderRadius: DOT_SIZE / 2,
@@ -147,7 +136,3 @@ const styles = StyleSheet.create({
 });
 
 export default ViewPager;
-
-
-
-
