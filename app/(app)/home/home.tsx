@@ -63,7 +63,7 @@ const HomeScreen = () => {
         <Popular />
         <Products />
       </ScrollView>
-      <View className="h-24"></View>
+      <View className="h-4"></View>
     </ScreenWrapper>
   );
 };
