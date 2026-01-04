@@ -27,6 +27,10 @@ const GAME_LIST = [
     },
     { id: "5", title: "Free Fire", image: require("@/assets/game_image/photo5.png") },
     { id: "6", title: "Destiny", image: require("@/assets/game_image/photo6.png") },
+    { id: "7", title: "Woolf Ware", image: require("@/assets/game_image/photo7.png") },
+    { id: "8", title: "Solider Game", image: require("@/assets/game_image/photo8.png") },
+    { id: "9", title: "Minecarft", image: require("@/assets/game_image/photo9.png") },
+    { id: "10", title: "coc", image: require("@/assets/game_image/photo10.png") },
 ];
 
 export default function Products() {
@@ -72,8 +76,8 @@ export default function Products() {
                                 </DynamicText>
 
 
-                                <Button className="bg-rose-700 rounded-lg " onPress={() => console.log(item.title)}>
-                                    <ButtonText className="text-white">
+                                <Button className="bg-rose-700 rounded-lg " >
+                                    <ButtonText className="text-white" >
                                         Buy Now
                                     </ButtonText>
                                 </Button>
