@@ -1,6 +1,6 @@
 import DynamicText from "@/components/ui/dynamic-text/dynamic-text";
 import { FlashList } from "@shopify/flash-list";
-import React, { useEffect, useRef } from "react"; // useState ဖြုတ်လိုက်ပါပြီ
+import React, { useEffect, useRef } from "react";
 import { Image, Pressable, View } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from "react-native-reanimated";
 
@@ -25,30 +25,25 @@ const PulsingBadge = ({ children }: { children: React.ReactNode }) => {
   return <Animated.View style={animatedStyle} className="bg-rose-500 px-2 py-0.5 rounded-md mr-2">{children}</Animated.View>;
 };
 
-// --- Main Component ---
 export default function FlashSaleList() {
   const listRef = useRef<FlashList<any>>(null);
-
-  // ပြင်ဆင်ချက်: useState အစား useRef သုံးလိုက်တယ် (Re-render လုံးဝမဖြစ်တော့ပါ)
   const scrollIndex = useRef(0);
 
   useEffect(() => {
+    // Timer စမယ် (Log တွေ ဖျက်လိုက်ပါပြီ)
     const timer = setInterval(() => {
 
-      // Ref ထဲက လက်ရှိတန်ဖိုးကို ယူသုံးမယ်
       let nextIndex = scrollIndex.current + 1;
 
       if (nextIndex >= products.length) {
         nextIndex = 0;
       }
 
-      // List ကို ရွေ့ခိုင်းမယ်
       listRef.current?.scrollToIndex({
         index: nextIndex,
         animated: true,
       });
 
-      // Ref တန်ဖိုးကို တိုးမယ် (ဒါလုပ်လို့ Component ပြန်မဆွဲပါဘူး)
       scrollIndex.current = nextIndex;
 
     }, 3000);
@@ -58,8 +53,6 @@ export default function FlashSaleList() {
 
   return (
     <View className="mt-4 pb-10">
-
-
       <FlashList
         ref={listRef}
         data={products}
@@ -68,6 +61,7 @@ export default function FlashSaleList() {
         contentContainerStyle={{ paddingHorizontal: 20 }}
         estimatedItemSize={160}
 
+        // Render Item ထဲက Log ကိုလည်း ဖြုတ်ထားပါတယ်
         renderItem={({ item }) => (
           <Pressable className="w-40 mr-4 bg-white rounded-2xl p-2 shadow-sm border border-slate-100">
             <Image source={item.image} className="w-full h-28 rounded-xl bg-slate-50" resizeMode="cover" />
