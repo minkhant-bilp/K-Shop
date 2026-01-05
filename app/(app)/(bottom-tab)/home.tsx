@@ -1,4 +1,4 @@
-import HomeScreen from "../home/home"
+import HomeScreen from "../home"
 
 
 
