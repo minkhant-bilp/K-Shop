@@ -30,7 +30,6 @@ export default function FlashSaleList() {
   const scrollIndex = useRef(0);
 
   useEffect(() => {
-    // Timer စမယ် (Log တွေ ဖျက်လိုက်ပါပြီ)
     const timer = setInterval(() => {
 
       let nextIndex = scrollIndex.current + 1;
@@ -61,7 +60,6 @@ export default function FlashSaleList() {
         contentContainerStyle={{ paddingHorizontal: 20 }}
         estimatedItemSize={160}
 
-        // Render Item ထဲက Log ကိုလည်း ဖြုတ်ထားပါတယ်
         renderItem={({ item }) => (
           <Pressable className="w-40 mr-4 bg-white rounded-2xl p-2 shadow-sm border border-slate-100">
             <Image source={item.image} className="w-full h-28 rounded-xl bg-slate-50" resizeMode="cover" />

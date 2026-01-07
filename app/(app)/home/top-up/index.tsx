@@ -1,11 +1,13 @@
+import PagerViews from '@/components/pager/popular-page/PagerView'
+import PhoneBillShop from '@/components/top-up/PhoneBillShop'
 import ScreenWrapper from '@/components/ui/layout/screen-wrapper'
 import React from 'react'
-import { Text } from 'react-native'
 
 const MobileGame = () => {
   return (
     <ScreenWrapper headerShown={true} isSafeArea={true} >
-      <Text>Mobile Game Page</Text>
+      <PagerViews />
+      <PhoneBillShop />
     </ScreenWrapper>
   )
 }

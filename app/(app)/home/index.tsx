@@ -25,7 +25,7 @@ import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withSpring } fr
 
 const icons = [
   { id: 1, title: "Popular", icon: Flame, route: "/home/popular" },
-  { id: 2, title: "Mobile Game", icon: Smartphone, route: "/home/mobile-game" },
+  { id: 2, title: "Top up", icon: Smartphone, route: "/home/top-up" },
   { id: 3, title: "PC Game", icon: Monitor, route: "/home/pc-game" },
   { id: 4, title: "Voucher", icon: Ticket, route: "/home/voucher" },
   { id: 5, title: "Promo", icon: Percent, route: "/home/promo" },
@@ -54,7 +54,7 @@ const IconItemComponent = ({ item, index }: { item: any, index: number }) => {
         onPressIn={() => (scale.value = withSpring(0.9))}
         onPressOut={() => (scale.value = withSpring(1))}
         className="items-center w-full"
-         onPress={() => router.push(item.route)}
+        onPress={() => router.push(item.route)}
       >
         <Animated.View
           style={animatedStyle}
@@ -76,7 +76,7 @@ const AnimatedIconItem = React.memo(IconItemComponent);
 
 
 const HomeScreen = () => {
-  console.log("Rendering HomeScreen...");
+
 
   return (
     <ScreenWrapper headerShown={false} isSafeArea={false}>
