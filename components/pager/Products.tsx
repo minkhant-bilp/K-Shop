@@ -1,16 +1,17 @@
 import { FlashList } from "@shopify/flash-list";
+import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
     Animated,
     Image,
-    Pressable,
+    TouchableOpacity,
     useWindowDimensions,
     View
 } from "react-native";
 import DynamicText from "../ui/dynamic-text/dynamic-text";
-
 import StarButton from "./StarButton";
 
+// ... Data နှင့် Type များ ...
 type Game = {
     id: string;
     title: string;
@@ -30,7 +31,9 @@ const GAME_LIST: Game[] = [
     { id: "10", title: "coc", image: require("@/assets/game_image/photo10.png") },
 ];
 
-const HeartbeatButton = ({ onPress }: { onPress: () => void }) => {
+// 🔥 Log ဖျက်ပြီးသား Button 🔥
+const HeartbeatButton = ({ item }: { item: Game }) => {
+    const router = useRouter();
     const scaleValue = useRef(new Animated.Value(1)).current;
 
     useEffect(() => {
@@ -42,22 +45,37 @@ const HeartbeatButton = ({ onPress }: { onPress: () => void }) => {
         ).start();
     }, []);
 
+    const handlePress = () => {
+        // Console Log မရှိတော့ပါ
+        router.push({
+            pathname: "/home/products",
+            params: {
+                id: item.id,
+                title: item.title,
+                image: item.image
+            }
+        });
+    };
+
     return (
-        <Pressable onPress={onPress} style={{ width: '100%' }}>
+        <TouchableOpacity
+            onPress={handlePress}
+            activeOpacity={0.7}
+            style={{ width: '100%', zIndex: 50, elevation: 5 }}
+        >
             <Animated.View
                 style={{ transform: [{ scale: scaleValue }] }}
-                className="bg-rose-700 py-3 rounded-xl items-center justify-center shadow-md active:opacity-80"
+                className="bg-rose-700 py-3 rounded-xl items-center justify-center shadow-md"
             >
                 <DynamicText fontWeight="bold" style={{ color: "white" }}>Buy Now</DynamicText>
             </Animated.View>
-        </Pressable>
+        </TouchableOpacity>
     );
 };
 
 const Products: React.FC = () => {
     const { width } = useWindowDimensions();
     const numColumns = width > 600 ? 4 : 2;
-
     const [favorites, setFavorites] = useState<Record<string, boolean>>({});
 
     const toggleFavorite = (id: string) => {
@@ -66,7 +84,6 @@ const Products: React.FC = () => {
 
     return (
         <View className="flex-1 bg-gray-50 px-4 pt-2">
-
             <FlashList<Game>
                 data={GAME_LIST}
                 extraData={favorites}
@@ -77,22 +94,13 @@ const Products: React.FC = () => {
 
                 renderItem={({ item, index }) => {
                     const isLastColumn = (index + 1) % numColumns === 0;
-
                     return (
                         <View
-                            className={`flex-1 mb-4 ${isLastColumn ? "mr-0" : "mr-3"} bg-white rounded-2xl p-3 shadow-sm border border-slate-200`}
-                        >
-                            <View className="relative w-full">
-                                <Image
-                                    source={item.image}
-                                    className="w-full h-36 rounded-xl"
-                                    resizeMode="cover"
-                                />
-                                <StarButton
-                                    isActive={!!favorites[item.id]}
-                                    onToggle={() => toggleFavorite(item.id)}
-                                />
-
+                            // Backticks (``) ပြန်ထည့်ပေးထားပါတယ်
+                            className={`flex-1 mb-4 ${isLastColumn ? "mr-0" : "mr-3"} bg-white rounded-2xl p-3 shadow-sm border border-slate-200 relative`}>
+                            <View className="relative w-full z-10">
+                                <Image source={item.image} className="w-full h-36 rounded-xl" resizeMode="cover" />
+                                <StarButton isActive={!!favorites[item.id]} onToggle={() => toggleFavorite(item.id)} />
                             </View>
 
                             <View className="mt-3 mb-2">
@@ -101,8 +109,7 @@ const Products: React.FC = () => {
                                 </DynamicText>
                             </View>
 
-                            <HeartbeatButton onPress={() => console.log("Buying: " + item.title)} />
-
+                            <HeartbeatButton item={item} />
                         </View>
                     );
                 }}

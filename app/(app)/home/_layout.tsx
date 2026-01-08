@@ -3,6 +3,7 @@ import { Stack } from "expo-router";
 export default function HomeLayout() {
   return (
     <Stack>
+      <Stack.Screen name="products/index" options={{ headerShown: false, headerBackTitle: "Home" }} />
       <Stack.Screen name="popular/index" options={{ headerShown: false, headerBackTitle: "Home" }} />
       <Stack.Screen name="voucher/index" options={{ headerShown: false }} />
       <Stack.Screen

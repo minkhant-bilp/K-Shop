@@ -1,6 +1,7 @@
 import CategoryList from '@/components/pager/popular-page/Icon';
 import PagerViews from '@/components/pager/popular-page/PagerView';
 import Products from '@/components/pager/popular-page/Products';
+import PromoGameList from '@/components/pager/popular-page/PromoGameList';
 import DynamicText from '@/components/ui/dynamic-text/dynamic-text';
 import { HStack } from '@/components/ui/hstack';
 import ScreenWrapper from '@/components/ui/layout/screen-wrapper';
@@ -20,7 +21,7 @@ const Popular = () => {
           </HStack>
           <Products />
           <DynamicText fontWeight='bold' fontSize="lg" style={{ paddingHorizontal: 15 }}>Mobile game promo</DynamicText>
-          <Products />
+          <PromoGameList />
         </VStack>
       </ScrollView>
     </ScreenWrapper>

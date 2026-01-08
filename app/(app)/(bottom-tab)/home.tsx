@@ -4,7 +4,7 @@ import HomeScreen from "../home"
 
 const home = () => {
   return (
-    <HomeScreen/>
+    <HomeScreen />
   )
 }
 
