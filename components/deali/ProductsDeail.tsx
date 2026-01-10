@@ -1,26 +1,37 @@
+import { Ionicons } from '@expo/vector-icons';
 import { FlashList } from "@shopify/flash-list";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
-import {
-    Image,
-    StyleSheet,
-    TextInput,
-    TouchableOpacity,
-    View
-} from "react-native";
-import Animated, { FadeInDown, FadeInUp, ZoomIn, } from "react-native-reanimated";
+import { Alert, Image, Platform, StyleSheet, ToastAndroid, TouchableOpacity, View } from "react-native";
+import Animated, { FadeIn, FadeInDown, FadeInUp, LinearTransition } from "react-native-reanimated";
+import DynamicText from '../ui/dynamic-text/dynamic-text';
 
-import DynamicText from "../ui/dynamic-text/dynamic-text";
+import ActionSheet from '../deail-logic/ActionSheet';
+import ConfirmationActionSheet from '../deail-logic/ConfirmActionSheet';
+import ListHeader from '../deail-logic/ListHeader';
 
 type Country = "MM" | "TH";
+type PackageItem = { id: number; amount: string; price: string; image: any; };
+type PaymentMethod = { id: string; name: string; image: any; };
 
-type PackageItem = {
-    id: number;
-    amount: string;
-    price: string;
-    image: any;
+// 🔥 DATA: Payment Methods (Myanmar & Thailand)
+const PAYMENT_METHODS: Record<Country, PaymentMethod[]> = {
+    MM: [
+        { id: "kpay", name: "KBZ Pay", image: require("@/assets/game_image/diamond.png") },
+        { id: "wave", name: "Wave Pay", image: require("@/assets/game_image/diamond.png") },
+        { id: "aya", name: "AYA Pay", image: require("@/assets/game_image/diamond.png") },
+        { id: "cb", name: "CB Pay", image: require("@/assets/game_image/diamond.png") },
+        { id: "uab", name: "UAB Pay", image: require("@/assets/game_image/diamond.png") },
+    ],
+    TH: [
+        { id: "truemoney", name: "TrueMoney", image: require("@/assets/game_image/diamond.png") },
+        { id: "kplus", name: "K-Plus", image: require("@/assets/game_image/diamond.png") },
+        { id: "scb", name: "SCB Easy", image: require("@/assets/game_image/diamond.png") },
+        { id: "bkk", name: "Bangkok Bank", image: require("@/assets/game_image/diamond.png") },
+    ],
 };
 
+// 🔥 DATA: Packages (Myanmar & Thailand)
 const PACKAGES_BY_COUNTRY: Record<Country, PackageItem[]> = {
     MM: [
         { id: 1, amount: "10 Diamonds", price: "500 Ks", image: require("@/assets/game_image/diamond.png") },
@@ -44,93 +55,70 @@ const PACKAGES_BY_COUNTRY: Record<Country, PackageItem[]> = {
     ],
 };
 
-
-const ListHeader = () => (
-    <View>
-        <Animated.View
-            entering={FadeInDown.delay(200).duration(600)}
-            style={styles.stepContainer}
-        >
-            <View style={styles.stepTitleRow}>
-                <View style={styles.stepNumberBadge}>
-                    <DynamicText fontWeight="bold" style={styles.stepNumberText}>1</DynamicText>
-                </View>
-                <DynamicText fontWeight="bold" style={styles.stepTitleText}>Enter User ID</DynamicText>
-            </View>
-
-            <View style={styles.inputRow}>
-                <TextInput
-                    placeholder="User ID"
-                    placeholderTextColor="black"
-                    style={[styles.inputBox, { flex: 1, color: "black" }]}
-                />
-                <TextInput
-                    placeholder="Zone ID"
-                    placeholderTextColor="black"
-
-                    style={[styles.inputBox, { width: 100, color: "black" }]}
-                />
-            </View>
-        </Animated.View>
-
-
-        <View style={[styles.stepTitleRow, { paddingHorizontal: 4, marginBottom: 12 }]}>
-            <View style={styles.stepNumberBadge}>
-                <DynamicText fontWeight="bold" style={styles.stepNumberText}>2</DynamicText>
-            </View>
-            <DynamicText fontWeight="bold" style={styles.stepTitleText}>Select Recharge</DynamicText>
-        </View>
-    </View>
-);
-
 export default function GameDetailScreen() {
     const router = useRouter();
-    const params = useLocalSearchParams(); const [country, setCountry] = useState<Country>("MM");
+    const params = useLocalSearchParams();
+    const [country, setCountry] = useState<Country>("MM");
     const [selectedId, setSelectedId] = useState<number | null>(null);
+    const [userId, setUserId] = useState("");
+    const [zoneId, setZoneId] = useState("");
+
+
+    const [showPurchaseSheet, setShowPurchaseSheet] = useState(false);
+    const [showConfirmSheet, setShowConfirmSheet] = useState(false);
+
+
+    const [selectedPaymentId, setSelectedPaymentId] = useState<string | null>(null);
 
     const imageSource = params.image ? Number(params.image) : null;
     const packages = PACKAGES_BY_COUNTRY[country];
+    const selectedPackage = packages.find(p => p.id === selectedId);
+
+
+    const selectedPaymentObject = PAYMENT_METHODS[country].find(p => p.id === selectedPaymentId);
+
+
+
+
+    const handleBuyNow = () => {
+        if (!userId.trim() || !zoneId.trim()) {
+            if (Platform.OS === 'android') {
+                ToastAndroid.show("ကျေးဇူးပြု၍ User ID နှင့် Zone ID ဖြည့်ပေးပါ!", ToastAndroid.SHORT);
+            } else {
+                Alert.alert("သတိပေးချက်", "ကျေးဇူးပြု၍ User ID နှင့် Zone ID ဖြည့်ပေးပါ!");
+            }
+            return;
+        }
+        setShowPurchaseSheet(true);
+    };
+
+    const handlePaymentSelect = (paymentId: string) => {
+        setSelectedPaymentId(paymentId);
+        setShowPurchaseSheet(false);
+
+        setTimeout(() => {
+            setShowConfirmSheet(true);
+        }, 300);
+    };
+
+
+    const handleFinalPurchase = () => {
+        console.log("Success! Buying...", selectedPackage?.amount, "via", selectedPaymentId);
+        setShowConfirmSheet(false);
+        Alert.alert("Success", "ဝယ်ယူမှု အောင်မြင်ပါသည်။");
+    };
+
 
     const renderItem = ({ item, index }: { item: PackageItem, index: number }) => {
         const isSelected = selectedId === item.id;
         const isOdd = index % 2 !== 0;
-
         return (
-            <Animated.View
-                entering={ZoomIn.delay(index * 50)}
-                style={{ flex: 1, marginRight: isOdd ? 0 : 10, marginBottom: 12 }}
-            >
-                <TouchableOpacity
-                    onPress={() => setSelectedId(item.id)}
-                    activeOpacity={0.7}
-                    style={[
-                        styles.packageCard,
-                        isSelected ? styles.packageCardSelected : styles.packageCardNormal
-                    ]}
-                >
-                    <Image
-                        source={item.image}
-                        style={styles.packageImage}
-                        resizeMode="contain"
-                    />
-                    <DynamicText fontWeight="bold" style={styles.packageAmount}>{item.amount}</DynamicText>
-
-
-                    <DynamicText
-                        fontWeight="bold"
-                        style={StyleSheet.flatten([
-                            styles.packagePrice,
-                            { color: isSelected ? "#e11d48" : "#64748b" }
-                        ])}
-                    >
-                        {item.price}
-                    </DynamicText>
-
-                    {isSelected && (
-                        <Animated.View entering={ZoomIn} style={styles.checkMark}>
-                            <DynamicText fontWeight="bold" style={styles.checkMarkText}>✓</DynamicText>
-                        </Animated.View>
-                    )}
+            <Animated.View layout={LinearTransition.duration(300)} entering={FadeInUp.delay(index * 50).duration(500)} style={isOdd ? styles.gridItemRight : styles.gridItemLeft}>
+                <TouchableOpacity onPress={() => setSelectedId(item.id)} activeOpacity={0.7} style={isSelected ? styles.cardSelected : styles.cardNormal}>
+                    <Image source={item.image} style={styles.cardImage} resizeMode="contain" />
+                    <DynamicText fontWeight="bold" style={styles.cardAmount}>{item.amount}</DynamicText>
+                    <DynamicText fontWeight="bold" style={isSelected ? styles.cardPriceSelected : styles.cardPriceNormal}>{item.price}</DynamicText>
+                    {isSelected && <Animated.View entering={FadeIn.duration(300)} style={styles.checkMark}><DynamicText fontWeight="bold" style={styles.checkMarkText}>✓</DynamicText></Animated.View>}
                 </TouchableOpacity>
             </Animated.View>
         );
@@ -139,50 +127,20 @@ export default function GameDetailScreen() {
     return (
         <View style={styles.screenContainer}>
 
-
-
-            <Animated.View entering={FadeInDown.duration(600)} style={styles.headerContainer}>
-
+            <Animated.View entering={FadeIn.duration(700)} style={styles.headerContainer}>
                 <View style={styles.navRow}>
-                    <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                        <DynamicText fontWeight="bold" style={styles.whiteText}>←</DynamicText>
-                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => router.back()} style={styles.backButton}><DynamicText fontWeight="bold" style={styles.whiteText}>←</DynamicText></TouchableOpacity>
                     <DynamicText fontWeight="bold" style={styles.headerTitle}>Game Shop</DynamicText>
                 </View>
-
-
-                <View style={styles.gameInfoRow}>
-                    <View style={styles.gameImageContainer}>
-                        {imageSource ? (
-                            <Image source={imageSource} style={styles.gameImage} />
-                        ) : (
-                            <View style={[styles.gameImage, { backgroundColor: "#334155" }]} />
-                        )}
-                    </View>
-                    <View style={{ marginLeft: 16, flex: 1 }}>
-                        <DynamicText fontWeight="bold" style={styles.gameName}>
-                            {params.title || "Mobile Legends"}
-                        </DynamicText>
-                        <View style={styles.secureBadge}>
-                            <View style={styles.greenDot} />
-                            <DynamicText style={styles.secureText}>လုံခြုံသော ငွေပေးချေမှုများ</DynamicText>
-                        </View>
+                <View style={styles.gameInfoRow}><View style={styles.gameImageWrapper}>{imageSource ? <Image source={imageSource} style={styles.gameImage} /> : <View style={styles.gameImagePlaceholder} />}</View>
+                    <View style={styles.gameInfoTextWrapper}>
+                        <DynamicText fontWeight="bold" style={styles.gameName}>{params.title || "Mobile Legends"}</DynamicText>
+                        <View style={styles.secureBadge}><View style={styles.greenDot} /><DynamicText style={styles.secureText}>လုံခြုံသော ငွေပေးချေမှုများ</DynamicText></View>
                     </View>
                 </View>
-
-                <View style={styles.toggleContainer}>
-                    <TouchableOpacity
-                        onPress={() => { setCountry("MM"); setSelectedId(null); }}
-                        style={[styles.toggleButton, { backgroundColor: country === "MM" ? "#e11d48" : "transparent" }]}
-                    >
-                        <DynamicText fontWeight="bold" style={styles.whiteText}>Myanmar 🇲🇲</DynamicText>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={() => { setCountry("TH"); setSelectedId(null); }}
-                        style={[styles.toggleButton, { backgroundColor: country === "TH" ? "#e11d48" : "transparent" }]}
-                    >
-                        <DynamicText fontWeight="bold" style={styles.whiteText}>Thailand 🇹🇭</DynamicText>
-                    </TouchableOpacity>
+                <View style={styles.toggleRow}>
+                    <TouchableOpacity onPress={() => { setCountry("MM"); setSelectedId(null); }} style={country === "MM" ? styles.toggleButtonActive : styles.toggleButtonInactive}><DynamicText fontWeight="bold" style={styles.whiteText}>Myanmar 🇲🇲</DynamicText></TouchableOpacity>
+                    <TouchableOpacity onPress={() => { setCountry("TH"); setSelectedId(null); }} style={country === "TH" ? styles.toggleButtonActive : styles.toggleButtonInactive}><DynamicText fontWeight="bold" style={styles.whiteText}>Thailand 🇹🇭</DynamicText></TouchableOpacity>
                 </View>
             </Animated.View>
 
@@ -192,22 +150,41 @@ export default function GameDetailScreen() {
                 renderItem={renderItem}
                 numColumns={2}
                 estimatedItemSize={120}
-                ListHeaderComponent={ListHeader}
+                ListHeaderComponent={<ListHeader userId={userId} setUserId={setUserId} zoneId={zoneId} setZoneId={setZoneId} />}
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
                 extraData={selectedId}
             />
 
+            {!showPurchaseSheet && !showConfirmSheet && (
+                <Animated.View entering={FadeInUp.duration(500)} exiting={FadeInDown.duration(300)} style={styles.footerContainer}>
+                    <TouchableOpacity style={selectedId ? styles.buyButtonActive : styles.buyButtonInactive} disabled={!selectedId} onPress={handleBuyNow}>
+                        <Ionicons name="cart-outline" size={24} color="white" style={styles.cartIcon} />
+                        <DynamicText fontWeight="bold" style={styles.buyButtonText}>Buy Now</DynamicText>
+                    </TouchableOpacity>
+                </Animated.View>
+            )}
 
-            <Animated.View entering={FadeInUp.delay(300).springify()} style={styles.footerContainer}>
-                <TouchableOpacity
-                    style={[styles.buyButton, { backgroundColor: selectedId ? "#e11d48" : "#cbd5e1" }]}
-                    disabled={!selectedId}
-                >
-                    <DynamicText fontWeight="bold" style={styles.buyButtonText}>Buy Now</DynamicText>
-                </TouchableOpacity>
-            </Animated.View>
+            <ActionSheet
+                visible={showPurchaseSheet}
+                onClose={() => setShowPurchaseSheet(false)}
+                onSubmit={handlePaymentSelect}
+                item={selectedPackage}
+                userId={userId}
+                zoneId={zoneId}
+                paymentMethods={PAYMENT_METHODS[country]}
+            />
 
+
+            <ConfirmationActionSheet
+                visible={showConfirmSheet}
+                onClose={() => setShowConfirmSheet(false)}
+                onConfirm={handleFinalPurchase}
+                item={selectedPackage}
+                payment={selectedPaymentObject}
+                userId={userId}
+                zoneId={zoneId}
+            />
         </View>
     );
 }
@@ -216,9 +193,12 @@ export default function GameDetailScreen() {
 const styles = StyleSheet.create({
     screenContainer: {
         flex: 1,
-        backgroundColor: "#f1f5f9",
+        backgroundColor: "#f1f5f9"
     },
-
+    listContent: {
+        padding: 16,
+        paddingBottom: 100
+    },
     headerContainer: {
         backgroundColor: "#0f172a",
         paddingTop: 50,
@@ -227,18 +207,18 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 24,
         borderBottomRightRadius: 24,
         zIndex: 10,
-        elevation: 10,
+        elevation: 10
     },
     navRow: {
         flexDirection: "row",
         alignItems: "center",
-        marginBottom: 20,
+        marginBottom: 20
     },
     backButton: {
         padding: 5,
         backgroundColor: "rgba(255,255,255,0.2)",
         borderRadius: 5,
-        marginRight: 15,
+        marginRight: 15
     },
     whiteText: {
         color: "white",
@@ -246,29 +226,39 @@ const styles = StyleSheet.create({
     },
     headerTitle: {
         color: "white",
-        fontSize: 18,
+        fontSize: 18
     },
     gameInfoRow: {
         flexDirection: "row",
-        alignItems: "center",
+        alignItems: "center"
     },
-    gameImageContainer: {
+    gameImageWrapper: {
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
-        elevation: 5,
+        elevation: 5
     },
     gameImage: {
         width: 80,
         height: 80,
         borderRadius: 16,
         borderWidth: 2,
-        borderColor: "#334155",
+        borderColor: "#334155"
+    },
+    gameImagePlaceholder: {
+        width: 80,
+        height: 80,
+        borderRadius: 16,
+        backgroundColor: "#334155"
+    },
+    gameInfoTextWrapper: {
+        marginLeft: 16,
+        flex: 1
     },
     gameName: {
         color: "white",
         fontSize: 20,
-        marginBottom: 6,
+        marginBottom: 6
     },
     secureBadge: {
         flexDirection: "row",
@@ -277,79 +267,52 @@ const styles = StyleSheet.create({
         alignSelf: "flex-start",
         paddingHorizontal: 8,
         paddingVertical: 4,
-        borderRadius: 6,
+        borderRadius: 6
     },
     greenDot: {
         width: 6,
         height: 6,
         borderRadius: 3,
         backgroundColor: "#4ade80",
-        marginRight: 6,
+        marginRight: 6
     },
     secureText: {
         color: "#cbd5e1",
-        fontSize: 12,
+        fontSize: 12
     },
-    toggleContainer: {
+    toggleRow: {
         flexDirection: "row",
         marginTop: 20,
         backgroundColor: "rgba(255,255,255,0.1)",
-        padding: 4, borderRadius: 12,
+        padding: 4,
+        borderRadius: 12
     },
-    toggleButton: {
+    toggleButtonActive: {
         flex: 1,
         paddingVertical: 10,
         borderRadius: 10,
         alignItems: "center",
+        backgroundColor: "#e11d48"
     },
-    // Body Styles
-    listContent: {
-        padding: 16,
-        paddingBottom: 100,
-    },
-    stepContainer: {
-        backgroundColor: "white",
-        padding: 16,
-        borderRadius: 16,
-        marginBottom: 16,
-        elevation: 1,
-    },
-    stepTitleRow: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginBottom: 12,
-    },
-    stepNumberBadge: {
-        width: 24,
-        height: 24,
-        backgroundColor: "#e11d48",
-        borderRadius: 12,
-        justifyContent: "center",
-        alignItems: "center",
-        marginRight: 8,
-    },
-    stepNumberText: {
-        color: "white",
-        fontSize: 12,
-    },
-    stepTitleText: {
-        fontSize: 16,
-        color: "#334155",
-    },
-    inputRow: {
-        flexDirection: "row",
-        gap: 10,
-    },
-    inputBox: {
-        backgroundColor: "#f8fafc",
+    toggleButtonInactive: {
+        flex: 1,
+        paddingVertical: 10,
         borderRadius: 10,
-        padding: 12,
-        borderWidth: 1,
-        borderColor: "#e2e8f0",
+        alignItems: "center",
+        backgroundColor: "transparent"
     },
-
-    // Package Card Styles
-    packageCard: {
+    gridItemLeft: {
+        flex: 1,
+        marginRight: 10,
+        marginBottom: 12
+    },
+    gridItemRight: {
+        flex: 1,
+        marginRight: 0,
+        marginBottom: 12
+    },
+    cardNormal: {
+        width: '100%',
         paddingVertical: 16,
         paddingHorizontal: 8,
         borderRadius: 16,
@@ -359,29 +322,42 @@ const styles = StyleSheet.create({
         shadowColor: "#000",
         shadowOpacity: 0.05,
         shadowRadius: 5,
-        width: '100%',
-    },
-    packageCardNormal: {
         borderColor: "#f1f5f9",
-        backgroundColor: "white",
+        backgroundColor: "white"
     },
-    packageCardSelected: {
+    cardSelected: {
+        width: '100%',
+        paddingVertical: 16,
+        paddingHorizontal: 8,
+        borderRadius: 16,
+        borderWidth: 2,
+        alignItems: "center",
+        elevation: 2,
+        shadowColor: "#000",
+        shadowOpacity: 0.05,
+        shadowRadius: 5,
         borderColor: "#e11d48",
-        backgroundColor: "#fff1f2",
+        backgroundColor: "#fff1f2"
     },
-    packageImage: {
+    cardImage: {
         width: 45,
         height: 45,
-        marginBottom: 8,
+        marginBottom: 8
     },
-    packageAmount: {
+    cardAmount: {
         fontSize: 14,
         color: "#0f172a",
-        textAlign: "center",
+        textAlign: "center"
     },
-    packagePrice: {
+    cardPriceNormal: {
         fontSize: 13,
         marginTop: 4,
+        color: "#64748b"
+    },
+    cardPriceSelected: {
+        fontSize: 13,
+        marginTop: 4,
+        color: "#e11d48"
     },
     checkMark: {
         position: "absolute",
@@ -392,29 +368,54 @@ const styles = StyleSheet.create({
         height: 18,
         borderRadius: 9,
         alignItems: "center",
-        justifyContent: "center",
+        justifyContent: "center"
     },
     checkMarkText: {
         color: "white",
-        fontSize: 10,
+        fontSize: 10
     },
-
-    // Footer Styles
     footerContainer: {
         position: "absolute",
-        bottom: 0,
-        width: "100%",
-        backgroundColor: "white",
-        padding: 16,
-        elevation: 20,
+        bottom: 40,
+        alignSelf: "center",
+        backgroundColor: "transparent",
+        elevation: 0,
+        zIndex: 20
     },
-    buyButton: {
-        paddingVertical: 16,
-        borderRadius: 14,
+    buyButtonActive: {
+        flexDirection: "row",
+        paddingHorizontal: 40,
+        paddingVertical: 14,
+        borderRadius: 50,
         alignItems: "center",
+        justifyContent: "center",
+        shadowColor: "#e11d48",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.4,
+        shadowRadius: 8,
+        elevation: 10,
+        backgroundColor: "#e11d48"
+    },
+    buyButtonInactive: {
+        flexDirection: "row",
+        paddingHorizontal: 40,
+        paddingVertical: 14,
+        borderRadius: 50,
+        alignItems: "center",
+        justifyContent: "center",
+        shadowColor: "#e11d48",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.4,
+        shadowRadius: 8,
+        elevation: 10,
+        backgroundColor: "#cbd5e1"
     },
     buyButtonText: {
         color: "white",
         fontSize: 18,
+        letterSpacing: 0.5
+    },
+    cartIcon: {
+        marginRight: 8
     },
 });
