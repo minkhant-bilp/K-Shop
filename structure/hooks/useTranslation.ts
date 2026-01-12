@@ -1,15 +1,15 @@
+// hook/useTranslation.ts
 import useLanguageStore from '@/structure/stores/useLanguageStore';
 import { getTranslation } from '@/structure/translation/i18n';
-
-
+import { useMemo } from 'react';
 
 const useTranslation = () => {
-  const [lang] = useLanguageStore((state) => [state.lang]);
+  const lang = useLanguageStore((state) => state.lang);
+  const t = useMemo(() => {
+    return getTranslation(lang);
+  }, [lang]);
 
-  // Memoize the translation so it only recalculates when 'lang' changes
-  const t = getTranslation(lang);
-
-  return t;
+  return {t, lang};
 };
 
 export default useTranslation;

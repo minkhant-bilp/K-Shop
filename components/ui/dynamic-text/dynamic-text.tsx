@@ -4,7 +4,7 @@ import React, { PropsWithChildren, useMemo } from "react";
 import { Text, TextStyle } from "react-native";
 
 type DynamicTypeProps = PropsWithChildren<{
-  classname?: string;
+  className?: string;
   type?: "en" | "rk";
   fontColor?: string;
   autoLang?: boolean;
@@ -20,7 +20,7 @@ type DynamicTypeProps = PropsWithChildren<{
 }>;
 
 const DynamicText = ({
- classname,
+ className: classname,
   type = "en",
   lineHeightHelper,
   children,
