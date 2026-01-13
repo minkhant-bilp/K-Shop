@@ -1,3 +1,4 @@
+import { useWalletStore } from "@/store/useWalletStore";
 import { Ionicons } from '@expo/vector-icons';
 import { FlashList } from "@shopify/flash-list";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -9,12 +10,12 @@ import DynamicText from '../ui/dynamic-text/dynamic-text';
 import ActionSheet from '../deail-logic/ActionSheet';
 import ConfirmationActionSheet from '../deail-logic/ConfirmActionSheet';
 import ListHeader from '../deail-logic/ListHeader';
+import SuccessModal from '../deail-logic/SuccesModal';
 
 type Country = "MM" | "TH";
 type PackageItem = { id: number; amount: string; price: string; image: any; };
 type PaymentMethod = { id: string; name: string; image: any; };
 
-// 🔥 DATA: Payment Methods (Myanmar & Thailand)
 const PAYMENT_METHODS: Record<Country, PaymentMethod[]> = {
     MM: [
         { id: "kpay", name: "KBZ Pay", image: require("@/assets/game_image/diamond.png") },
@@ -31,7 +32,6 @@ const PAYMENT_METHODS: Record<Country, PaymentMethod[]> = {
     ],
 };
 
-// 🔥 DATA: Packages (Myanmar & Thailand)
 const PACKAGES_BY_COUNTRY: Record<Country, PackageItem[]> = {
     MM: [
         { id: 1, amount: "10 Diamonds", price: "500 Ks", image: require("@/assets/game_image/diamond.png") },
@@ -58,27 +58,23 @@ const PACKAGES_BY_COUNTRY: Record<Country, PackageItem[]> = {
 export default function GameDetailScreen() {
     const router = useRouter();
     const params = useLocalSearchParams();
-    const [country, setCountry] = useState<Country>("MM");
+
+    const { mmBalance, thBalance, selectedCountry, setCountry } = useWalletStore();
+
     const [selectedId, setSelectedId] = useState<number | null>(null);
     const [userId, setUserId] = useState("");
     const [zoneId, setZoneId] = useState("");
 
-
     const [showPurchaseSheet, setShowPurchaseSheet] = useState(false);
     const [showConfirmSheet, setShowConfirmSheet] = useState(false);
-
-
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [selectedPaymentId, setSelectedPaymentId] = useState<string | null>(null);
 
     const imageSource = params.image ? Number(params.image) : null;
-    const packages = PACKAGES_BY_COUNTRY[country];
+
+    const packages = PACKAGES_BY_COUNTRY[selectedCountry];
     const selectedPackage = packages.find(p => p.id === selectedId);
-
-
-    const selectedPaymentObject = PAYMENT_METHODS[country].find(p => p.id === selectedPaymentId);
-
-
-
+    const selectedPaymentObject = PAYMENT_METHODS[selectedCountry].find(p => p.id === selectedPaymentId);
 
     const handleBuyNow = () => {
         if (!userId.trim() || !zoneId.trim()) {
@@ -95,19 +91,19 @@ export default function GameDetailScreen() {
     const handlePaymentSelect = (paymentId: string) => {
         setSelectedPaymentId(paymentId);
         setShowPurchaseSheet(false);
-
         setTimeout(() => {
             setShowConfirmSheet(true);
         }, 300);
     };
 
-
     const handleFinalPurchase = () => {
-        console.log("Success! Buying...", selectedPackage?.amount, "via", selectedPaymentId);
         setShowConfirmSheet(false);
-        Alert.alert("Success", "ဝယ်ယူမှု အောင်မြင်ပါသည်။");
+        setShowSuccessModal(true);
     };
 
+    const handleCloseSuccess = () => {
+        setShowSuccessModal(false);
+    };
 
     const renderItem = ({ item, index }: { item: PackageItem, index: number }) => {
         const isSelected = selectedId === item.id;
@@ -126,24 +122,49 @@ export default function GameDetailScreen() {
 
     return (
         <View style={styles.screenContainer}>
-
             <Animated.View entering={FadeIn.duration(700)} style={styles.headerContainer}>
+
                 <View style={styles.navRow}>
-                    <TouchableOpacity onPress={() => router.back()} style={styles.backButton}><DynamicText fontWeight="bold" style={styles.whiteText}>←</DynamicText></TouchableOpacity>
-                    <DynamicText fontWeight="bold" style={styles.headerTitle}>Game Shop</DynamicText>
+                    <View style={styles.leftNavGroup}>
+                        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+                            <DynamicText fontWeight="bold" style={styles.whiteText}>←</DynamicText>
+                        </TouchableOpacity>
+                        <DynamicText fontWeight="bold" style={styles.headerTitle}>Game Shop</DynamicText>
+                    </View>
+                    <View style={styles.balanceBadge}>
+                        <Ionicons name="wallet" size={16} color="#FFD700" style={{ marginRight: 6 }} />
+                        <DynamicText fontWeight="bold" style={styles.balanceText}>
+                            {selectedCountry === "MM"
+                                ? `${mmBalance.toLocaleString()} Ks`
+                                : `${thBalance.toLocaleString()} ฿`}
+                        </DynamicText>
+                    </View>
                 </View>
-                <View style={styles.gameInfoRow}><View style={styles.gameImageWrapper}>{imageSource ? <Image source={imageSource} style={styles.gameImage} /> : <View style={styles.gameImagePlaceholder} />}</View>
+
+                <View style={styles.gameInfoRow}>
+                    <View style={styles.gameImageWrapper}>{imageSource ? <Image source={imageSource} style={styles.gameImage} /> : <View style={styles.gameImagePlaceholder} />}</View>
                     <View style={styles.gameInfoTextWrapper}>
                         <DynamicText fontWeight="bold" style={styles.gameName}>{params.title || "Mobile Legends"}</DynamicText>
                         <View style={styles.secureBadge}><View style={styles.greenDot} /><DynamicText style={styles.secureText}>လုံခြုံသော ငွေပေးချေမှုများ</DynamicText></View>
                     </View>
                 </View>
+
                 <View style={styles.toggleRow}>
-                    <TouchableOpacity onPress={() => { setCountry("MM"); setSelectedId(null); }} style={country === "MM" ? styles.toggleButtonActive : styles.toggleButtonInactive}><DynamicText fontWeight="bold" style={styles.whiteText}>Myanmar 🇲🇲</DynamicText></TouchableOpacity>
-                    <TouchableOpacity onPress={() => { setCountry("TH"); setSelectedId(null); }} style={country === "TH" ? styles.toggleButtonActive : styles.toggleButtonInactive}><DynamicText fontWeight="bold" style={styles.whiteText}>Thailand 🇹🇭</DynamicText></TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => { setCountry("MM"); setSelectedId(null); }}
+                        style={selectedCountry === "MM" ? styles.toggleButtonActive : styles.toggleButtonInactive}
+                    >
+                        <DynamicText fontWeight="bold" style={styles.whiteText}>Myanmar 🇲🇲</DynamicText>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        onPress={() => { setCountry("TH"); setSelectedId(null); }}
+                        style={selectedCountry === "TH" ? styles.toggleButtonActive : styles.toggleButtonInactive}
+                    >
+                        <DynamicText fontWeight="bold" style={styles.whiteText}>Thailand 🇹🇭</DynamicText>
+                    </TouchableOpacity>
                 </View>
             </Animated.View>
-
 
             <FlashList
                 data={packages}
@@ -172,9 +193,8 @@ export default function GameDetailScreen() {
                 item={selectedPackage}
                 userId={userId}
                 zoneId={zoneId}
-                paymentMethods={PAYMENT_METHODS[country]}
+                paymentMethods={PAYMENT_METHODS[selectedCountry]}
             />
-
 
             <ConfirmationActionSheet
                 visible={showConfirmSheet}
@@ -185,12 +205,20 @@ export default function GameDetailScreen() {
                 userId={userId}
                 zoneId={zoneId}
             />
+
+            <SuccessModal
+                visible={showSuccessModal}
+                onClose={handleCloseSuccess}
+                item={selectedPackage}
+                payment={selectedPaymentObject}
+            />
+
         </View>
     );
 }
 
-
 const styles = StyleSheet.create({
+
     screenContainer: {
         flex: 1,
         backgroundColor: "#f1f5f9"
@@ -212,7 +240,12 @@ const styles = StyleSheet.create({
     navRow: {
         flexDirection: "row",
         alignItems: "center",
+        justifyContent: "space-between",
         marginBottom: 20
+    },
+    leftNavGroup: {
+        flexDirection: "row",
+        alignItems: "center"
     },
     backButton: {
         padding: 5,
@@ -227,6 +260,20 @@ const styles = StyleSheet.create({
     headerTitle: {
         color: "white",
         fontSize: 18
+    },
+    balanceBadge: {
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: "rgba(0,0,0,0.4)",
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: "rgba(255,255,255,0.1)"
+    },
+    balanceText: {
+        color: "#FFD700",
+        fontSize: 14
     },
     gameInfoRow: {
         flexDirection: "row",
@@ -405,8 +452,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         shadowColor: "#e11d48",
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.4,
-        shadowRadius: 8,
+        shadowOpacity: 0.4, shadowRadius: 8,
         elevation: 10,
         backgroundColor: "#cbd5e1"
     },

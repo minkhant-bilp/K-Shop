@@ -1,5 +1,6 @@
 import DynamicText from "@/components/ui/dynamic-text/dynamic-text";
 import { FlashList } from "@shopify/flash-list";
+import { useRouter } from "expo-router";
 import { ChevronLeft, ChevronRight } from "lucide-react-native";
 import React, { useRef, useState } from "react";
 import { Image, Pressable, TouchableOpacity, View } from "react-native";
@@ -24,7 +25,7 @@ const GAME_LIST: Game[] = [
     { id: "10", title: "COC", image: require("@/assets/game_image/photo10.png") },
 ];
 
-const AnimatedProductCard = ({ item, index }: { item: Game, index: number }) => {
+const AnimatedProductCard = ({ item, index, onPress }: { item: Game, index: number, onPress: () => void }) => {
     const scale = useSharedValue(1);
 
     const animatedStyle = useAnimatedStyle(() => ({
@@ -34,6 +35,7 @@ const AnimatedProductCard = ({ item, index }: { item: Game, index: number }) => 
     return (
         <Animated.View entering={FadeInRight.delay(index * 100).springify()}>
             <Pressable
+                onPress={onPress} // 🔥 နှိပ်ရင် အလုပ်လုပ်မယ်
                 onPressIn={() => (scale.value = withSpring(0.95))}
                 onPressOut={() => (scale.value = withSpring(1))}
             >
@@ -65,6 +67,7 @@ const AnimatedProductCard = ({ item, index }: { item: Game, index: number }) => 
 export default function Products() {
     const listRef = useRef<FlashList<Game>>(null);
     const [isEnd, setIsEnd] = useState(false);
+    const router = useRouter();
 
     const goToEnd = () => {
         listRef.current?.scrollToEnd({ animated: true });
@@ -83,19 +86,31 @@ export default function Products() {
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 10 }}
-                estimatedItemSize={140} onScroll={(e) => {
+                estimatedItemSize={140}
+                onScroll={(e) => {
                     const offsetX = e.nativeEvent.contentOffset.x;
                     const contentWidth = e.nativeEvent.contentSize.width;
-                    const layoutWidth = e.nativeEvent.layoutMeasurement.width;
-
-                    if (contentWidth > 0 && layoutWidth > 0) {
+                    const layoutWidth = e.nativeEvent.layoutMeasurement.width; if (contentWidth > 0 && layoutWidth > 0) {
                         setIsEnd(offsetX + layoutWidth >= contentWidth - 10);
                     }
                 }}
                 scrollEventThrottle={16}
 
                 renderItem={({ item, index }) => (
-                    <AnimatedProductCard item={item} index={index} />
+                    <AnimatedProductCard
+                        item={item}
+                        index={index}
+                        onPress={() => {
+                            router.push({
+                                pathname: "/home/products",
+                                params: {
+                                    id: item.id,
+                                    title: item.title,
+                                    image: item.image,
+                                }
+                            });
+                        }}
+                    />
                 )}
             />
 

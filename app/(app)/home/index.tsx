@@ -15,11 +15,11 @@ import FlashSaleList from "@/components/pager/Category";
 import Popular from "@/components/pager/Popular";
 import Products from "@/components/pager/Products";
 import SeeMore from "@/components/pager/SeeMore";
-import ViewPager from "@/components/pager/ViewPager";
 import DynamicText from "@/components/ui/dynamic-text/dynamic-text";
 import GameTopUpHeader from "@/components/ui/header/home-header";
 import ScreenWrapper from "@/components/ui/layout/screen-wrapper";
 
+import WalletCard from "@/components/pager/WalletCard";
 import { router } from "expo-router";
 import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
@@ -81,10 +81,10 @@ const HomeScreen = () => {
   return (
     <ScreenWrapper headerShown={false} isSafeArea={false}>
       <GameTopUpHeader />
-      <ViewPager />
+
 
       <ScrollView showsVerticalScrollIndicator={false}>
-
+        <WalletCard />
         <View className="flex-row flex-wrap justify-between px-4 mt-7">
           {icons.map((item, index) => (
             <AnimatedIconItem key={item.id} item={item} index={index} />

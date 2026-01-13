@@ -1,10 +1,10 @@
 import DynamicText from "@/components/ui/dynamic-text/dynamic-text";
 import { FlashList } from "@shopify/flash-list";
+import { useRouter } from "expo-router";
 import React, { useEffect, useRef } from "react";
 import { Image, Pressable, View } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from "react-native-reanimated";
 
-// --- Data ---
 const products = [
   { id: "1", title: "Cyberpunk 2077", price: "Rp244.999", oldPrice: "Rp699.000", discount: "-65%", image: require("@/assets/game_image/category1.png") },
   { id: "2", title: "Watch Dogs", price: "Rp210.000", oldPrice: "Rp399.000", discount: "-25%", image: require("@/assets/game_image/category2.png") },
@@ -12,7 +12,6 @@ const products = [
   { id: "4", title: "Watch Dogs 2", price: "Rp210.000", oldPrice: "Rp399.000", discount: "-25%", image: require("@/assets/game_image/category4.png") },
 ];
 
-// --- Pulsing Badge ---
 const PulsingBadge = ({ children }: { children: React.ReactNode }) => {
   const scale = useSharedValue(1);
   useEffect(() => {
@@ -28,25 +27,16 @@ const PulsingBadge = ({ children }: { children: React.ReactNode }) => {
 export default function FlashSaleList() {
   const listRef = useRef<FlashList<any>>(null);
   const scrollIndex = useRef(0);
+  const router = useRouter();
 
   useEffect(() => {
     const timer = setInterval(() => {
-
       let nextIndex = scrollIndex.current + 1;
+      if (nextIndex >= products.length) nextIndex = 0;
 
-      if (nextIndex >= products.length) {
-        nextIndex = 0;
-      }
-
-      listRef.current?.scrollToIndex({
-        index: nextIndex,
-        animated: true,
-      });
-
+      listRef.current?.scrollToIndex({ index: nextIndex, animated: true });
       scrollIndex.current = nextIndex;
-
-    }, 3000);
-
+    }, 6000);
     return () => clearInterval(timer);
   }, []);
 
@@ -59,9 +49,20 @@ export default function FlashSaleList() {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ paddingHorizontal: 20 }}
         estimatedItemSize={160}
-
         renderItem={({ item }) => (
-          <Pressable className="w-40 mr-4 bg-white rounded-2xl p-2 shadow-sm border border-slate-100">
+          <Pressable
+            className="w-40 mr-4 bg-white rounded-2xl p-2 shadow-sm border border-slate-100"
+            onPress={() => {
+              router.push({
+                pathname: "/home/products",
+                params: {
+                  id: item.id,
+                  title: item.title,
+                  image: item.image
+                }
+              });
+            }}
+          >
             <Image source={item.image} className="w-full h-28 rounded-xl bg-slate-50" resizeMode="cover" />
             <DynamicText fontWeight="semibold" fontSize="xs" numberOfLines={1} style={{ marginTop: 8, color: '#334155' }}>{item.title}</DynamicText>
             <View className="flex-row items-center mt-2">

@@ -1,11 +1,10 @@
 import DynamicText from "@/components/ui/dynamic-text/dynamic-text";
 import { FlashList } from "@shopify/flash-list";
+import { useRouter } from "expo-router"; // 🔥 1. Router ကို Import လုပ်တယ်
 import { ChevronLeft, ChevronRight } from "lucide-react-native";
 import React, { useRef, useState } from "react";
 import { Image, Pressable, TouchableOpacity, View } from "react-native";
-// Animation အတွက်
 import Animated, { FadeInRight, useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
-
 
 const promoGames = [
     { id: "1", title: "Genshin Impact", desc: "Genesis Crystal", image: require("@/assets/game_image/category1.png") },
@@ -16,8 +15,8 @@ const promoGames = [
     { id: "6", title: "Roblox", desc: "Robux Promo", image: require("@/assets/game_image/photo6.png") },
 ];
 
-// --- ၂။ Animated Card (ကတ်ပြားဒီဇိုင်း) ---
-const AnimatedGameCard = ({ item, index }: { item: any, index: number }) => {
+// --- ၂။ Animated Card (onPress ထပ်ဖြည့်ထားသည်) ---
+const AnimatedGameCard = ({ item, index, onPress }: { item: any, index: number, onPress: () => void }) => {
 
     const scale = useSharedValue(1);
 
@@ -26,26 +25,23 @@ const AnimatedGameCard = ({ item, index }: { item: any, index: number }) => {
     }));
 
     return (
-        // ညာဘက်ကနေ ဝင်လာမယ့် Animation
         <Animated.View entering={FadeInRight.delay(index * 100).springify()}>
             <Pressable
+                onPress={onPress} // 🔥 နှိပ်ရင် အလုပ်လုပ်မယ်
                 onPressIn={() => (scale.value = withSpring(0.95))}
                 onPressOut={() => (scale.value = withSpring(1))}
                 className="mr-4 mb-2"
             >
-                {/* ကတ်ပြား အပြင်အဆင် */}
                 <Animated.View
                     style={animatedStyle}
                     className="flex-row bg-white rounded-2xl p-3 w-72 border-1 shadow-lg"
                 >
-                    {/* ဂိမ်းပုံ */}
                     <Image
                         source={item.image}
                         className="w-28 h-28 rounded-xl bg-slate-50"
                         resizeMode="cover"
                     />
 
-                    {/* စာသားများ */}
                     <View className="ml-3 flex-1 justify-center">
                         <DynamicText
                             fontWeight="bold"
@@ -79,12 +75,9 @@ const AnimatedGameCard = ({ item, index }: { item: any, index: number }) => {
 };
 
 export default function PromoGameList() {
-
     const listRef = useRef<FlashList<any>>(null);
-
-
     const [isEnd, setIsEnd] = useState(false);
-
+    const router = useRouter();
 
     const goToEnd = () => {
         listRef.current?.scrollToEnd({ animated: true });
@@ -92,39 +85,47 @@ export default function PromoGameList() {
 
     const goToStart = () => {
         listRef.current?.scrollToIndex({ index: 0, animated: true });
-    }; return (
+    };
 
-        <View className="w-full my-2 relative justify-center">
+    return (
+        <View className="w-full my-2 relative justify-center"><View className="min-h-[100px]">
+            <FlashList
+                ref={listRef}
+                data={promoGames}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 10 }}
+                estimatedItemSize={280}
+                onScroll={(e) => {
+                    const offsetX = e.nativeEvent.contentOffset.x;
+                    const contentWidth = e.nativeEvent.contentSize.width;
+                    const layoutWidth = e.nativeEvent.layoutMeasurement.width;
 
-            <View className="min-h-[100px]">
-                <FlashList
-                    ref={listRef}
-                    data={promoGames}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
+                    if (contentWidth > 0 && layoutWidth > 0) {
+                        const isCloseToEnd = offsetX + layoutWidth >= contentWidth - 20;
+                        setIsEnd(isCloseToEnd);
+                    }
+                }}
+                scrollEventThrottle={16}
 
-                    contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 10 }}
-                    estimatedItemSize={280}
-
-
-                    onScroll={(e) => {
-                        const offsetX = e.nativeEvent.contentOffset.x;
-                        const contentWidth = e.nativeEvent.contentSize.width;
-                        const layoutWidth = e.nativeEvent.layoutMeasurement.width;
-
-                        if (contentWidth > 0 && layoutWidth > 0) {
-                            const isCloseToEnd = offsetX + layoutWidth >= contentWidth - 20;
-                            setIsEnd(isCloseToEnd);
-                        }
-                    }}
-                    scrollEventThrottle={16}
-
-                    renderItem={({ item, index }) => (
-                        <AnimatedGameCard item={item} index={index} />
-                    )}
-                />
-            </View>
-
+                renderItem={({ item, index }) => (
+                    <AnimatedGameCard
+                        item={item}
+                        index={index}
+                        onPress={() => {
+                            router.push({
+                                pathname: "/home/products", // Detail Page နာမည်
+                                params: {
+                                    id: item.id,
+                                    title: item.title,
+                                    image: item.image // ပုံပါသယ်သွားမယ်
+                                }
+                            });
+                        }}
+                    />
+                )}
+            />
+        </View>
 
             {!isEnd && (
                 <TouchableOpacity
@@ -136,12 +137,10 @@ export default function PromoGameList() {
                 </TouchableOpacity>
             )}
 
-
             {isEnd && (
                 <TouchableOpacity
                     onPress={goToStart}
                     activeOpacity={0.8}
-                    // ဘယ်ဘက်ကပ်၊ အလယ်တည့်တည့်
                     className="absolute left-1 top-[40%] z-20 bg-rose-600 shadow-md p-1 rounded-full border border-slate-100"
                 >
                     <ChevronLeft size={18} color="white" />
