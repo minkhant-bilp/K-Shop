@@ -26,6 +26,7 @@
     "axios": "^1.13.2",
     "clsx": "^2.1.1",
     "expo": "~53.0.22",
+    "expo-blur": "^15.0.8",
     "expo-clipboard": "~7.1.5",
     "expo-constants": "~17.1.8",
     "expo-dev-client": "~5.2.4",

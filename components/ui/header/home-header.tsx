@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Button from "../button/button";
 import DynamicText from "../dynamic-text/dynamic-text";
 
-const SECONDARY_COLOR = ["#FF3232", "#000000"];
+export const SECONDARY_COLOR = ["#FF3232", "#000000"];
 const isIOS = Platform.OS === "ios";
 
 interface GameShopHeaderProps {

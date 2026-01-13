@@ -4,7 +4,7 @@ import React from "react";
 const SearchScreen = () => {
   return (
     <ScreenWrapper headerShown={false} isSafeArea={false}>
-
+      
     </ScreenWrapper>
   );
 };

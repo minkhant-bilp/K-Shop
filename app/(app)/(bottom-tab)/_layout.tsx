@@ -14,7 +14,7 @@ export default function TabLayout() {
       <Tabs.Screen name="home" />
       <Tabs.Screen name="feed" />
       <Tabs.Screen name="search" />
-      <Tabs.Screen name="libary" />
+      <Tabs.Screen name="profile" />
     </Tabs>
   );
 }
