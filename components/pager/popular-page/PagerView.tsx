@@ -1,5 +1,5 @@
 import { Image } from "expo-image";
-import React, { useEffect, useRef } from "react"; // useEffect နဲ့ useRef ကို ထည့်ပါ
+import React, { useEffect, useRef } from "react";
 import { Animated, Dimensions, StyleSheet, View } from "react-native";
 import type { PagerViewOnPageScrollEventData } from "react-native-pager-view";
 import PagerView from "react-native-pager-view";
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     container: {
         width,
         paddingHorizontal: 20,
-        marginTop: 15,
+        marginTop: 30,
     },
     pagerView: {
         height: 220,

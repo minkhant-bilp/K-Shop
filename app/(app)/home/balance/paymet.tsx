@@ -10,9 +10,10 @@ import {
     Image,
     ScrollView,
     StyleSheet,
-    TouchableOpacity,
-    View
+    TouchableOpacity, View
 } from "react-native";
+
+import { useWalletStore } from "@/store/useWalletStore";
 
 const COLORS = {
     primary: "#E11D48",
@@ -43,6 +44,9 @@ export default function PaymentDetailScreen() {
     const params = useLocalSearchParams();
     const { amount, currency, methodName, methodId } = params;
 
+    // 🔥 (၂) Store က requestTopUp function ကို ယူမယ်
+    const { requestTopUp } = useWalletStore();
+
     const [receiptImage, setReceiptImage] = useState<string | null>(null);
     const [status, setStatus] = useState<'idle' | 'success'>('idle');
 
@@ -72,10 +76,10 @@ export default function PaymentDetailScreen() {
         }
     };
 
-
     const handleConfirm = () => {
-        setReceiptImage(null);
+        requestTopUp(Number(amount), methodName as string);
 
+        setReceiptImage(null);
         setStatus('success');
     };
 

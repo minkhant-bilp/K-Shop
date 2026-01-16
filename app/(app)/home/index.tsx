@@ -1,25 +1,25 @@
 import {
+  Bell,
   FileText,
   Flame,
-  Gift,
   Monitor,
   MoreHorizontal,
   Percent,
   Smartphone,
-  Ticket,
+  Ticket
 } from "lucide-react-native";
 import React from "react";
 import { Pressable, ScrollView, View } from "react-native";
+
+import DynamicText from "@/components/ui/dynamic-text/dynamic-text";
+import ScreenWrapper from "@/components/ui/layout/screen-wrapper";
 
 import FlashSaleList from "@/components/pager/Category";
 import Popular from "@/components/pager/Popular";
 import Products from "@/components/pager/Products";
 import SeeMore from "@/components/pager/SeeMore";
-import DynamicText from "@/components/ui/dynamic-text/dynamic-text";
-import GameTopUpHeader from "@/components/ui/header/home-header";
-import ScreenWrapper from "@/components/ui/layout/screen-wrapper";
-
 import WalletCard from "@/components/pager/WalletCard";
+import GameShopHeader from "@/components/ui/header/home-header";
 import { router } from "expo-router";
 import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
@@ -30,7 +30,7 @@ const icons = [
   { id: 4, title: "Voucher", icon: Ticket, route: "/home/voucher" },
   { id: 5, title: "Promo", icon: Percent, route: "/home/promo" },
   { id: 6, title: "Transaction", icon: FileText, route: "/home/transaction" },
-  { id: 7, title: "Gift Cards", icon: Gift, route: "/home/gift-cards" },
+  { id: 7, title: "Noti", icon: Bell, route: "/home/noti" },
   { id: 8, title: "All features", icon: MoreHorizontal, route: "/home/all-features" },
 ];
 
@@ -80,24 +80,19 @@ const HomeScreen = () => {
 
   return (
     <ScreenWrapper headerShown={false} isSafeArea={false}>
-      <GameTopUpHeader />
-
-
+      <GameShopHeader />
       <ScrollView showsVerticalScrollIndicator={false}>
         <WalletCard />
-        <View className="flex-row flex-wrap justify-between px-4 mt-7">
+        <View className="flex-row flex-wrap justify-between px-4 mt-4">
           {icons.map((item, index) => (
             <AnimatedIconItem key={item.id} item={item} index={index} />
           ))}
         </View>
-
         <SeeMore />
         <FlashSaleList />
         <Popular />
         <Products />
-
       </ScrollView>
-
       <View className="h-4"></View>
     </ScreenWrapper>
   );

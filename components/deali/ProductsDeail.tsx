@@ -8,29 +8,11 @@ import Animated, { FadeIn, FadeInDown, FadeInUp, LinearTransition } from "react-
 import DynamicText from '../ui/dynamic-text/dynamic-text';
 
 import ActionSheet from '../deail-logic/ActionSheet';
-import ConfirmationActionSheet from '../deail-logic/ConfirmActionSheet';
 import ListHeader from '../deail-logic/ListHeader';
 import SuccessModal from '../deail-logic/SuccesModal';
 
 type Country = "MM" | "TH";
 type PackageItem = { id: number; amount: string; price: string; image: any; };
-type PaymentMethod = { id: string; name: string; image: any; };
-
-const PAYMENT_METHODS: Record<Country, PaymentMethod[]> = {
-    MM: [
-        { id: "kpay", name: "KBZ Pay", image: require("@/assets/game_image/diamond.png") },
-        { id: "wave", name: "Wave Pay", image: require("@/assets/game_image/diamond.png") },
-        { id: "aya", name: "AYA Pay", image: require("@/assets/game_image/diamond.png") },
-        { id: "cb", name: "CB Pay", image: require("@/assets/game_image/diamond.png") },
-        { id: "uab", name: "UAB Pay", image: require("@/assets/game_image/diamond.png") },
-    ],
-    TH: [
-        { id: "truemoney", name: "TrueMoney", image: require("@/assets/game_image/diamond.png") },
-        { id: "kplus", name: "K-Plus", image: require("@/assets/game_image/diamond.png") },
-        { id: "scb", name: "SCB Easy", image: require("@/assets/game_image/diamond.png") },
-        { id: "bkk", name: "Bangkok Bank", image: require("@/assets/game_image/diamond.png") },
-    ],
-};
 
 const PACKAGES_BY_COUNTRY: Record<Country, PackageItem[]> = {
     MM: [
@@ -59,22 +41,18 @@ export default function GameDetailScreen() {
     const router = useRouter();
     const params = useLocalSearchParams();
 
-    const { mmBalance, thBalance, selectedCountry, setCountry } = useWalletStore();
+    const { mmBalance, thBalance, selectedCountry, setCountry, buyPackage } = useWalletStore();
 
     const [selectedId, setSelectedId] = useState<number | null>(null);
     const [userId, setUserId] = useState("");
     const [zoneId, setZoneId] = useState("");
 
     const [showPurchaseSheet, setShowPurchaseSheet] = useState(false);
-    const [showConfirmSheet, setShowConfirmSheet] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
-    const [selectedPaymentId, setSelectedPaymentId] = useState<string | null>(null);
 
     const imageSource = params.image ? Number(params.image) : null;
-
     const packages = PACKAGES_BY_COUNTRY[selectedCountry];
     const selectedPackage = packages.find(p => p.id === selectedId);
-    const selectedPaymentObject = PAYMENT_METHODS[selectedCountry].find(p => p.id === selectedPaymentId);
 
     const handleBuyNow = () => {
         if (!userId.trim() || !zoneId.trim()) {
@@ -88,16 +66,14 @@ export default function GameDetailScreen() {
         setShowPurchaseSheet(true);
     };
 
-    const handlePaymentSelect = (paymentId: string) => {
-        setSelectedPaymentId(paymentId);
-        setShowPurchaseSheet(false);
-        setTimeout(() => {
-            setShowConfirmSheet(true);
-        }, 300);
-    };
+    const handleConfirmPurchase = () => {
+        if (selectedPackage) {
+            const price = parseInt(selectedPackage.price.replace(/[^0-9]/g, ''), 10);
+            buyPackage(price, selectedCountry, selectedPackage.amount);
+        }
 
-    const handleFinalPurchase = () => {
-        setShowConfirmSheet(false);
+        setShowPurchaseSheet(false);
+
         setShowSuccessModal(true);
     };
 
@@ -131,6 +107,7 @@ export default function GameDetailScreen() {
                         </TouchableOpacity>
                         <DynamicText fontWeight="bold" style={styles.headerTitle}>Game Shop</DynamicText>
                     </View>
+
                     <View style={styles.balanceBadge}>
                         <Ionicons name="wallet" size={16} color="#FFD700" style={{ marginRight: 6 }} />
                         <DynamicText fontWeight="bold" style={styles.balanceText}>
@@ -177,7 +154,7 @@ export default function GameDetailScreen() {
                 extraData={selectedId}
             />
 
-            {!showPurchaseSheet && !showConfirmSheet && (
+            {!showPurchaseSheet && !showSuccessModal && (
                 <Animated.View entering={FadeInUp.duration(500)} exiting={FadeInDown.duration(300)} style={styles.footerContainer}>
                     <TouchableOpacity style={selectedId ? styles.buyButtonActive : styles.buyButtonInactive} disabled={!selectedId} onPress={handleBuyNow}>
                         <Ionicons name="cart-outline" size={24} color="white" style={styles.cartIcon} />
@@ -189,19 +166,8 @@ export default function GameDetailScreen() {
             <ActionSheet
                 visible={showPurchaseSheet}
                 onClose={() => setShowPurchaseSheet(false)}
-                onSubmit={handlePaymentSelect}
+                onSubmit={handleConfirmPurchase}
                 item={selectedPackage}
-                userId={userId}
-                zoneId={zoneId}
-                paymentMethods={PAYMENT_METHODS[selectedCountry]}
-            />
-
-            <ConfirmationActionSheet
-                visible={showConfirmSheet}
-                onClose={() => setShowConfirmSheet(false)}
-                onConfirm={handleFinalPurchase}
-                item={selectedPackage}
-                payment={selectedPaymentObject}
                 userId={userId}
                 zoneId={zoneId}
             />
@@ -210,7 +176,7 @@ export default function GameDetailScreen() {
                 visible={showSuccessModal}
                 onClose={handleCloseSuccess}
                 item={selectedPackage}
-                payment={selectedPaymentObject}
+                payment={undefined}
             />
 
         </View>
@@ -218,7 +184,6 @@ export default function GameDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-
     screenContainer: {
         flex: 1,
         backgroundColor: "#f1f5f9"
@@ -423,8 +388,7 @@ const styles = StyleSheet.create({
     },
     footerContainer: {
         position: "absolute",
-        bottom: 40,
-        alignSelf: "center",
+        bottom: 40, alignSelf: "center",
         backgroundColor: "transparent",
         elevation: 0,
         zIndex: 20
@@ -452,7 +416,8 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         shadowColor: "#e11d48",
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.4, shadowRadius: 8,
+        shadowOpacity: 0.4,
+        shadowRadius: 8,
         elevation: 10,
         backgroundColor: "#cbd5e1"
     },

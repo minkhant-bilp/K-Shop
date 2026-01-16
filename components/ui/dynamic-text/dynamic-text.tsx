@@ -1,26 +1,28 @@
 import { fontColorCode } from "@/structure/styles/colors";
 import { fontStyles } from "@/structure/styles/fonts";
 import React, { PropsWithChildren, useMemo } from "react";
-import { Text, TextStyle } from "react-native";
+import { Text, TextProps, TextStyle } from "react-native";
 
-type DynamicTypeProps = PropsWithChildren<{
-  className?: string;
-  type?: "en" | "rk";
-  fontColor?: string;
-  autoLang?: boolean;
-  align?: "center" | "left" | "right" | "justify";
-  fontSize?: number | "xs" | "sm" | "base" | "lg" | "xl" | "2xl" | "3xl";
-  fontWeight?: "medium" | "semibold" | "bold" | "light";
-  underline?: boolean;
-  opacity?: number;
-  onPress?: () => void;
-  numberOfLines?: number;
-  lineHeightHelper?: boolean;
-  style?: TextStyle;
-}>;
+type FontSizeType = number | "xs" | "sm" | "base" | "lg" | "xl" | "2xl" | "3xl";
+
+type DynamicTypeProps = PropsWithChildren<
+  TextProps & {
+    className?: string;
+    type?: "en" | "rk";
+    fontColor?: string;
+    autoLang?: boolean;
+    align?: "center" | "left" | "right" | "justify";
+    fontSize?: FontSizeType;
+    fontWeight?: "medium" | "semibold" | "bold" | "light";
+    underline?: boolean;
+    opacity?: number;
+    lineHeightHelper?: boolean;
+    style?: TextStyle;
+  }
+>;
 
 const DynamicText = ({
- className: classname,
+  className: classname,
   type = "en",
   lineHeightHelper,
   children,
@@ -32,41 +34,22 @@ const DynamicText = ({
   onPress,
   opacity = 1,
   numberOfLines,
-  style
+  style,
+  ...rest
 }: DynamicTypeProps) => {
   const textAlignment = useMemo(() => {
-    if (align === "center") {
-      return fontStyles.center;
-    }
-    if (align === "left") {
-      return fontStyles.left;
-    }
-    if (align === "right") {
-      return fontStyles.right;
-    }
-    if (align === "justify") {
-      return fontStyles.justify;
-    }
+    if (align === "center") return fontStyles.center;
+    if (align === "left") return fontStyles.left;
+    if (align === "right") return fontStyles.right;
+    if (align === "justify") return fontStyles.justify;
     return fontStyles.left;
   }, [align]);
 
   const fontFamily = useMemo(() => {
-    if (fontWeight === "semibold") {
-      return fontStyles.semiBold;
-    }
-
-    if (fontWeight === "medium") {
-      return fontStyles.medium;
-    }
-
-    if (fontWeight === "light") {
-      return fontStyles.light;
-    }
-
-    if (fontWeight === "bold") {
-      return fontStyles.bold;
-    }
-
+    if (fontWeight === "semibold") return fontStyles.semiBold;
+    if (fontWeight === "medium") return fontStyles.medium;
+    if (fontWeight === "light") return fontStyles.light;
+    if (fontWeight === "bold") return fontStyles.bold;
     return fontStyles.Regular;
   }, [fontWeight, type]);
 
@@ -74,7 +57,6 @@ const DynamicText = ({
     if (typeof fontSize === "number") {
       return { fontSize };
     }
-
     return fontStyles[fontSize];
   }, [fontSize]);
 
@@ -82,8 +64,14 @@ const DynamicText = ({
     return underline ? fontStyles.underline : fontStyles.decoNone;
   }, [underline]);
 
+  const resolvedFontSize =
+    typeof fontSize === "number"
+      ? fontSize
+      : (fontStyles[fontSize]?.fontSize ?? 14);
+
   return (
     <Text
+      {...rest}   // 🔥 allows adjustsFontSizeToFit, ellipsizeMode, etc
       className={classname}
       numberOfLines={numberOfLines}
       onPress={onPress}
@@ -94,8 +82,16 @@ const DynamicText = ({
         fontDecoration,
         { color: fontColor },
         { opacity },
+
+        // 🔥 Myanmar Android Fix
+        {
+          includeFontPadding: true,
+          lineHeight: resolvedFontSize * 1.35,
+          textAlignVertical: "center",
+        },
+
         lineHeightHelper ? fontStyles.lineHeightHelper : {},
-        style
+        style,
       ]}
     >
       {children}

@@ -134,7 +134,6 @@ export default function DepositScreen() {
                     </View>
                 </LinearGradient>
 
-                {/* ၃။ Payment Amount Grid */}
                 <View style={styles.sectionRow}>
                     <FontAwesome5 name="wallet" size={14} color={COLORS.primary} />
                     <DynamicText style={styles.sectionTitle} fontWeight="bold">Payment Amount</DynamicText>

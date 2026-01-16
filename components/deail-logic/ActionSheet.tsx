@@ -1,113 +1,110 @@
-import React, { useEffect, useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import React from "react";
 import { Image, Modal, StyleSheet, TouchableOpacity, View } from "react-native";
-import Animated, {
-    Easing,
-    FadeIn,
-    FadeInDown,
-    SlideInDown,
-    useAnimatedStyle,
-    useSharedValue,
-    withSpring,
-    withTiming
-} from "react-native-reanimated";
+import Animated, { Easing, SlideInDown } from "react-native-reanimated";
 import DynamicText from "../ui/dynamic-text/dynamic-text";
 
+import { useWalletStore } from "@/store/useWalletStore";
 
 type PackageItem = { id: number; amount: string; price: string; image: any; };
-type PaymentMethod = { id: string; name: string; image: any; };
 
 type PurchaseActionSheetProps = {
     visible: boolean;
     onClose: () => void;
-    onSubmit: (paymentId: string) => void;
+    onSubmit: () => void;
     item: PackageItem | undefined;
     userId: string;
     zoneId: string;
-    paymentMethods: PaymentMethod[];
 };
 
+export default function ActionSheet({ visible, onClose, onSubmit, item, userId, zoneId }: PurchaseActionSheetProps) {
 
-const PaymentCard = ({ payment, isSelected, onPress, index }: { payment: PaymentMethod, isSelected: boolean, onPress: () => void, index: number }) => {
-
-    const scale = useSharedValue(1);
-    useEffect(() => { scale.value = withSpring(isSelected ? 1.02 : 1); }, [isSelected]);
-    const animatedStyle = useAnimatedStyle(() => ({
-        transform: [{ scale: scale.value }],
-        borderColor: withTiming(isSelected ? "#e11d48" : "#e2e8f0", { duration: 200 }),
-        backgroundColor: withTiming(isSelected ? "#fff1f2" : "#f8fafc", { duration: 200 }),
-        borderWidth: 2,
-    }));
-
-    return (
-        <Animated.View entering={FadeInDown.delay(index * 50).duration(400).easing(Easing.out(Easing.quad))} style={styles.paymentWrapper}>
-
-            <TouchableOpacity activeOpacity={0.9} onPress={onPress}>
-                <Animated.View style={[styles.paymentCardInner, animatedStyle]}>
-                    <Image source={payment.image} style={styles.paymentImage} resizeMode="contain" />
-                    <DynamicText style={isSelected ? styles.paymentTextSelected : styles.paymentTextNormal}>{payment.name}</DynamicText>
-                    {isSelected && <Animated.View entering={FadeIn} style={styles.dotSelected} />}
-                </Animated.View>
-            </TouchableOpacity>
-        </Animated.View>
-    );
-};
-
-export default function ActionSheet({ visible, onClose, onSubmit, item, userId, zoneId, paymentMethods }: PurchaseActionSheetProps) {
-    const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
-
-    useEffect(() => { if (!visible) setSelectedPayment(null); }, [visible]);
+    const { mmBalance, thBalance, selectedCountry } = useWalletStore();
 
     if (!item) return null;
+
+    const getNumericPrice = (priceString: string) => {
+        return parseInt(priceString.replace(/[^0-9]/g, ''), 10);
+    };
+
+    const packagePrice = getNumericPrice(item.price);
+
+    const currentBalance = selectedCountry === "MM" ? mmBalance : thBalance;
+    const currencySymbol = selectedCountry === "MM" ? "Ks" : "฿";
+
+    const isSufficient = currentBalance >= packagePrice;
 
     return (
         <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
             <TouchableOpacity style={styles.modalBackdrop} activeOpacity={1} onPress={onClose} />
-            <Animated.View entering={SlideInDown.duration(250).easing(Easing.out(Easing.quad))} style={styles.sheetContainer}>
+
+            <Animated.View
+                entering={SlideInDown.duration(300).easing(Easing.out(Easing.quad))}
+                style={styles.sheetContainer}
+            >
                 <View style={styles.sheetHandle} />
+
                 <View style={styles.sheetContent}>
-                    <DynamicText fontWeight="bold" style={styles.sheetTitle}>Select Payment</DynamicText>
+                    <DynamicText fontWeight="bold" style={styles.sheetTitle}>Checkout</DynamicText>
 
-
-                    <View style={styles.idBadgeContainer}>
-                        <DynamicText style={styles.idLabel}>ID: </DynamicText>
-                        <DynamicText fontWeight="bold" style={styles.idValue}>{userId} ({zoneId})</DynamicText>
+                    {/* Product Info */}
+                    <View style={styles.productCard}>
+                        <Image source={item.image} style={styles.sheetImage} resizeMode="contain" />
+                        <View style={styles.productInfo}>
+                            <DynamicText style={styles.label}>Package</DynamicText>
+                            <DynamicText fontWeight="bold" style={styles.itemName}>{item.amount}</DynamicText>
+                        </View>
+                        <DynamicText fontWeight="bold" style={styles.itemPrice}>{item.price}</DynamicText>
                     </View>
 
-
-                    <View style={styles.itemRow}>
-                        <Image source={item.image} style={styles.sheetImage} resizeMode="contain" />
-                        <View>
-                            <DynamicText fontWeight="bold" style={styles.sheetAmount}>{item.amount}</DynamicText>
-                            <DynamicText style={styles.sheetPriceLabel}>Total: <DynamicText fontWeight="bold" style={styles.sheetPriceValue}>{item.price}</DynamicText>
-                            </DynamicText>
-                        </View>
+                    {/* User ID */}
+                    <View style={styles.infoRow}>
+                        <DynamicText style={styles.infoLabel}>User ID:</DynamicText>
+                        <DynamicText fontWeight="bold" style={styles.infoValue}>{userId} ({zoneId})</DynamicText>
                     </View>
 
                     <View style={styles.divider} />
-                    <View style={styles.paymentContainer}>
-                        {paymentMethods.map((payment, index) => (
-                            <PaymentCard
-                                key={payment.id} index={index} payment={payment}
-                                isSelected={selectedPayment === payment.id}
-                                onPress={() => setSelectedPayment(payment.id)}
-                            />
-                        ))}
+
+                    {/* Wallet Check Section */}
+                    <View style={styles.walletSection}>
+                        <View style={styles.walletRow}>
+                            <View style={styles.walletLabelGroup}>
+                                <Ionicons name="wallet-outline" size={18} color="#64748b" />
+                                <DynamicText style={styles.walletLabel}>Your Balance:</DynamicText>
+                            </View>
+
+                            <DynamicText
+                                fontWeight="bold"
+                                style={StyleSheet.flatten([
+                                    styles.walletValue,
+                                    { color: isSufficient ? "#10b981" : "#ef4444" }
+                                ])}
+                            >
+                                {currentBalance.toLocaleString()} {currencySymbol}
+                            </DynamicText>
+                        </View>
+
+                        {!isSufficient && (
+                            <View style={styles.errorContainer}>
+                                <Ionicons name="alert-circle" size={14} color="#ef4444" />
+                                <DynamicText style={styles.errorText}>
+                                    ငွေပမာဏ မလုံလောက်ပါ။ ကျေးဇူးပြု၍ ငွေဖြည့်ပါ။
+                                </DynamicText>
+                            </View>
+                        )}
                     </View>
 
-
                     <TouchableOpacity
-                        style={selectedPayment ? styles.sheetConfirmBtn : styles.sheetConfirmBtnDisabled}
-                        disabled={!selectedPayment}
-                        onPress={() => {
-                            if (selectedPayment) {
-                                onSubmit(selectedPayment);
-                            }
-                        }}
+                        style={[styles.sheetConfirmBtn, !isSufficient && styles.disabledBtn]}
+                        activeOpacity={0.8}
+                        onPress={onSubmit}
+                        disabled={!isSufficient}
                     >
                         <DynamicText fontWeight="bold" style={styles.sheetConfirmText}>
-                            {selectedPayment ? "Continue" : "Select Payment First"}
+                            {isSufficient ? "Confirm Payment" : "Insufficient Balance"}
                         </DynamicText>
                     </TouchableOpacity>
+
                 </View>
             </Animated.View>
         </Modal>
@@ -117,21 +114,20 @@ export default function ActionSheet({ visible, onClose, onSubmit, item, userId, 
 const styles = StyleSheet.create({
     modalBackdrop: {
         flex: 1,
-        backgroundColor: "rgba(0,0,0,0.5)"
+        backgroundColor: "rgba(0,0,0,0.6)"
     },
     sheetContainer: {
+
         position: 'absolute',
         bottom: 0,
         left: 0,
         right: 0,
-        width: '100%',
         backgroundColor: 'white',
-        borderTopLeftRadius: 24,
-        borderTopRightRadius: 24,
-        paddingHorizontal: 20,
-        paddingTop: 10,
-        paddingBottom: 60,
-        alignItems: 'center',
+        borderTopLeftRadius: 28,
+        borderTopRightRadius: 28,
+        paddingHorizontal: 24,
+        paddingTop: 12,
+        paddingBottom: 40,
         elevation: 50,
         zIndex: 999
     },
@@ -140,120 +136,121 @@ const styles = StyleSheet.create({
         height: 5,
         backgroundColor: '#cbd5e1',
         borderRadius: 10,
-        marginBottom: 20,
-        marginTop: 10
+        alignSelf: 'center',
+        marginBottom: 20
     },
     sheetContent: {
         width: '100%'
     },
     sheetTitle: {
-        fontSize: 18,
-        color: '#334155',
-        marginBottom: 10,
+        fontSize: 20,
+        color: '#0f172a',
+        marginBottom: 20,
         textAlign: "center"
     },
-    idBadgeContainer: {
+
+    productCard: {
         flexDirection: "row",
-        alignSelf: "center",
-        backgroundColor: "#f1f5f9",
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 12,
+        alignItems: "center",
+        backgroundColor: "#f8fafc",
+        borderRadius: 16,
+        padding: 12,
         marginBottom: 20,
         borderWidth: 1,
         borderColor: "#e2e8f0"
     },
-    idLabel: {
+    sheetImage: {
+        width: 45,
+        height: 45,
+        marginRight: 12
+    },
+    productInfo: {
+        flex: 1
+    },
+    label: {
+        fontSize: 11,
+        color: "#64748b",
+        marginBottom: 2
+    },
+    itemName: {
+        fontSize: 16,
+        color: '#0f172a'
+    },
+    itemPrice: {
+        fontSize: 16,
+        color: "#e11d48"
+    },
+
+    infoRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginBottom: 16
+    },
+    infoLabel: {
         fontSize: 14,
         color: "#64748b"
     },
-    idValue: {
+    infoValue: {
         fontSize: 14,
-        color: "#0f172a"
-    },
-    itemRow: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-        marginBottom: 16
-    },
-    sheetImage: {
-        width: 60,
-        height: 60,
-        marginRight: 16
-    },
-    sheetAmount: {
-        fontSize: 20,
-        color: '#0f172a'
-    },
-    sheetPriceLabel: {
-        fontSize: 14,
-        color: '#64748b'
-    },
-    sheetPriceValue: {
-        color: "#e11d48"
+        color: "#334155"
     },
     divider: {
         height: 1,
-        backgroundColor: "#f1f5f9",
+        backgroundColor: "#e2e8f0",
         width: "100%",
         marginBottom: 16
     },
-    paymentContainer: {
+
+    walletSection: {
+        marginBottom: 24
+    },
+    walletRow: {
         flexDirection: "row",
-        flexWrap: "wrap",
         justifyContent: "space-between",
-        rowGap: 12,
-        marginBottom: 20
+        alignItems: "center",
+        marginBottom: 4
     },
-    paymentWrapper: {
-        width: '48%'
+    walletLabelGroup: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 6
     },
-    paymentCardInner: {
-        width: '100%',
-        padding: 12,
-        borderRadius: 12,
-        alignItems: "center"
-    },
-    paymentImage: {
-        width: 30,
-        height: 30,
-        marginBottom: 8
-    },
-    paymentTextNormal: {
-        fontSize: 12,
+    walletLabel: {
+        fontSize: 14,
         color: "#64748b"
     },
-    paymentTextSelected: {
+    walletValue: {
+        fontSize: 16
+    },
+
+    errorContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 4,
+        marginTop: 6,
+        backgroundColor: "#fef2f2",
+        padding: 8,
+        borderRadius: 8
+    },
+    errorText: {
         fontSize: 12,
-        color: "#e11d48",
-        fontWeight: "bold"
+        color: "#ef4444"
     },
-    dotSelected: {
-        position: "absolute",
-        top: 8,
-        right: 8,
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        backgroundColor: "#e11d48"
-    },
+
     sheetConfirmBtn: {
         width: '100%',
         backgroundColor: '#e11d48',
         paddingVertical: 16,
         borderRadius: 16,
-        alignItems: 'center'
+        alignItems: 'center',
+        elevation: 2
     },
-    sheetConfirmBtnDisabled: {
-        width: '100%',
-        backgroundColor: '#cbd5e1',
-        paddingVertical: 16,
-        borderRadius: 16,
-        alignItems: 'center'
+    disabledBtn: {
+        backgroundColor: '#94a3b8',
+        elevation: 0
     },
     sheetConfirmText: {
         color: 'white',
         fontSize: 16
-    },
+    }
 });

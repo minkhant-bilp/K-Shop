@@ -1,6 +1,6 @@
 import DynamicText from "@/components/ui/dynamic-text/dynamic-text";
 import { FlashList } from "@shopify/flash-list";
-import { useRouter } from "expo-router"; // 🔥 1. Router ကို Import လုပ်တယ်
+import { useRouter } from "expo-router";
 import { ChevronLeft, ChevronRight } from "lucide-react-native";
 import React, { useRef, useState } from "react";
 import { Image, Pressable, TouchableOpacity, View } from "react-native";
@@ -15,7 +15,6 @@ const promoGames = [
     { id: "6", title: "Roblox", desc: "Robux Promo", image: require("@/assets/game_image/photo6.png") },
 ];
 
-// --- ၂။ Animated Card (onPress ထပ်ဖြည့်ထားသည်) ---
 const AnimatedGameCard = ({ item, index, onPress }: { item: any, index: number, onPress: () => void }) => {
 
     const scale = useSharedValue(1);
@@ -27,7 +26,7 @@ const AnimatedGameCard = ({ item, index, onPress }: { item: any, index: number, 
     return (
         <Animated.View entering={FadeInRight.delay(index * 100).springify()}>
             <Pressable
-                onPress={onPress} // 🔥 နှိပ်ရင် အလုပ်လုပ်မယ်
+                onPress={onPress}
                 onPressIn={() => (scale.value = withSpring(0.95))}
                 onPressOut={() => (scale.value = withSpring(1))}
                 className="mr-4 mb-2"
@@ -114,11 +113,11 @@ export default function PromoGameList() {
                         index={index}
                         onPress={() => {
                             router.push({
-                                pathname: "/home/products", // Detail Page နာမည်
+                                pathname: "/home/products",
                                 params: {
                                     id: item.id,
                                     title: item.title,
-                                    image: item.image // ပုံပါသယ်သွားမယ်
+                                    image: item.image
                                 }
                             });
                         }}

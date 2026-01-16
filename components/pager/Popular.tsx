@@ -1,18 +1,33 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useRouter } from 'expo-router';
 import React from 'react';
+import { TouchableOpacity } from 'react-native';
 import DynamicText from '../ui/dynamic-text/dynamic-text';
 import { HStack } from '../ui/hstack';
 
 const Popular = () => {
+    const router = useRouter();
+
     return (
         <HStack className='justify-between px-6 items-center top-[-20px]'>
-            <DynamicText fontSize="lg" fontWeight='bold' >Popular</DynamicText>
-            <HStack className='items-center gap-2'>
-                <DynamicText fontSize="lg">See More</DynamicText>
-                <Ionicons name="chevron-forward" size={24} color="black" />
-            </HStack>
+            <DynamicText fontSize="lg" fontWeight='bold'>Popular</DynamicText>
+
+
+            <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => {
+
+                    router.navigate("/(app)/home/popular");
+                }}
+            >
+                <HStack className='items-center gap-2'>
+
+                    <DynamicText fontSize="lg" style={{ color: "#E11D48" }}>See More</DynamicText>
+                    <Ionicons name="chevron-forward" size={20} color="#E11D48" />
+                </HStack>
+            </TouchableOpacity>
         </HStack>
     )
 }
 
-export default Popular
+export default Popular;

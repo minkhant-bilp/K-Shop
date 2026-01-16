@@ -40,7 +40,6 @@ const ProductCard = ({ item, index }: { item: any, index: number }) => (
     entering={ZoomIn.delay(index * 50).springify()}
     className="flex-1 m-1 bg-white rounded-2xl p-2 border border-slate-100 shadow-sm items-center"
   >
-    {/* ပုံ */}
     <Image
       source={item.image}
       className="w-full h-16 rounded-xl bg-slate-50 mb-2"

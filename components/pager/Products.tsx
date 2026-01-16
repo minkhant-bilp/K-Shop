@@ -11,7 +11,6 @@ import {
 import DynamicText from "../ui/dynamic-text/dynamic-text";
 import StarButton from "./StarButton";
 
-// ... Data နှင့် Type များ ...
 type Game = {
     id: string;
     title: string;
@@ -31,7 +30,6 @@ const GAME_LIST: Game[] = [
     { id: "10", title: "coc", image: require("@/assets/game_image/photo10.png") },
 ];
 
-// 🔥 Log ဖျက်ပြီးသား Button 🔥
 const HeartbeatButton = ({ item }: { item: Game }) => {
     const router = useRouter();
     const scaleValue = useRef(new Animated.Value(1)).current;
@@ -46,7 +44,6 @@ const HeartbeatButton = ({ item }: { item: Game }) => {
     }, []);
 
     const handlePress = () => {
-        // Console Log မရှိတော့ပါ
         router.push({
             pathname: "/home/products",
             params: {
@@ -96,7 +93,6 @@ const Products: React.FC = () => {
                     const isLastColumn = (index + 1) % numColumns === 0;
                     return (
                         <View
-                            // Backticks (``) ပြန်ထည့်ပေးထားပါတယ်
                             className={`flex-1 mb-4 ${isLastColumn ? "mr-0" : "mr-3"} bg-white rounded-2xl p-3 shadow-sm border border-slate-200 relative`}>
                             <View className="relative w-full z-10">
                                 <Image source={item.image} className="w-full h-36 rounded-xl" resizeMode="cover" />

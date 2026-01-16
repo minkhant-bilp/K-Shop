@@ -5,41 +5,19 @@ import { useRouter } from 'expo-router';
 import React from 'react';
 import { Platform, StatusBar, StyleSheet, TouchableOpacity, View } from 'react-native';
 
-import PromoCard, { PromoData } from '@/components/common/promo/PromoCard';
+import NotificationItem, { NotificationData } from '@/components/common/noti/NotificationItem';
 import DynamicText from '@/components/ui/dynamic-text/dynamic-text';
 import ScreenWrapper from '@/components/ui/layout/screen-wrapper';
 
-const PROMOS: PromoData[] = [
-  {
-    id: '1',
-    title: 'Chinese New Year Sale',
-    description: 'Get extra bonus diamonds for every top-up via KPay.',
-    discount: '50% BONUS',
-    validUntil: '15 Feb',
-    tag: 'Hot',
-    image: require('@/assets/game_image/photo1.png')
-  },
-  {
-    id: '2',
-    title: 'Weekend Special',
-    description: 'Special discount on Mobile Legends Weekly Pass.',
-    discount: '20% OFF',
-    validUntil: 'Sunday',
-    tag: 'Limited',
-    image: require('@/assets/game_image/photo2.png')
-  },
-  {
-    id: '3',
-    title: 'New Season Bundle',
-    description: 'Exclusive skins and items for the new season.',
-    discount: 'BUNDLE SAVE',
-    validUntil: '30 Mar',
-    tag: 'New',
-    image: require('@/assets/game_image/photo3.png')
-  },
+const NOTIFICATIONS: NotificationData[] = [
+  { id: '1', type: 'order', title: 'Payment Successful', message: 'Your top-up of 1000 Diamonds has been successfully added to your account.', time: '2m ago', isRead: false },
+  { id: '2', type: 'promo', title: 'Weekend Flash Sale!', message: 'Get 50% Bonus Diamonds only for today! Don\'t miss out.', time: '1h ago', isRead: false },
+  { id: '3', type: 'security', title: 'Login Alert', message: 'New login detected from iPhone 14 Pro Max. Was this you?', time: '5h ago', isRead: true },
+  { id: '4', type: 'system', title: 'System Maintenance', message: 'Server maintenance is scheduled for tomorrow at 2:00 AM.', time: '1d ago', isRead: true },
+  { id: '5', type: 'order', title: 'Order Completed', message: 'Weekly Pass purchase successful. Thank you for using our service.', time: '2d ago', isRead: true },
 ];
 
-const Promo = () => {
+const Notification = () => {
   const router = useRouter();
 
   return (
@@ -63,33 +41,33 @@ const Promo = () => {
           </TouchableOpacity>
 
           <View style={styles.titleContainer}>
-            <DynamicText fontWeight="bold" style={styles.headerTitle}>Promotions</DynamicText>
-            <DynamicText style={styles.subTitle}>Best Deals For You</DynamicText>
+            <DynamicText fontWeight="bold" style={styles.headerTitle}>Notifications</DynamicText>
           </View>
 
-          <TouchableOpacity style={styles.iconBtn}>
-            <Ionicons name="gift-outline" size={22} color="white" />
-          </TouchableOpacity>
+
         </View>
       </LinearGradient>
+
       <View style={styles.listContainer}>
         <FlashList
-          data={PROMOS}
-          estimatedItemSize={220}
+          data={NOTIFICATIONS}
+          estimatedItemSize={80}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
-          renderItem={({ item, index }) => (
-            <PromoCard
+          renderItem={({ item }) => (
+            <NotificationItem
               item={item}
-              index={index}
-              onPress={() => console.log("Promo Clicked", item.title)}
+              onPress={() => console.log("Read Noti", item.id)}
             />
           )}
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Ionicons name="pricetags-outline" size={50} color="#cbd5e1" />
-              <DynamicText style={styles.emptyText}>No Active Promotions</DynamicText>
+              <View style={styles.emptyIconCircle}>
+                <Ionicons name="notifications-off-outline" size={40} color="#cbd5e1" />
+              </View>
+              <DynamicText style={styles.emptyText}>No Notifications</DynamicText>
+              <DynamicText style={styles.emptySubText}>Youre all caught up!</DynamicText>
             </View>
           }
         />
@@ -98,7 +76,7 @@ const Promo = () => {
   )
 }
 
-export default Promo;
+export default Notification;
 
 const styles = StyleSheet.create({
   header: {
@@ -120,17 +98,14 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   titleContainer: {
-    alignItems: 'center'
+    alignItems: 'center',
+    flex: 1
   },
   headerTitle: {
     fontSize: 20,
     color: "white",
-    letterSpacing: 0.5
-  },
-  subTitle: {
-    fontSize: 12,
-    color: "rgba(255,255,255,0.8)",
-    marginTop: 2
+    letterSpacing: 0.5,
+    marginRight: 30
   },
   backBtn: {
     width: 42,
@@ -158,17 +133,32 @@ const styles = StyleSheet.create({
     backgroundColor: "#f8fafc"
   },
   listContent: {
-    paddingTop: 24,
+    paddingTop: 10,
     paddingBottom: 40
   },
+
   emptyState: {
     alignItems: "center",
     justifyContent: "center",
     marginTop: 100,
     gap: 10
   },
+  emptyIconCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#e2e8f0",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10
+  },
   emptyText: {
+    color: "#334155",
+    fontSize: 18,
+    fontWeight: "bold"
+  },
+  emptySubText: {
     color: "#94a3b8",
-    fontSize: 16
+    fontSize: 14
   }
 });

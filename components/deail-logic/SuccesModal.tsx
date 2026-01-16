@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from "react";
 import { Image, Modal, StyleSheet, TouchableOpacity, View } from "react-native";
-import Animated, { ZoomIn } from "react-native-reanimated"; // 🔥 Animation တစ်ခုတည်းယူမယ်
+import Animated, { ZoomIn } from "react-native-reanimated";
 import DynamicText from "../ui/dynamic-text/dynamic-text";
 
 type PackageItem = { id: number; amount: string; price: string; image: any; };
@@ -36,7 +36,6 @@ export default function SuccessModal({ visible, onClose, item, payment }: Succes
                     <DynamicText style={styles.subtitle}>Thanks for your order, it now confirmed.</DynamicText>
                 </View>
 
-                {/* Receipt Card (အသေ - Animation မပါ) */}
                 <View style={styles.receiptCard}>
                     <DynamicText fontWeight="bold" style={styles.cardTitle}>Payment details</DynamicText>
 
@@ -74,7 +73,7 @@ export default function SuccessModal({ visible, onClose, item, payment }: Succes
                             <DynamicText fontWeight="bold" style={styles.successText}>Success</DynamicText>
                         </View>
                     </View>
-                </View>{/* Continue Button (အသေ) */}
+                </View>
                 <View style={styles.footer}>
                     <TouchableOpacity style={styles.button} onPress={onClose} activeOpacity={0.9}>
                         <DynamicText fontWeight="bold" style={styles.buttonText}>Continue</DynamicText>
@@ -90,7 +89,6 @@ export default function SuccessModal({ visible, onClose, item, payment }: Succes
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: "red", padding: 20, justifyContent: "center", alignItems: "center" },
 
-    // Header
     headerSection: { alignItems: "center", marginBottom: 30 },
     iconCircle: {
         width: 90,
@@ -106,10 +104,17 @@ const styles = StyleSheet.create({
         shadowRadius: 5,
         elevation: 6
     },
-    title: { fontSize: 22, color: "white", marginBottom: 8 },
-    subtitle: { fontSize: 14, color: "rgba(255,255,255,0.9)" },
+    title: {
+        fontSize: 22,
+        color: "white",
+        marginBottom: 8
+    },
+    subtitle: {
+        fontSize: 14,
+        color: "rgba(255,255,255,0.9)"
+    },
 
-    // Receipt Card
+
     receiptCard: {
         width: "100%",
         backgroundColor: "white",
@@ -120,29 +125,68 @@ const styles = StyleSheet.create({
         shadowRadius: 10,
         elevation: 5
     },
-    cardTitle: { fontSize: 16, color: "#334155", marginBottom: 12 },
-    divider: { height: 1, backgroundColor: "#f1f5f9", marginVertical: 12 },
+    cardTitle: {
+        fontSize: 16,
+        color: "#334155",
+        marginBottom: 12
+    },
+    divider: {
+        height: 1,
+        backgroundColor: "#f1f5f9",
+        marginVertical: 12
+    },
 
-    row: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 16 },
+    row: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 16
+    },
 
-    label: { color: "#64748b", fontSize: 14 },
+    label: {
+        color: "#64748b",
+        fontSize: 14
+    },
 
-    value: { color: "#0f172a", fontSize: 14 },
+    value: {
+        color: "#0f172a",
+        fontSize: 14
+    },
 
-    totalValue: { color: "#0f172a", fontSize: 18 },
-
-
-    methodBadge: { flexDirection: "row", alignItems: "center" },
-
-    miniIcon: { width: 20, height: 20, marginRight: 6 },
-
-
-    successBadge: { flexDirection: "row", alignItems: "center" },
-
-    successText: { color: "#16a34a", marginLeft: 4 },
+    totalValue: {
+        color: "#0f172a",
+        fontSize: 18
+    },
 
 
-    footer: { position: "absolute", bottom: 40, width: "100%" },
+    methodBadge: {
+        flexDirection: "row",
+        alignItems: "center"
+    },
+
+    miniIcon: {
+        width: 20,
+        height: 20,
+        marginRight: 6
+    },
+
+
+    successBadge: {
+        flexDirection: "row",
+        alignItems: "center"
+    },
+
+    successText: {
+        color: "#16a34a",
+        marginLeft: 4
+    },
+
+
+    footer: {
+        position: "absolute",
+        bottom: 40,
+        width: "100%"
+    },
     button: {
         backgroundColor: "white",
         flexDirection: "row",
@@ -152,5 +196,9 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         width: "100%"
     },
-    buttonText: { color: "#ea580c", fontSize: 16, marginRight: 8 }
+    buttonText: {
+        color: "#ea580c",
+        fontSize: 16,
+        marginRight: 8
+    }
 });

@@ -35,7 +35,7 @@ const AnimatedProductCard = ({ item, index, onPress }: { item: Game, index: numb
     return (
         <Animated.View entering={FadeInRight.delay(index * 100).springify()}>
             <Pressable
-                onPress={onPress} // 🔥 နှိပ်ရင် အလုပ်လုပ်မယ်
+                onPress={onPress}
                 onPressIn={() => (scale.value = withSpring(0.95))}
                 onPressOut={() => (scale.value = withSpring(1))}
             >

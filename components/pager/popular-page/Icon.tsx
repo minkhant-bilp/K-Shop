@@ -37,7 +37,7 @@ export default function CategoryList() {
 
                     <TouchableOpacity
                         className="flex-row items-center bg-white border border-slate-200 rounded-full px-4 py-2 mr-3 shadow-sm"
-                        activeOpacity={0.7} // နှိပ်ရင် မှိန်သွားမယ်
+                        activeOpacity={0.7}
                     >
                         <item.icon size={18} color="red" strokeWidth={2} />
 

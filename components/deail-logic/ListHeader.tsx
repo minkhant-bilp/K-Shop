@@ -31,7 +31,6 @@ export default function ListHeader({ userId, setUserId, zoneId, setZoneId }: Lis
                         keyboardType="numeric"
                         onChangeText={(text) => setUserId(text.replace(/[^0-9]/g, ''))}
                     />
-                    {/* Zone ID Input */}
                     <TextInput
                         placeholder="Zone ID"
                         placeholderTextColor="gray"
