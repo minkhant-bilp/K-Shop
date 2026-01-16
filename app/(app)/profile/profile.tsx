@@ -13,8 +13,18 @@ const ProfileScreen = () => {
 
   const t = getTranslation(lang);
   const getLanguageDisplayName = () => {
-    return lang === "en" ? "English" : "မြန်မာ";
+    switch (lang) {
+      case "en":
+        return t.english;
+      case "my":
+        return t.myanmar;
+      case "th":
+        return t.thai;
+      default:
+        return t.english;
+    }
   };
+
   return (
     <>
       <ScreenWrapper headerShown={false} isSafeArea={false} isScrollable>
@@ -23,48 +33,50 @@ const ProfileScreen = () => {
           <View className="space-y-3">
             <SettingItem
               icon="person-outline"
-              title="Profile"
-              subtitle="Update your profile"
+              title={t.profile || "Profile"}
+              subtitle={t.updateProfile || "Update your profile"}
             />
 
             <SettingItem
               icon="copy-outline"
-              title="User ID"
-              subtitle="Copy your user ID"
+              title={t.userId || "User ID"}
+              subtitle={t.copyUserId || "Copy your user ID"}
               right="@tgi72505"
             />
 
             <SettingItem
               icon="language-outline"
-              title={""}
-              subtitle={""}
+              title={t.language || "Language"}
+              subtitle={t.selectLanguage || "Select your language"}
               right={getLanguageDisplayName()}
               press={() => setLanguageModalVisible(true)}
             />
 
             <SettingItem
               icon="bug-outline"
-              title="Bugs Report"
-              subtitle="Send report if you see bugs in our app"
+              title={t.bugsReport || "Bugs Report"}
+              subtitle={
+                t.reportBugs || "Send report if you see bugs in our app"
+              }
               arrow
             />
             <SettingItem
               icon="lock-closed-outline"
-              title="Privacy Policy"
-              subtitle="Read our privacy policy"
+              title={t.privacyPolicy || "Privacy Policy"}
+              subtitle={t.readPrivacyPolicy || "Read our privacy policy"}
               arrow
             />
             <SettingItem
               icon="information-circle-outline"
-              title="About Us"
-              subtitle="Learn more about us"
+              title={t.aboutUs || "About Us"}
+              subtitle={t.learnMoreAboutUs || "Learn more about us"}
               arrow
             />
 
             <SettingItem
               icon="log-out-outline"
-              title="Logout"
-              subtitle="Logout your account"
+              title={t.logout || "Logout"}
+              subtitle={t.logoutAccount || "Logout your account"}
               arrow
             />
           </View>

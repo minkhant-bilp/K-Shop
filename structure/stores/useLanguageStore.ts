@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import mmkvStorage from './mmkvStorage';
 
-type LanguageType = 'my' | 'en';
+type LanguageType = 'my' | 'en' | 'th';
 
 interface LangagueStoreState {
   lang: LanguageType;

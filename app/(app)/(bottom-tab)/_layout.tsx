@@ -12,8 +12,8 @@ export default function TabLayout() {
       tabBar={(props) => <CustomNavBar {...props} />}
     >
       <Tabs.Screen name="home" />
-      <Tabs.Screen name="feed" />
-      <Tabs.Screen name="search" />
+      <Tabs.Screen name="notification" />
+      <Tabs.Screen name="history" />
       <Tabs.Screen name="profile" />
     </Tabs>
   );

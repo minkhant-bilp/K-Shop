@@ -1,4 +1,3 @@
-// components/modals/LanguageModal.tsx
 import DynamicText from "@/components/ui/dynamic-text/dynamic-text";
 import useTranslation from "@/structure/hooks/useTranslation";
 import useLanguageStore from "@/structure/stores/useLanguageStore";
@@ -14,12 +13,14 @@ interface LanguageModalProps {
 const LanguageModal: React.FC<LanguageModalProps> = ({ visible, onClose }) => {
   const { lang, setLanguage } = useLanguageStore();
   const { t } = useTranslation();
+  
   const languages = [
-    { code: "en", name: "English", nativeName: "English" },
-    { code: "my", name: "Myanmar", nativeName: "မြန်မာ" },
+    { code: "en" as const, name: t.english, nativeName: "English" },
+    { code: "my" as const, name: t.myanmar, nativeName: "မြန်မာ" },
+    { code: "th" as const, name: t.thai, nativeName: "ไทย" },
   ];
 
-  const handleLanguageSelect = (languageCode: "my" | "en") => {
+  const handleLanguageSelect = (languageCode: 'my' | 'en' | 'th') => {
     setLanguage(languageCode);
     onClose();
   };
@@ -56,9 +57,7 @@ const LanguageModal: React.FC<LanguageModalProps> = ({ visible, onClose }) => {
                   styles.languageItem,
                   lang === language.code && styles.selectedItem,
                 ]}
-                onPress={() =>
-                  handleLanguageSelect(language.code as "my" | "en")
-                }
+                onPress={() => handleLanguageSelect(language.code)}
               >
                 <View style={styles.languageContent}>
                   <View style={styles.languageTextContainer}>
@@ -121,7 +120,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
   },
-
   closeButton: {
     padding: 4,
   },
@@ -134,7 +132,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f8f9fa",
   },
   selectedItem: {
-    backgroundColor: "#e3f2fd",
+    backgroundColor: "rgba(255, 50, 50, 0.1)",
     borderWidth: 1,
     borderColor: "#007AFF",
   },

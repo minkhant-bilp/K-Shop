@@ -114,12 +114,12 @@ const CustomNavBar: React.FC<BottomTabBarProps> = ({
     switch (routeName) {
       case "home":
         return <Feather name="home" size={18} color={color} />;
-      case "feed":
+      case "notification":
         return (
-          <FontAwesome5 name="facebook-messenger" size={18} color={color} />
+          <Ionicons name="notifications" size={18} color={color} />
         );
-      case "search":
-        return <FontAwesome5 name="microphone-alt" size={18} color={color} />;
+      case "history":
+        return <FontAwesome5 name="history" size={18} color={color} />;
       case "library":
         return <Ionicons name="wallet-outline" size={18} color={color} />;
       default:

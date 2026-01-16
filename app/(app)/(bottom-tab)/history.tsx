@@ -2,10 +2,10 @@ import SearchScreen from "../search/search"
 
 
 
-const Search = () => {
+const History = () => {
     return (
         <SearchScreen />
     )
   }
   
-  export default Search
+  export default History
