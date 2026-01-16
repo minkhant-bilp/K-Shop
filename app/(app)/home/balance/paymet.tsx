@@ -44,7 +44,6 @@ export default function PaymentDetailScreen() {
     const params = useLocalSearchParams();
     const { amount, currency, methodName, methodId } = params;
 
-    // 🔥 (၂) Store က requestTopUp function ကို ယူမယ်
     const { requestTopUp } = useWalletStore();
 
     const [receiptImage, setReceiptImage] = useState<string | null>(null);

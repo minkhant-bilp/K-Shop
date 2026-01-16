@@ -9,6 +9,7 @@ export interface TransactionData {
     title: string;
     date: string;
     amount: number;
+    currency?: string;
     status: "success" | "pending" | "failed";
 }
 
@@ -27,7 +28,7 @@ const TransactionItem = ({ item, index }: TransactionItemProps) => {
     const getStatusColor = (status: string) => {
         switch (status) {
             case 'success': return '#10b981';
-            case 'pending': return '#f59e0b'; // Orange
+            case 'pending': return '#f59e0b';
             case 'failed': return '#ef4444';
             default: return '#94a3b8';
         }
@@ -49,7 +50,7 @@ const TransactionItem = ({ item, index }: TransactionItemProps) => {
 
             <View style={styles.rightSection}>
                 <Text style={[styles.amount, { color: amountColor }]}>
-                    {isDeposit ? "+" : "-"} {item.amount.toLocaleString()} Ks
+                    {isDeposit ? "+" : "-"} {item.amount.toLocaleString()} {item.currency ?? 'Ks'}
                 </Text>
 
                 <View style={styles.statusBadge}>

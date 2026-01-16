@@ -18,7 +18,7 @@ const Popular = () => {
     <ScreenWrapper headerShown={false} isSafeArea={false}>
 
 
-      <HomeHeader />
+      <HomeHeader title='Popular' />
 
       <ScrollView
         showsVerticalScrollIndicator={false}

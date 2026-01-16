@@ -6,7 +6,7 @@ import DynamicText from '../ui/dynamic-text/dynamic-text';
 import { HStack } from '../ui/hstack';
 
 const SeeMore = () => {
-    const router = useRouter(); // 🔥 router ကို initialize လုပ်မယ်
+    const router = useRouter();
 
     const handlePress = () => {
         router.navigate("/(app)/home/popular");

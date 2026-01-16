@@ -7,7 +7,7 @@ import React from 'react'
 const MobileGame = () => {
   return (
     <ScreenWrapper headerShown={false} isSafeArea={false}>
-      <HomeHeader />
+      <HomeHeader title='Top up' />
       <PagerViews />
       <PhoneBillShop />
     </ScreenWrapper>

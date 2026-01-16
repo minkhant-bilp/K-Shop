@@ -1,139 +1,124 @@
-import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import React, { useEffect } from "react";
-import { Platform, StatusBar, StyleSheet, TouchableOpacity, View } from "react-native";
-import Animated, {
-    cancelAnimation,
-    useAnimatedStyle,
-    useSharedValue,
-    withDelay,
-    withRepeat,
-    withSequence,
-    withTiming
-} from "react-native-reanimated";
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
+import React from 'react';
+import { Platform, StatusBar, StyleSheet, TouchableOpacity, View } from 'react-native';
+import DynamicText from '../ui/dynamic-text/dynamic-text';
+interface Props {
+    title: string;
+    subtitle?: string;
+    showBack?: boolean;
+    rightIcon?: keyof typeof Ionicons.glyphMap;
+    onRightPress?: () => void;
+}
 
-const COLORS = {
-    background: "#ffffff",
-    primary: "#e11d48",
-    border: "#f1f5f9",
-    lightBtn: "#fff1f2"
-};
-
-const HomeHeader = () => {
+const HomeHeader = ({
+    title,
+    subtitle,
+    showBack = true,
+    rightIcon = "search",
+    onRightPress
+}: Props) => {
     const router = useRouter();
 
-    const hasUnread = true;
 
-    const rotation = useSharedValue(0);
-
-    useEffect(() => {
-        if (hasUnread) {
-            rotation.value = withRepeat(
-                withSequence(
-                    withDelay(
-                        5000,
-                        withSequence(
-                            withTiming(-15, { duration: 100 }),
-                            withTiming(15, { duration: 100 }),
-                            withTiming(-15, { duration: 100 }),
-                            withTiming(15, { duration: 100 }),
-                            withTiming(0, { duration: 100 })
-                        )
-                    )
-                ),
-                -1,
-                false
-            );
+    const handleBack = () => {
+        if (router.canGoBack()) {
+            router.back();
         } else {
-            cancelAnimation(rotation);
-            rotation.value = 0;
+            router.replace('/');
         }
-    }, []);
-
-    const animatedStyle = useAnimatedStyle(() => {
-        return {
-            transform: [{ rotateZ: `${rotation.value}deg` }],
-        };
-    });
+    };
 
     return (
-        <View style={styles.headerWrapper}>
-            <View style={{ height: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }} />
+        <>
 
-            <View style={styles.container}>
+            <LinearGradient
+                colors={["#991b1b", "#dc2626", "#ef4444"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.header}
+            >
 
-                <TouchableOpacity
-                    activeOpacity={0.7}
-                    style={styles.iconBtn}
-                    onPress={() => {
-                        if (router.canGoBack()) router.back();
-                    }}
-                >
-                    <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
-                </TouchableOpacity>
+                <View style={{ height: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }} />
 
-                <View style={styles.rightContainer}>
+                <View style={styles.headerContent}>
+                    {showBack ? (
+                        <TouchableOpacity activeOpacity={0.8} onPress={handleBack} style={styles.backBtn}>
+                            <Ionicons name="arrow-back" size={24} color="#dc2626" />
+                        </TouchableOpacity>
+                    ) : (
+                        <View style={{ width: 42 }} />
+                    )}
 
-                    <TouchableOpacity activeOpacity={0.7} style={styles.iconBtn}>
-                        <Animated.View style={animatedStyle}>
-                            <Ionicons name="notifications-outline" size={22} color={COLORS.primary} />
-                        </Animated.View>
+                    <View style={styles.titleContainer}>
+                        <DynamicText fontWeight="bold" style={styles.headerTitle}>{title}</DynamicText>
+                        {subtitle && <DynamicText style={styles.subTitle}>{subtitle}</DynamicText>}
+                    </View>
 
-                        {hasUnread && <View style={styles.dot} />}
+                    <TouchableOpacity style={styles.iconBtn} onPress={onRightPress}>
+                        <Ionicons name={rightIcon} size={22} color="white" />
                     </TouchableOpacity>
-
                 </View>
-
-            </View>
-        </View>
+            </LinearGradient>
+        </>
     );
 };
 
+export default HomeHeader;
+
 const styles = StyleSheet.create({
-    headerWrapper: {
-        backgroundColor: COLORS.background,
-        borderBottomWidth: 1,
-        borderBottomColor: COLORS.border,
-        zIndex: 100,
-        shadowColor: "#e11d48",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
+    header: {
+        paddingBottom: 20,
+        borderBottomLeftRadius: 24,
+        borderBottomRightRadius: 24,
+        shadowColor: "#dc2626",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
         shadowRadius: 10,
-        elevation: 2,
+        elevation: 10,
+        zIndex: 10
     },
-    container: {
-        height: 60,
-        flexDirection: "row",
+    headerContent: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingTop: 10,
+    },
+    titleContainer: {
+        alignItems: 'center',
+        flex: 1
+    },
+    headerTitle: {
+        fontSize: 20,
+        color: "white",
+        letterSpacing: 0.5
+    },
+    subTitle: {
+        fontSize: 12,
+        color: "rgba(255,255,255,0.8)",
+        marginTop: 2
+    },
+    backBtn: {
+        width: 42,
+        height: 42,
+        borderRadius: 14,
+        backgroundColor: "white",
         alignItems: "center",
-        justifyContent: "space-between",
-        paddingHorizontal: 16,
+        justifyContent: "center",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 3
     },
     iconBtn: {
         width: 42,
         height: 42,
         borderRadius: 14,
-        backgroundColor: COLORS.lightBtn,
+        backgroundColor: "rgba(255,255,255,0.2)",
         alignItems: "center",
-        justifyContent: "center",
-        borderWidth: 1,
-        borderColor: "#ffe4e6"
-    },
-    rightContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 12,
-    },
-    dot: {
-        position: 'absolute',
-        top: 10,
-        right: 12,
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        backgroundColor: COLORS.primary,
-        borderWidth: 1.5,
-        borderColor: COLORS.lightBtn
+        justifyContent: "center"
     }
 });
-
-export default HomeHeader;

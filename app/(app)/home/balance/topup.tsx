@@ -6,8 +6,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import React, { useCallback, useMemo, useState } from "react";
 import {
+    Alert,
     Image,
     Keyboard,
+    Platform,
     StyleSheet,
     TextInput,
     TouchableOpacity,
@@ -23,6 +25,7 @@ const COLORS = {
     textMuted: "#64748B",
     border: "#FECDD3",
     success: "#10B981",
+    warning: "#FCD34D",
 };
 
 const CONFIG = {
@@ -52,7 +55,18 @@ export default function DepositScreen() {
 
     const current = useMemo(() => CONFIG[country], [country]);
 
+    const MIN_LIMIT = country === "MM" ? 2000 : 20;
+
+    const numAmount = parseFloat(amount) || 0;
+    const isBelowLimit = amount.length > 0 && numAmount < MIN_LIMIT;
+    const isReadyToPay = numAmount >= MIN_LIMIT && selectedMethod !== null;
+
     const handleDeposit = () => {
+        if (!selectedMethod || numAmount < MIN_LIMIT) {
+            Alert.alert("Invalid Amount", `Minimum deposit is ${MIN_LIMIT} ${current.symbol}`);
+            return;
+        }
+
         const methodDetails = current.methods.find(m => m.id === selectedMethod);
 
         router.push({
@@ -90,15 +104,20 @@ export default function DepositScreen() {
                 </TouchableOpacity>
             </View>
         );
-    }, [selectedMethod]); const listHeader = useMemo(() => {
+    }, [selectedMethod]);
+
+    const listHeader = useMemo(() => {
         return (
             <View style={{ padding: 20 }}>
-                {/* ၁။ Country Toggle */}
                 <View style={styles.toggleContainer}>
                     {(["MM", "TH"] as const).map((c) => (
                         <TouchableOpacity
                             key={c}
-                            onPress={() => setCountry(c)}
+                            onPress={() => {
+                                setCountry(c);
+                                setSelectedMethod(null);
+                                setAmount("");
+                            }}
                             style={StyleSheet.flatten([styles.toggleBtn, country === c && styles.activeToggle])}
                         >
                             <DynamicText style={{ fontSize: 16 }}>{CONFIG[c].flag}</DynamicText>
@@ -121,6 +140,7 @@ export default function DepositScreen() {
                             <DynamicText style={styles.currencyText} fontWeight="bold">{current.currency}</DynamicText>
                         </View>
                     </View>
+
                     <View style={styles.inputWrapper}>
                         <DynamicText style={styles.symbolText}>{current.symbol}</DynamicText>
                         <TextInput
@@ -130,8 +150,19 @@ export default function DepositScreen() {
                             value={amount}
                             onChangeText={setAmount}
                             placeholderTextColor="rgba(255, 255, 255, 0.6)"
+                            textAlignVertical="center"
                         />
                     </View>
+
+                    {isBelowLimit && (
+                        <View style={styles.warningContainer}>
+                            <Ionicons name="alert-circle" size={14} color={COLORS.warning} />
+                            <DynamicText style={styles.warningText} fontWeight="medium">
+                                Minimum deposit is {MIN_LIMIT.toLocaleString()} {current.currency}
+                            </DynamicText>
+                        </View>
+                    )}
+
                 </LinearGradient>
 
                 <View style={styles.sectionRow}>
@@ -169,7 +200,7 @@ export default function DepositScreen() {
                 </View>
             </View>
         );
-    }, [country, amount, current]);
+    }, [country, amount, current, isBelowLimit, MIN_LIMIT]);
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -197,8 +228,8 @@ export default function DepositScreen() {
 
                 <View style={styles.footer}>
                     <TouchableOpacity
-                        disabled={!amount || !selectedMethod}
-                        style={StyleSheet.flatten([styles.payBtn, (!amount || !selectedMethod) && styles.disabledBtn])}
+                        disabled={!isReadyToPay}
+                        style={StyleSheet.flatten([styles.payBtn, !isReadyToPay && styles.disabledBtn])}
                         onPress={handleDeposit}
                     >
                         <DynamicText fontWeight="bold" style={styles.payBtnText}>Confirm Deposit</DynamicText>
@@ -231,7 +262,9 @@ const styles = StyleSheet.create({
     },
     headerTitle: {
         fontSize: 24,
-        color: COLORS.textDark
+        color: COLORS.textDark,
+        lineHeight: 34,
+        paddingVertical: 2
     },
 
     toggleContainer: {
@@ -292,21 +325,40 @@ const styles = StyleSheet.create({
     },
     inputWrapper: {
         flexDirection: "row",
-        alignItems: "center",
-        marginTop: 15
+        alignItems: "baseline",
+        marginTop: 15,
     },
     symbolText: {
         fontSize: 30,
         fontWeight: "bold",
         color: "#FFF",
-        marginRight: 10
+        marginRight: 10,
+        lineHeight: 40,
     },
     textInput: {
         flex: 1,
         fontSize: 42,
         fontWeight: "900",
         color: "#FFF",
-        padding: 0
+        paddingVertical: 0,
+        lineHeight: 55,
+        height: Platform.OS === 'android' ? 65 : undefined,
+    },
+
+    warningContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginTop: 8,
+        backgroundColor: "rgba(0,0,0,0.2)",
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: 8,
+        alignSelf: "flex-start",
+        gap: 6
+    },
+    warningText: {
+        color: COLORS.warning,
+        fontSize: 12,
     },
 
     sectionRow: {

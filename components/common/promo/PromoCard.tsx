@@ -5,9 +5,7 @@ import React, { memo } from "react";
 import { ImageBackground, StyleSheet, TouchableOpacity, View } from "react-native";
 import Animated, { FadeInUp } from "react-native-reanimated";
 
-// Screen အကျယ်
 
-// Data Type
 export interface PromoData {
     id: string;
     title: string;
@@ -53,7 +51,6 @@ const PromoCard = ({ item, index, onPress }: PromoProps) => {
                             <DynamicText fontWeight="bold" style={styles.tagText}>{item.tag}</DynamicText>
                         </View>
 
-                        {/* Content */}
                         <View style={styles.content}>
                             <DynamicText fontWeight="bold" style={styles.discountText}>{item.discount}</DynamicText>
                             <DynamicText fontWeight="bold" style={styles.title} numberOfLines={1}>{item.title}</DynamicText>

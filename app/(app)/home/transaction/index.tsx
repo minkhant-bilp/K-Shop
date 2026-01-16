@@ -89,7 +89,6 @@ const Transaction = () => {
 
 export default Transaction;
 
-/* ---------------- STYLES ---------------- */
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f8fafc' },
 

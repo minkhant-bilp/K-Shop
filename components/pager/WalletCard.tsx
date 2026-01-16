@@ -2,14 +2,51 @@ import { useWalletStore } from "@/store/useWalletStore";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import DynamicText from "../ui/dynamic-text/dynamic-text";
 
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withRepeat,
+  withSequence,
+  withTiming
+} from "react-native-reanimated";
 
 export default function WalletCard() {
   const router = useRouter();
+
   const { mmBalance, thBalance, selectedCountry, setCountry } = useWalletStore();
+
+  const currentBalance = selectedCountry === "MM" ? mmBalance : thBalance;
+  const rotation = useSharedValue(0);
+
+  useEffect(() => {
+    const threshold = selectedCountry === "MM" ? 2000 : 20;
+
+    if (currentBalance < threshold) {
+      rotation.value = withRepeat(
+        withSequence(
+          withTiming(-10, { duration: 50 }),
+          withTiming(10, { duration: 50 }),
+          withTiming(-10, { duration: 50 }),
+          withTiming(0, { duration: 50 }),
+          withDelay(2000, withTiming(0, { duration: 0 })) // ၂ စက္ကန့်နားမယ်
+        ),
+        -1,
+        false
+      );
+    } else {
+      // ပိုက်ဆံများရင် ငြိမ်မယ်
+      rotation.value = withTiming(0);
+    }
+  }, [currentBalance, selectedCountry]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${rotation.value}deg` }],
+  }));
 
   const toggleCountry = () => {
     setCountry(selectedCountry === "MM" ? "TH" : "MM");
@@ -60,9 +97,11 @@ export default function WalletCard() {
             style={styles.topUpBtn}
             onPress={() => router.navigate("/home/balance/topup")}
           >
-            <View style={styles.iconCircle}>
+            {/* Animated Icon */}
+            <Animated.View style={[styles.iconCircle, animatedStyle]}>
               <Ionicons name="wallet" size={20} color="#991b1b" />
-            </View>
+            </Animated.View>
+
             <DynamicText fontWeight="bold" style={styles.topUpText}>
               ငွေဖြည့်ရန်
             </DynamicText>
@@ -104,24 +143,22 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     borderRadius: 20,
   },
-
   card: {
     borderRadius: 20,
     padding: 20,
     paddingBottom: 15,
   },
-
   topSection: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 16,
   },
-
   leftContent: {
     flex: 1,
     marginRight: 10,
-  }, flagBtn: {
+  },
+  flagBtn: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "rgba(255,255,255,0.15)",
@@ -132,14 +169,12 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     gap: 6,
   },
-
   label: {
     color: "white",
     fontSize: 12,
     lineHeight: 16,
     fontWeight: "600",
   },
-
   balance: {
     fontSize: 28,
     lineHeight: 38,
@@ -147,13 +182,11 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
     marginLeft: 4,
   },
-
   topUpBtn: {
     alignItems: "center",
     justifyContent: "center",
     width: 70,
   },
-
   iconCircle: {
     width: 40,
     height: 40,
@@ -164,7 +197,6 @@ const styles = StyleSheet.create({
     elevation: 2,
     marginBottom: 4,
   },
-
   topUpText: {
     color: "white",
     fontSize: 11,
@@ -172,19 +204,16 @@ const styles = StyleSheet.create({
     textAlign: "center",
     width: "100%",
   },
-
   divider: {
     height: 1,
     backgroundColor: "rgba(255,255,255,0.2)",
     marginBottom: 12,
   },
-
   bottomSection: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-
   actionBtn: {
     flex: 1,
     flexDirection: "row",
@@ -193,7 +222,6 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     gap: 6,
   },
-
   actionText: {
     color: "white",
     fontSize: 12,
@@ -202,7 +230,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     flexShrink: 1,
   },
-
   verticalLine: {
     width: 1,
     height: 20,
