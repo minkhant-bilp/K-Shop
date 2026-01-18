@@ -1,15 +1,14 @@
 import { FlashList } from "@shopify/flash-list";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import React, { memo, useCallback } from "react";
 import {
-    Animated,
     Image,
     TouchableOpacity,
     useWindowDimensions,
     View
 } from "react-native";
 import DynamicText from "../ui/dynamic-text/dynamic-text";
-import StarButton from "./StarButton";
 
 type Game = {
     id: string;
@@ -18,32 +17,88 @@ type Game = {
 };
 
 const GAME_LIST: Game[] = [
-    { id: "1", title: "Mobile Legend Bang Bang", image: require("@/assets/game_image/photo1.png") },
+    { id: "1", title: "Mobile Legend", image: require("@/assets/game_image/photo1.png") },
     { id: "2", title: "Weekly Pass", image: require("@/assets/game_image/photo2.png") },
-    { id: "3", title: "Pubg Mobile", image: require("@/assets/game_image/photo3.png") },
+    { id: "3", title: "PUBG Mobile", image: require("@/assets/game_image/photo3.png") },
     { id: "4", title: "FC Mobile", image: require("@/assets/game_image/photo4.png") },
     { id: "5", title: "Free Fire", image: require("@/assets/game_image/photo5.png") },
     { id: "6", title: "Destiny", image: require("@/assets/game_image/photo6.png") },
-    { id: "7", title: "Woolf Ware", image: require("@/assets/game_image/photo7.png") },
-    { id: "8", title: "Solider Game", image: require("@/assets/game_image/photo8.png") },
-    { id: "9", title: "Minecarft", image: require("@/assets/game_image/photo9.png") },
-    { id: "10", title: "coc", image: require("@/assets/game_image/photo10.png") },
+    { id: "7", title: "Wolf Ware", image: require("@/assets/game_image/photo7.png") },
+    { id: "8", title: "Soldier Game", image: require("@/assets/game_image/photo8.png") },
+    { id: "9", title: "Minecraft", image: require("@/assets/game_image/photo9.png") },
+    { id: "10", title: "COC", image: require("@/assets/game_image/photo10.png") },
 ];
 
-const HeartbeatButton = ({ item }: { item: Game }) => {
+const GameCardComponent = ({
+    item,
+    isLastColumn,
+    onPress
+}: {
+    item: Game,
+    isLastColumn: boolean,
+    onPress: () => void
+}) => {
+    return (
+        <View
+            className={`flex-1 mb-4 ${isLastColumn ? "mr-0" : "mr-3"} bg-white rounded-2xl p-2.5`}
+            style={{
+                shadowColor: "#E11D48",
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.1,
+                shadowRadius: 8,
+                elevation: 4,
+                borderWidth: 1,
+                borderColor: "#f1f5f9"
+            }}
+        >
+            <View className="w-full shadow-sm">
+                <Image
+                    source={item.image}
+                    className="w-full h-36 rounded-xl bg-slate-100"
+                    resizeMode="cover"
+                />
+            </View>
+
+            <View className="mt-3 mb-3 px-1">
+                <DynamicText fontWeight="bold" fontSize="sm" numberOfLines={1} style={{ color: "#0f172a" }}>
+                    {item.title}
+                </DynamicText>
+            </View>
+
+            <TouchableOpacity
+                onPress={onPress}
+                activeOpacity={0.8}
+            >
+                <LinearGradient
+                    colors={["#E11D48", "#be123c"]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={{
+                        paddingVertical: 10,
+                        borderRadius: 12,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: "100%"
+                    }}
+                >
+                    <DynamicText fontWeight="bold" fontSize="xs" style={{ color: "white", letterSpacing: 0.5 }}>
+                        BUY NOW
+                    </DynamicText>
+                </LinearGradient>
+            </TouchableOpacity>
+        </View>
+    );
+};
+
+const GameCard = memo(GameCardComponent);
+
+const Products: React.FC = () => {
     const router = useRouter();
-    const scaleValue = useRef(new Animated.Value(1)).current;
+    const { width } = useWindowDimensions();
 
-    useEffect(() => {
-        Animated.loop(
-            Animated.sequence([
-                Animated.timing(scaleValue, { toValue: 1.05, duration: 800, useNativeDriver: true }),
-                Animated.timing(scaleValue, { toValue: 1, duration: 800, useNativeDriver: true })
-            ])
-        ).start();
-    }, []);
+    const numColumns = width > 600 ? 4 : 2;
 
-    const handlePress = () => {
+    const handlePressProduct = useCallback((item: Game) => {
         router.push({
             pathname: "/home/products",
             params: {
@@ -52,61 +107,25 @@ const HeartbeatButton = ({ item }: { item: Game }) => {
                 image: item.image
             }
         });
-    };
+    }, []);
 
     return (
-        <TouchableOpacity
-            onPress={handlePress}
-            activeOpacity={0.7}
-            style={{ width: '100%', zIndex: 50, elevation: 5 }}
-        >
-            <Animated.View
-                style={{ transform: [{ scale: scaleValue }] }}
-                className="bg-rose-700 py-3 rounded-xl items-center justify-center shadow-md"
-            >
-                <DynamicText fontWeight="bold" style={{ color: "white" }}>Buy Now</DynamicText>
-            </Animated.View>
-        </TouchableOpacity>
-    );
-};
-
-const Products: React.FC = () => {
-    const { width } = useWindowDimensions();
-    const numColumns = width > 600 ? 4 : 2;
-    const [favorites, setFavorites] = useState<Record<string, boolean>>({});
-
-    const toggleFavorite = (id: string) => {
-        setFavorites(prev => ({ ...prev, [id]: !prev[id] }));
-    };
-
-    return (
-        <View className="flex-1 bg-gray-50 px-4 pt-2">
-            <FlashList<Game>
+        <View className="flex-1 bg-slate-50 px-4 pt-2">
+            <FlashList
                 data={GAME_LIST}
-                extraData={favorites}
                 numColumns={numColumns}
-                estimatedItemSize={250}
+                estimatedItemSize={260}
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: 100 }}
+                contentContainerStyle={{ paddingBottom: 100, paddingTop: 10 }}
 
                 renderItem={({ item, index }) => {
                     const isLastColumn = (index + 1) % numColumns === 0;
                     return (
-                        <View
-                            className={`flex-1 mb-4 ${isLastColumn ? "mr-0" : "mr-3"} bg-white rounded-2xl p-3 shadow-sm border border-slate-200 relative`}>
-                            <View className="relative w-full z-10">
-                                <Image source={item.image} className="w-full h-36 rounded-xl" resizeMode="cover" />
-                                <StarButton isActive={!!favorites[item.id]} onToggle={() => toggleFavorite(item.id)} />
-                            </View>
-
-                            <View className="mt-3 mb-2">
-                                <DynamicText fontWeight="bold" fontSize="sm" numberOfLines={1} style={{ color: "#0f172a" }}>
-                                    {item.title}
-                                </DynamicText>
-                            </View>
-
-                            <HeartbeatButton item={item} />
-                        </View>
+                        <GameCard
+                            item={item}
+                            isLastColumn={isLastColumn}
+                            onPress={() => handlePressProduct(item)}
+                        />
                     );
                 }}
             />

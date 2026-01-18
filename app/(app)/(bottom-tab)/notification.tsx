@@ -8,14 +8,14 @@ import React from 'react';
 import { Platform, StatusBar, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 
-const NOTIFICATIONS: NotificationData[] = [
-    { id: '1', type: 'order', title: 'Payment Successful', message: 'Your top-up of 1000 Diamonds has been successfully added.', time: '2m ago', isRead: false },
-    { id: '2', type: 'promo', title: 'Weekend Flash Sale!', message: 'Get 50% Bonus Diamonds only for today!', time: '1h ago', isRead: false },
-    { id: '3', type: 'security', title: 'Login Alert', message: 'New login detected from iPhone 14 Pro Max.', time: '5h ago', isRead: true },
-];
+// const NOTIFICATIONS: NotificationData[] = [
+//     { id: '1', type: 'order', title: 'Payment Successful', message: 'Your top-up of 1000 Diamonds has been successfully added.', time: '2m ago', isRead: false },
+//     { id: '2', type: 'promo', title: 'Weekend Flash Sale!', message: 'Get 50% Bonus Diamonds only for today!', time: '1h ago', isRead: false },
+//     { id: '3', type: 'security', title: 'Login Alert', message: 'New login detected from iPhone 14 Pro Max.', time: '5h ago', isRead: true },
+// ];
 
 
-// const NOTIFICATIONS: NotificationData[] = [];
+const NOTIFICATIONS: NotificationData[] = [];
 
 const Notification = () => {
 

@@ -9,16 +9,9 @@ import {
   Smartphone,
   Ticket
 } from "lucide-react-native";
-import React, { useEffect } from "react";
+import React from "react";
 import { Pressable, ScrollView, View } from "react-native";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withDelay,
-  withRepeat,
-  withSequence,
-  withTiming
-} from 'react-native-reanimated';
+
 
 import FlashSaleList from "@/components/pager/Category";
 import Popular from "@/components/pager/Popular";
@@ -37,33 +30,9 @@ const icons = [
   { id: 5, title: "Promo", icon: Megaphone, route: "/home/promo" },
   { id: 6, title: "Transaction", icon: FileText, route: "/home/transaction" },
   { id: '7', title: 'Service', icon: Headset, route: '/home/service', color: '#10b981' },
-
   { id: 8, title: "All features", icon: MoreHorizontal, route: "/home/all-features" },
 ];
 
-const Particle = ({ delay, style }: { delay: number; style: any }) => {
-  const opacity = useSharedValue(0);
-
-  useEffect(() => {
-    opacity.value = withDelay(
-      delay,
-      withRepeat(
-        withSequence(
-          withTiming(1, { duration: 800 }),
-          withTiming(0, { duration: 800 })
-        ),
-        -1,
-        true
-      )
-    );
-  }, []);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-  }));
-
-  return <Animated.View style={[style, animatedStyle]} />;
-};
 
 const IconItemComponent = ({ item }: { item: any }) => {
   return (
@@ -74,18 +43,6 @@ const IconItemComponent = ({ item }: { item: any }) => {
       >
         <View className="w-14 h-14 bg-white rounded-2xl items-center justify-center mb-2 shadow-sm border border-rose-50 overflow-hidden relative">
 
-          <Particle
-            delay={0}
-            style={{ position: 'absolute', top: 8, left: 8, width: 4, height: 4, borderRadius: 2, backgroundColor: '#fecdd3' }}
-          />
-          <Particle
-            delay={500}
-            style={{ position: 'absolute', bottom: 10, right: 10, width: 6, height: 6, borderRadius: 3, backgroundColor: '#ffe4e6' }}
-          />
-          <Particle
-            delay={1000}
-            style={{ position: 'absolute', top: 12, right: 8, width: 3, height: 3, borderRadius: 1.5, backgroundColor: '#f43f5e' }}
-          />
 
           <item.icon size={26} color="#f43f5e" strokeWidth={1.5} />
         </View>

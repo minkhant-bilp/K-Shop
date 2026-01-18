@@ -9,7 +9,6 @@ import PcGameCard, { PcGameData } from '@/components/pc-game/PcGameCard';
 import DynamicText from '@/components/ui/dynamic-text/dynamic-text';
 import ScreenWrapper from '@/components/ui/layout/screen-wrapper';
 
-// Mock Data
 const PC_GAMES: PcGameData[] = [
   { id: '1', title: 'Grand Theft Auto V', price: '15,000 Ks', platform: 'Steam', genre: 'Open World', image: require('@/assets/game_image/pc-image/pc1.png') },
   { id: '2', title: 'Elden Ring', price: '45,000 Ks', platform: 'Steam', genre: 'RPG', image: require('@/assets/game_image/pc-image/pc2.png') },

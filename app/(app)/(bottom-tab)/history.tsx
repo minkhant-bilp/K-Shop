@@ -1,11 +1,14 @@
-import SearchScreen from "../search/search"
+import ScreenWrapper from "@/components/ui/layout/screen-wrapper"
+import Transaction from "../home/transaction"
 
 
 
 const History = () => {
     return (
-        <SearchScreen />
+        <ScreenWrapper headerShown={false} isSafeArea={false}>
+            <Transaction />
+        </ScreenWrapper>
     )
-  }
-  
-  export default History
+}
+
+export default History

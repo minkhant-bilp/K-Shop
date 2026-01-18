@@ -27,7 +27,7 @@ const FEATURES: FeatureData[] = [
   { id: '4', title: 'Vouchers', icon: Ticket, route: '/home/voucher' },
   { id: '5', title: 'History', icon: History, route: '/home/transaction', color: '#3b82f6' },
   { id: '6', title: 'Promotions', icon: Megaphone, route: '/home/promo', color: '#f59e0b' },
-  { id: '8', title: 'Settings', icon: Settings, route: '/home/settings', color: '#64748b' },
+  { id: '8', title: 'Settings', icon: Settings, route: '/(bottom-tab)/profile', color: '#64748b' },
 ];
 
 const AllFeatures = () => {

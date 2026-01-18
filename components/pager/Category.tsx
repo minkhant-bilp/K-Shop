@@ -1,9 +1,8 @@
 import DynamicText from "@/components/ui/dynamic-text/dynamic-text";
 import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import { Image, Pressable, View } from "react-native";
-import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from "react-native-reanimated";
 
 const products = [
   { id: "1", title: "Cyberpunk 2077", price: "Rp244.999", oldPrice: "Rp699.000", discount: "-65%", image: require("@/assets/game_image/category1.png") },
@@ -12,38 +11,23 @@ const products = [
   { id: "4", title: "Watch Dogs 2", price: "Rp210.000", oldPrice: "Rp399.000", discount: "-25%", image: require("@/assets/game_image/category4.png") },
 ];
 
+// 🔥 Animated.View အစား ရိုးရိုး View ပြောင်းလိုက်တယ်
 const PulsingBadge = ({ children }: { children: React.ReactNode }) => {
-  const scale = useSharedValue(1);
-  useEffect(() => {
-    scale.value = withRepeat(
-      withSequence(withTiming(1.1, { duration: 600 }), withTiming(1, { duration: 600 })),
-      -1, true
-    );
-  }, []);
-  const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
-  return <Animated.View style={animatedStyle} className="bg-rose-500 px-2 py-0.5 rounded-md mr-2">{children}</Animated.View>;
+  return (
+    <View className="bg-rose-500 px-2 py-0.5 rounded-md mr-2">
+      {children}
+    </View>
+  );
 };
 
 export default function FlashSaleList() {
-  const listRef = useRef<FlashList<any>>(null);
-  const scrollIndex = useRef(0);
   const router = useRouter();
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      let nextIndex = scrollIndex.current + 1;
-      if (nextIndex >= products.length) nextIndex = 0;
-
-      listRef.current?.scrollToIndex({ index: nextIndex, animated: true });
-      scrollIndex.current = nextIndex;
-    }, 6000);
-    return () => clearInterval(timer);
-  }, []);
+  // 🔥 Auto Scroll Logic (setInterval) တွေကို ဖျက်လိုက်ပြီ
 
   return (
     <View className="mt-4 pb-10">
       <FlashList
-        ref={listRef}
         data={products}
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -65,12 +49,14 @@ export default function FlashSaleList() {
           >
             <Image source={item.image} className="w-full h-28 rounded-xl bg-slate-50" resizeMode="cover" />
             <DynamicText fontWeight="semibold" fontSize="xs" numberOfLines={1} style={{ marginTop: 8, color: '#334155' }}>{item.title}</DynamicText>
+
             <View className="flex-row items-center mt-2">
               <PulsingBadge>
                 <DynamicText fontWeight="semibold" style={{ fontSize: 10, color: "white" }}>{item.discount}</DynamicText>
               </PulsingBadge>
               <DynamicText fontSize="xs" style={{ textDecorationLine: "line-through", color: "#94a3b8" }}>{item.oldPrice}</DynamicText>
             </View>
+
             <DynamicText fontWeight="bold" fontSize="sm" style={{ color: "#0f172a", marginTop: 2 }}>{item.price}</DynamicText>
           </Pressable>
         )}
