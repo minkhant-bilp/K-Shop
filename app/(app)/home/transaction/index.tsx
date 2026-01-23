@@ -90,9 +90,11 @@ const Transaction = () => {
 export default Transaction;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8fafc' },
+  container: {
+    flex: 1,
+    backgroundColor: 'white'
+  },
 
-  // Header
   header: {
     flexDirection: 'row',
     alignItems: 'center',

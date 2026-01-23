@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import React from 'react';
 import { Platform, StatusBar, StyleSheet, TouchableOpacity, View } from 'react-native';
 import DynamicText from '../ui/dynamic-text/dynamic-text';
+
 interface Props {
     title: string;
     subtitle?: string;
@@ -56,9 +57,7 @@ const HomeHeader = ({
                         {subtitle && <DynamicText style={styles.subTitle}>{subtitle}</DynamicText>}
                     </View>
 
-                    <TouchableOpacity style={styles.iconBtn} onPress={onRightPress}>
-                        <Ionicons name={rightIcon} size={22} color="white" />
-                    </TouchableOpacity>
+
                 </View>
             </LinearGradient>
         </>
@@ -88,7 +87,8 @@ const styles = StyleSheet.create({
     },
     titleContainer: {
         alignItems: 'center',
-        flex: 1
+        flex: 1,
+        right: 15
     },
     headerTitle: {
         fontSize: 20,

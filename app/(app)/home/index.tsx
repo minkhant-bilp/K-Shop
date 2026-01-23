@@ -9,10 +9,10 @@ import {
   Smartphone,
   Ticket
 } from "lucide-react-native";
-import React from "react";
+import React, { useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 
-
+import SearchModal from "@/components/common/search/SearchModal";
 import FlashSaleList from "@/components/pager/Category";
 import Popular from "@/components/pager/Popular";
 import Products from "@/components/pager/Products";
@@ -24,15 +24,14 @@ import ScreenWrapper from "@/components/ui/layout/screen-wrapper";
 
 const icons = [
   { id: 1, title: "Popular", icon: Flame, route: "/home/popular" },
-  { id: 2, title: "Top up", icon: Smartphone, route: "/home/top-up" },
+  { id: 2, title: "Bill", icon: Smartphone, route: "/home/top-up" },
   { id: 3, title: "PC Game", icon: Monitor, route: "/home/pc-game" },
   { id: 4, title: "Voucher", icon: Ticket, route: "/home/voucher" },
-  { id: 5, title: "Promo", icon: Megaphone, route: "/home/promo" },
+  { id: "5", title: "Promo", icon: Megaphone, route: "/home/promo" },
   { id: 6, title: "Transaction", icon: FileText, route: "/home/transaction" },
   { id: '7', title: 'Service', icon: Headset, route: '/home/service', color: '#10b981' },
   { id: 8, title: "All features", icon: MoreHorizontal, route: "/home/all-features" },
 ];
-
 
 const IconItemComponent = ({ item }: { item: any }) => {
   return (
@@ -42,8 +41,6 @@ const IconItemComponent = ({ item }: { item: any }) => {
         onPress={() => router.push(item.route)}
       >
         <View className="w-14 h-14 bg-white rounded-2xl items-center justify-center mb-2 shadow-sm border border-rose-50 overflow-hidden relative">
-
-
           <item.icon size={26} color="#f43f5e" strokeWidth={1.5} />
         </View>
 
@@ -58,9 +55,15 @@ const IconItemComponent = ({ item }: { item: any }) => {
 const AnimatedIconItem = React.memo(IconItemComponent);
 
 const HomeScreen = () => {
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
+
   return (
     <ScreenWrapper headerShown={false} isSafeArea={false}>
-      <GameShopHeader />
+
+      <GameShopHeader
+        onSearchPress={() => setIsSearchVisible(true)}
+      />
+
       <ScrollView showsVerticalScrollIndicator={false}>
         <WalletCard />
 
@@ -75,7 +78,14 @@ const HomeScreen = () => {
         <Popular />
         <Products />
       </ScrollView>
+
       <View className="h-4"></View>
+
+      <SearchModal
+        visible={isSearchVisible}
+        onClose={() => setIsSearchVisible(false)}
+      />
+
     </ScreenWrapper>
   );
 };

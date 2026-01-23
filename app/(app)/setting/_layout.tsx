@@ -7,7 +7,6 @@ export default function RootLayout() {
             <Stack.Screen name="about/index" options={{ headerShown: false }} />
             <Stack.Screen name="bugs-report/index" options={{ headerShown: false }} />
             <Stack.Screen name="privacy/index" options={{ headerShown: false }} />
-
         </Stack>
     )
 }

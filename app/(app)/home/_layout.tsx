@@ -17,6 +17,9 @@ export default function HomeLayout() {
       <Stack.Screen name="promo/index" options={{ headerShown: false }} />
       <Stack.Screen name="transaction/index" options={{ headerShown: false }} />
       <Stack.Screen name="service/index" options={{ headerShown: false }} />
+      <Stack.Screen name="top-up/paymet" options={{ headerShown: false }} />
+      <Stack.Screen name="balance/order" options={{ headerShown: false }} />
+      <Stack.Screen name="balance/despoit" options={{ headerShown: false }} />
 
     </Stack>
 

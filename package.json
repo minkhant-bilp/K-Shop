@@ -11,7 +11,7 @@
     "lint": "expo lint"
   },
   "dependencies": {
-    "@expo/html-elements": "^0.10.1",
+    "@expo/html-elements": "^0.12.5",
     "@expo/vector-icons": "^14.1.0",
     "@gluestack-style/react": "^1.0.57",
     "@gluestack-ui/core": "^3.0.10",
@@ -26,6 +26,7 @@
     "axios": "^1.13.2",
     "clsx": "^2.1.1",
     "expo": "~53.0.22",
+    "expo-av": "~15.1.7",
     "expo-blur": "^15.0.8",
     "expo-clipboard": "~7.1.5",
     "expo-constants": "~17.1.8",
@@ -41,6 +42,7 @@
     "expo-status-bar": "~2.2.3",
     "expo-symbols": "~0.4.5",
     "expo-system-ui": "~5.0.11",
+    "expo-video": "~2.2.2",
     "expo-web-browser": "~14.2.0",
     "lucide-react-native": "^0.510.0",
     "nativewind": "^4.2.1",

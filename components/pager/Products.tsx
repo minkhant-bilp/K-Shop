@@ -110,7 +110,7 @@ const Products: React.FC = () => {
     }, []);
 
     return (
-        <View className="flex-1 bg-slate-50 px-4 pt-2">
+        <View className="flex-1 bg-white px-4 pt-2">
             <FlashList
                 data={GAME_LIST}
                 numColumns={numColumns}

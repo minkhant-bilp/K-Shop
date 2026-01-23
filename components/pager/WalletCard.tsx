@@ -33,7 +33,7 @@ export default function WalletCard() {
           withTiming(10, { duration: 50 }),
           withTiming(-10, { duration: 50 }),
           withTiming(0, { duration: 50 }),
-          withDelay(2000, withTiming(0, { duration: 0 })) // ၂ စက္ကန့်နားမယ်
+          withDelay(2000, withTiming(0, { duration: 0 }))
         ),
         -1,
         false
@@ -111,7 +111,7 @@ export default function WalletCard() {
         <View style={styles.divider} />
 
         <View style={styles.bottomSection}>
-          <TouchableOpacity activeOpacity={0.6} style={styles.actionBtn} onPress={() => router.navigate("/(app)/home/transaction")}>
+          <TouchableOpacity activeOpacity={0.6} style={styles.actionBtn} onPress={() => router.navigate("/home/balance/order")}>
             <Ionicons name="time-outline" size={18} color="white" />
             <DynamicText style={styles.actionText}>
               အော်ဒါမှတ်တမ်း
@@ -120,7 +120,7 @@ export default function WalletCard() {
 
           <View style={styles.verticalLine} />
 
-          <TouchableOpacity activeOpacity={0.6} style={styles.actionBtn} onPress={() => router.navigate("/(app)/home/transaction")}>
+          <TouchableOpacity activeOpacity={0.6} style={styles.actionBtn} onPress={() => router.navigate("/home/balance/despoit")}>
             <Ionicons name="document-text-outline" size={18} color="white" />
             <DynamicText style={styles.actionText}>
               ငွေဖြည့်မှတ်တမ်း

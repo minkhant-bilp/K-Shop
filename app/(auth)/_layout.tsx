@@ -12,7 +12,7 @@ export default function AuthLayout() {
         </Stack.Protected>
         <Stack.Protected guard={true}>
           <Stack.Screen
-            name="sign-up"
+            name="sign-in"
             options={{ headerShown: false, presentation: "card" }}
           />
         </Stack.Protected>

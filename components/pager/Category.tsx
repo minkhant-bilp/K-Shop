@@ -11,7 +11,6 @@ const products = [
   { id: "4", title: "Watch Dogs 2", price: "Rp210.000", oldPrice: "Rp399.000", discount: "-25%", image: require("@/assets/game_image/category4.png") },
 ];
 
-// 🔥 Animated.View အစား ရိုးရိုး View ပြောင်းလိုက်တယ်
 const PulsingBadge = ({ children }: { children: React.ReactNode }) => {
   return (
     <View className="bg-rose-500 px-2 py-0.5 rounded-md mr-2">
@@ -23,7 +22,6 @@ const PulsingBadge = ({ children }: { children: React.ReactNode }) => {
 export default function FlashSaleList() {
   const router = useRouter();
 
-  // 🔥 Auto Scroll Logic (setInterval) တွေကို ဖျက်လိုက်ပြီ
 
   return (
     <View className="mt-4 pb-10">

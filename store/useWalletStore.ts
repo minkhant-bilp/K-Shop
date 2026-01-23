@@ -1,5 +1,16 @@
-import { TransactionData } from '@/components/transaction/TransactionItem';
 import { create } from 'zustand';
+
+export interface TransactionData {
+  id: string;
+  type: 'purchase' | 'deposit';
+  title: string;
+  subTitle: string;
+  date: string;
+  amount: number;
+  currency: string;
+  status: 'success' | 'pending' | 'failed';
+  image: any;
+}
 
 type Country = "MM" | "TH";
 
@@ -10,41 +21,47 @@ interface WalletState {
   transactions: TransactionData[];
 
   setCountry: (country: Country) => void;
-  buyPackage: (price: number, country: Country, title: string) => boolean;
+  buyPackage: (price: number, country: Country, gameName: string, packageName: string, image: any) => boolean;
+  buyPhoneBill: (price: number, country: Country, phoneNumber: string, packageName: string, image: any) => boolean;
   requestTopUp: (amount: number, methodName: string) => void;
 }
 
-
-
 export const useWalletStore = create<WalletState>((set, get) => ({
-  mmBalance: 1000, 
-  thBalance: 10,   
+  mmBalance: 500000,
+  thBalance: 5000,   
   selectedCountry: "MM",
   transactions: [],
 
   setCountry: (country) => set({ selectedCountry: country }),
 
-  buyPackage: (price, country, title) => {
+  // Game Package Purchase
+  buyPackage: (price, country, gameName, packageName, image) => {
     const { mmBalance, thBalance } = get();
 
     if (country === "MM" && mmBalance < price) return false;
     if (country === "TH" && thBalance < price) return false;
 
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
     const newTransaction: TransactionData = {
         id: Date.now().toString(),
         type: 'purchase',
-        title: title,
-        date: new Date().toLocaleString(),
+        title: gameName,
+        subTitle: packageName,
+        date: `${dateStr} • ${timeStr}`,
         amount: price,
         currency: country === "MM" ? "Ks" : "THB", 
-        status: 'success'
+        status: 'success',
+        image: image
     };
 
     set((state) => {
         if (country === "MM") {
             return { 
                 mmBalance: state.mmBalance - price, 
-                transactions: [newTransaction, ...state.transactions] 
+                transactions: [newTransaction, ...state.transactions]
             };
         } else {
             return { 
@@ -57,28 +74,50 @@ export const useWalletStore = create<WalletState>((set, get) => ({
     return true;
   },
 
-  // 🔥 ဒီကောင်ကို ပြင်လိုက်ပါ (Payment Method ပေါ်မူတည်ပြီး Currency ခွဲမယ်)
+  // Phone Bill Purchase
+  buyPhoneBill: (price, country, phoneNumber, packageName, image) => {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+    const newTransaction: TransactionData = {
+        id: Date.now().toString(),
+        type: 'purchase',
+        title: 'Phone Bill',
+        subTitle: `${phoneNumber} • ${packageName}`,
+        date: `${dateStr} • ${timeStr}`,
+        amount: price,
+        currency: country === "MM" ? "Ks" : "Baht", 
+        status: 'pending',
+        image: image
+    };
+
+    set((state) => ({
+        transactions: [newTransaction, ...state.transactions]
+    }));
+
+    return true;
+  },
+
   requestTopUp: (amount, methodName) => {
     const { selectedCountry } = get();
-
-    // မူလသတ်မှတ်ချက် (Country အလိုက်)
     let currency = selectedCountry === "MM" ? "Ks" : "THB";
+    if (methodName.includes("KBZ") || methodName.includes("Wave")) currency = "Ks"; 
+    else if (methodName.includes("K-Bank") || methodName.includes("True")) currency = "THB"; 
 
-    // 🚨 Logic Fix: Payment Name ပေါ်မူတည်ပြီး အသေပြန်သတ်မှတ်မယ်
-    if (methodName.includes("KBZ") || methodName.includes("Wave")) {
-        currency = "Ks"; // KBZ, Wave ဆိုရင် Ks ပဲ ဖြစ်ရမယ်
-    } else if (methodName.includes("K-Bank") || methodName.includes("True")) {
-        currency = "THB"; // K-Bank, TrueMoney ဆိုရင် THB ပဲ ဖြစ်ရမယ်
-    }
+    const now = new Date();
+    const dateStr = `${now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} • ${now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
 
     const newTransaction: TransactionData = {
         id: Date.now().toString(),
         type: 'deposit',
-        title: `${methodName} Topup`, 
-        date: new Date().toLocaleString(),
+        title: `${methodName}`, 
+        subTitle: "Wallet Topup",
+        date: dateStr,
         amount: amount,
-        currency: currency, // 🔥 ပြင်ထားတဲ့ Currency ထည့်လိုက်ပြီ
-        status: 'pending' 
+        currency: currency, 
+        status: 'pending',
+        image: require('@/assets/game_image/wave.png')
     };
 
     set((state) => ({

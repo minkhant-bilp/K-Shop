@@ -20,7 +20,7 @@ import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 const { width } = Dimensions.get("window");
 
 const COLORS = {
-  primary: "#FF3232", // Brand Red
+  primary: "#FF3232",
   darkRed: "#b91c1c",
   dark: "#0f172a",
   gray: "#64748b",
@@ -30,24 +30,19 @@ const COLORS = {
   success: "#10b981",
 };
 
-const SignUpScreen = () => {
+const LoginScreen = () => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
-  // Form State
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // UI State
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Animations
   const fadeAnim = useState(new Animated.Value(0))[0];
   const toastAnim = useRef(new Animated.Value(-150)).current;
 
-  // Toast State
   const [toastConfig, setToastConfig] = useState({ message: "", type: "error" });
 
   useEffect(() => {
@@ -76,13 +71,7 @@ const SignUpScreen = () => {
     ]).start();
   };
 
-  const handleSignUp = () => {
-    if (!name.trim()) {
-      showToast("Please enter your Full Name!", "error");
-      return;
-    }
-
-    // 2. Check Email
+  const handleSignIn = () => {
     if (!email.trim()) {
       showToast("Email address is required!", "error");
       return;
@@ -99,21 +88,15 @@ const SignUpScreen = () => {
       return;
     }
 
-    if (password.length < 8) {
-      showToast("Password must be at least 8 characters!", "error");
-      return;
-    }
-
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
 
-      showToast("Account Created Successfully!", "success");
+      showToast("Login Successful!", "success");
 
       setTimeout(() => {
         router.replace("/(app)/(bottom-tab)/home");
-      }, 100);
-
+      }, 1000);
     }, 1500);
   };
 
@@ -148,27 +131,13 @@ const SignUpScreen = () => {
         >
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1, paddingBottom: 30 }}>
 
-            {/* 🔥 HEADER SECTION */}
             <Animated.View style={[styles.header, { opacity: fadeAnim, transform: [{ translateY: fadeAnim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }] }]}>
-              <Text style={styles.title}>Create Account</Text>
-              <Text style={styles.subtitle}>Sign up to get started!</Text>
+              <Text style={styles.title}>Welcome Back!</Text>
+              <Text style={styles.subtitle}>Sign in to continue your journey.</Text>
             </Animated.View>
 
+            {/* 🔥 FORM SECTION */}
             <View style={styles.formContainer}>
-
-              =              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Full Name</Text>
-                <View style={[styles.inputWrapper, !name && styles.inputError]}>
-                  <Ionicons name="person" size={20} color={COLORS.gray} />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="John Doe"
-                    placeholderTextColor="#94a3b8"
-                    value={name}
-                    onChangeText={setName}
-                  />
-                </View>
-              </View>
 
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Email Address</Text>
@@ -201,9 +170,16 @@ const SignUpScreen = () => {
                     <Ionicons name={showPassword ? "eye-off" : "eye"} size={20} color={COLORS.gray} />
                   </TouchableOpacity>
                 </View>
+
+                <TouchableOpacity
+                  style={{ alignSelf: 'flex-end', marginTop: 10 }}
+                  onPress={() => console.log("Help Pressed")}
+                >
+                  <Text style={styles.helpText}>Need Help?</Text>
+                </TouchableOpacity>
               </View>
 
-              <TouchableOpacity activeOpacity={0.8} onPress={handleSignUp} style={styles.shadowBtn}>
+              <TouchableOpacity activeOpacity={0.8} onPress={handleSignIn} style={styles.shadowBtn}>
                 <LinearGradient
                   colors={[COLORS.primary, COLORS.darkRed]}
                   start={{ x: 0, y: 0 }}
@@ -213,28 +189,28 @@ const SignUpScreen = () => {
                   {isLoading ? (
                     <ActivityIndicator color="white" />
                   ) : (
-                    <Text style={styles.btnText}>Sign Up</Text>
+                    <Text style={styles.btnText}>Log In</Text>
                   )}
                 </LinearGradient>
               </TouchableOpacity>
 
               <View style={styles.dividerBox}>
                 <View style={styles.line} />
-                <Text style={styles.orText}>Or sign up with</Text>
+                <Text style={styles.orText}>Or continue with</Text>
                 <View style={styles.line} />
               </View>
 
               <TouchableOpacity style={styles.googleBtn} activeOpacity={0.8}>
                 <AntDesign name="google" size={22} color="black" />
-                <Text style={styles.googleText}>Continue with Google</Text>
+                <Text style={styles.googleText}>Sign in with Google</Text>
               </TouchableOpacity>
 
             </View>
 
             <View style={styles.footer}>
-              <Text style={{ color: COLORS.gray }}>Already have an account? </Text>
-              <TouchableOpacity onPress={() => router.push("/(auth)/sign-in")}>
-                <Text style={{ color: COLORS.primary, fontWeight: "800" }}>Login</Text>
+              <Text style={{ color: COLORS.gray }}>Dont have an account? </Text>
+              <TouchableOpacity onPress={() => router.push("/(app)/(bottom-tab)/home")}>
+                <Text style={{ color: COLORS.primary, fontWeight: "800" }}>Sign Up</Text>
               </TouchableOpacity>
             </View>
 
@@ -278,7 +254,7 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    marginTop: 40,
+    marginTop: 80,
     paddingHorizontal: 24,
     marginBottom: 40
   },
@@ -295,6 +271,7 @@ const styles = StyleSheet.create({
     fontWeight: "500"
   },
 
+  // Form
   formContainer: {
     paddingHorizontal: 24,
   },
@@ -318,8 +295,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.border,
   },
-  inputError: {
-  },
   input: {
     flex: 1,
     height: '100%',
@@ -327,6 +302,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: COLORS.dark,
     fontWeight: "600"
+  },
+
+  helpText: {
+    color: COLORS.gray,
+    fontWeight: "500",
+    fontSize: 14,
+    textDecorationLine: 'underline'
   },
 
   shadowBtn: {
@@ -397,4 +379,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default SignUpScreen;
+export default LoginScreen;

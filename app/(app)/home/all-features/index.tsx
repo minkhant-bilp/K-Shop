@@ -20,9 +20,8 @@ import DynamicText from '@/components/ui/dynamic-text/dynamic-text';
 import ScreenWrapper from '@/components/ui/layout/screen-wrapper';
 
 const FEATURES: FeatureData[] = [
-  // Group 1: Services
   { id: '1', title: 'Popular', icon: Flame, route: '/home/popular' },
-  { id: '2', title: 'Top Up', icon: Smartphone, route: '/home/top-up' },
+  { id: '2', title: 'Bill', icon: Smartphone, route: '/home/top-up' },
   { id: '3', title: 'PC Games', icon: Monitor, route: '/home/pc-game' },
   { id: '4', title: 'Vouchers', icon: Ticket, route: '/home/voucher' },
   { id: '5', title: 'History', icon: History, route: '/home/transaction', color: '#3b82f6' },
@@ -36,7 +35,6 @@ const AllFeatures = () => {
   return (
     <ScreenWrapper headerShown={false} isSafeArea={false}>
 
-      {/* Header */}
       <LinearGradient
         colors={["#991b1b", "#dc2626", "#ef4444"]}
         start={{ x: 0, y: 0 }}

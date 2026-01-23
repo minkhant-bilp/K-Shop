@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { Image, Modal, StyleSheet, TouchableOpacity, View } from "react-native";
 import Animated, { Easing, SlideInDown } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import DynamicText from "../ui/dynamic-text/dynamic-text";
 
 import { useWalletStore } from "@/store/useWalletStore";
@@ -20,6 +21,7 @@ type PurchaseActionSheetProps = {
 export default function ActionSheet({ visible, onClose, onSubmit, item, userId, zoneId }: PurchaseActionSheetProps) {
 
     const { mmBalance, thBalance, selectedCountry } = useWalletStore();
+    const insets = useSafeAreaInsets();
 
     if (!item) return null;
 
@@ -40,14 +42,16 @@ export default function ActionSheet({ visible, onClose, onSubmit, item, userId, 
 
             <Animated.View
                 entering={SlideInDown.duration(300).easing(Easing.out(Easing.quad))}
-                style={styles.sheetContainer}
+                style={[
+                    styles.sheetContainer,
+                    { paddingBottom: insets.bottom > 0 ? insets.bottom + 20 : 40 }
+                ]}
             >
                 <View style={styles.sheetHandle} />
 
                 <View style={styles.sheetContent}>
                     <DynamicText fontWeight="bold" style={styles.sheetTitle}>Checkout</DynamicText>
 
-                    {/* Product Info */}
                     <View style={styles.productCard}>
                         <Image source={item.image} style={styles.sheetImage} resizeMode="contain" />
                         <View style={styles.productInfo}>
@@ -57,7 +61,6 @@ export default function ActionSheet({ visible, onClose, onSubmit, item, userId, 
                         <DynamicText fontWeight="bold" style={styles.itemPrice}>{item.price}</DynamicText>
                     </View>
 
-                    {/* User ID */}
                     <View style={styles.infoRow}>
                         <DynamicText style={styles.infoLabel}>User ID:</DynamicText>
                         <DynamicText fontWeight="bold" style={styles.infoValue}>{userId} ({zoneId})</DynamicText>
@@ -65,7 +68,6 @@ export default function ActionSheet({ visible, onClose, onSubmit, item, userId, 
 
                     <View style={styles.divider} />
 
-                    {/* Wallet Check Section */}
                     <View style={styles.walletSection}>
                         <View style={styles.walletRow}>
                             <View style={styles.walletLabelGroup}>
@@ -117,7 +119,6 @@ const styles = StyleSheet.create({
         backgroundColor: "rgba(0,0,0,0.6)"
     },
     sheetContainer: {
-
         position: 'absolute',
         bottom: 0,
         left: 0,
@@ -127,7 +128,6 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 28,
         paddingHorizontal: 24,
         paddingTop: 12,
-        paddingBottom: 40,
         elevation: 50,
         zIndex: 999
     },
@@ -243,7 +243,8 @@ const styles = StyleSheet.create({
         paddingVertical: 16,
         borderRadius: 16,
         alignItems: 'center',
-        elevation: 2
+        elevation: 2,
+        marginBottom: 10
     },
     disabledBtn: {
         backgroundColor: '#94a3b8',

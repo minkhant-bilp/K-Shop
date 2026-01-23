@@ -69,7 +69,7 @@ export default function GameDetailScreen() {
     const handleConfirmPurchase = () => {
         if (selectedPackage) {
             const price = parseInt(selectedPackage.price.replace(/[^0-9]/g, ''), 10);
-            buyPackage(price, selectedCountry, selectedPackage.amount);
+            buyPackage(price, selectedCountry, selectedPackage.amount, userId, zoneId);
         }
 
         setShowPurchaseSheet(false);

@@ -22,7 +22,7 @@ const Notification = () => {
     const hasNotifications = NOTIFICATIONS.length > 0;
 
     return (
-        <ScreenWrapper headerShown={false} isSafeArea={false}>
+        <ScreenWrapper headerShown={false} isSafeArea={false} >
 
             <LinearGradient
                 colors={["#991b1b", "#dc2626", "#ef4444"]}
@@ -86,7 +86,7 @@ export default Notification;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#f8fafc"
+        backgroundColor: "white"
     },
     header: {
         paddingBottom: 25,

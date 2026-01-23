@@ -3,9 +3,9 @@ import { primaryColor } from "@/structure/styles/colors";
 import React, { useCallback } from "react";
 import { Pressable, View } from "react-native";
 import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withTiming,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
 } from "react-native-reanimated";
 
 type Props = {
@@ -18,6 +18,7 @@ const LanguageSwitchButton: React.FC<Props> = ({
   onChangeLang,
 }) => {
   const sliderPosition = useSharedValue(currentLang === "en" ? 0 : 1);
+
 
   const handleToggle = useCallback(
     (lang: "en" | "kr") => {

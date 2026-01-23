@@ -1,14 +1,13 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { LinearGradient } from "expo-linear-gradient";
-import { router } from "expo-router";
-import React, { useCallback } from "react";
-import { Platform, StyleSheet, View } from "react-native";
+import { useRouter } from "expo-router";
+import React from "react";
+import { StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Button from "../button/button";
 import DynamicText from "../dynamic-text/dynamic-text";
 
 export const SECONDARY_COLOR = ["#FF3232", "#000000"];
-const isIOS = Platform.OS === "ios";
 
 interface GameShopHeaderProps {
   title?: string;
@@ -22,37 +21,24 @@ const GameShopHeader: React.FC<GameShopHeaderProps> = ({
   onNotiPress,
 }) => {
   const insets = useSafeAreaInsets();
-
-  const onPressBack = useCallback(() => {
-    router.back();
-  }, []);
+  const router = useRouter();
 
   return (
     <LinearGradient
       colors={SECONDARY_COLOR as any}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 0 }}
-      style={[
-        styles.container,
-        {
-          paddingTop: insets.top,
-        },
-      ]}
+      style={[styles.container, { paddingTop: insets.top }]}
     >
-      {/* <View style={styles.left}> */}
-        {/* <Button onPress={onPressBack} style={styles.iconButton}>
-          <AntDesign name="left" size={22} color="#fff" />
-        </Button> */}
-        <DynamicText fontSize="2xl" fontWeight="bold" fontColor="#fff">
-          {title}
-        </DynamicText>
-      {/* </View> */}
+      <DynamicText fontSize="2xl" fontWeight="bold" fontColor="#fff">
+        {title}
+      </DynamicText>
 
       <View style={styles.right}>
         <Button onPress={onSearchPress} style={styles.iconButton}>
           <Ionicons name="search-outline" size={22} color="#fff" />
         </Button>
-        <Button onPress={onNotiPress} style={styles.iconButton}>
+        <Button style={styles.iconButton} onPress={() => router.navigate("/(app)/(bottom-tab)/notification")}>
           <Ionicons name="notifications-outline" size={22} color="#fff" />
         </Button>
       </View>
@@ -68,15 +54,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 20,
   },
-  left: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
   right: {
     flexDirection: "row",
     alignItems: "center",
-    // gap: 4,
   },
   iconButton: {
     padding: 6,

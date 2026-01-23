@@ -8,7 +8,7 @@ interface EditInputItemProps {
     value: string;
     placeholder: string;
     icon: keyof typeof Ionicons.glyphMap;
-    isEditable?: boolean; // ပြင်လို့ရ/မရ စစ်ဖို့
+    isEditable?: boolean;
     onChangeText?: (text: string) => void;
 }
 
@@ -25,7 +25,6 @@ const EditInputItem = ({
             <DynamicText style={styles.label}>{label}</DynamicText>
 
             <View style={[styles.inputBox, !isEditable && styles.disabledBox]}>
-                {/* Icon အနီရောင်လေး */}
                 <Ionicons name={icon} size={20} color="#E11D48" style={{ marginRight: 10 }} />
 
                 <TextInput
@@ -37,7 +36,6 @@ const EditInputItem = ({
                     onChangeText={onChangeText}
                 />
 
-                {/* ပြင်မရရင် သော့ခလောက်ပုံ ပြမယ် */}
                 {!isEditable && (
                     <Ionicons name="lock-closed" size={16} color="#cbd5e1" />
                 )}
@@ -46,7 +44,6 @@ const EditInputItem = ({
     );
 };
 
-// 🔥 memo သုံးထားလို့ စာရိုက်ရင် တခြားနေရာတွေ လိုက်မလုပ်တော့ဘူး (Performance ကောင်း)
 export default memo(EditInputItem);
 
 const styles = StyleSheet.create({
@@ -76,7 +73,7 @@ const styles = StyleSheet.create({
         elevation: 2
     },
     disabledBox: {
-        backgroundColor: "#f8fafc", // မီးခိုးရောင်ဖျော့ဖျော့
+        backgroundColor: "#f8fafc",
         borderColor: "#e2e8f0"
     },
     input: {
