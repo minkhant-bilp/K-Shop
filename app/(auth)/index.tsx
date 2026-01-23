@@ -148,7 +148,6 @@ const SignUpScreen = () => {
         >
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1, paddingBottom: 30 }}>
 
-            {/* 🔥 HEADER SECTION */}
             <Animated.View style={[styles.header, { opacity: fadeAnim, transform: [{ translateY: fadeAnim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }] }]}>
               <Text style={styles.title}>Create Account</Text>
               <Text style={styles.subtitle}>Sign up to get started!</Text>
@@ -156,7 +155,7 @@ const SignUpScreen = () => {
 
             <View style={styles.formContainer}>
 
-              =              <View style={styles.inputGroup}>
+              <View style={styles.inputGroup}>
                 <Text style={styles.label}>Full Name</Text>
                 <View style={[styles.inputWrapper, !name && styles.inputError]}>
                   <Ionicons name="person" size={20} color={COLORS.gray} />

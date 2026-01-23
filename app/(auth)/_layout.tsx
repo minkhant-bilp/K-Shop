@@ -16,7 +16,6 @@ export default function AuthLayout() {
             options={{ headerShown: false, presentation: "card" }}
           />
         </Stack.Protected>
-        <Stack.Protected guard={true}></Stack.Protected>
       </Stack>
     </React.Fragment>
   );
