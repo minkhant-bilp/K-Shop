@@ -1,6 +1,6 @@
 import DynamicText from "@/components/ui/dynamic-text/dynamic-text";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
   Dimensions,
@@ -38,6 +38,8 @@ const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose }) => {
 
   useEffect(() => {
     if (visible) {
+      // Modal ပေါ်လာရင် Input ကို Focus ချက်ချင်းလုပ်မယ်
+      // Animation စမယ်
       setTimeout(() => inputRef.current?.focus(), 100);
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -45,6 +47,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose }) => {
         useNativeDriver: true,
       }).start();
     } else {
+      // ပိတ်ရင် စာတွေရှင်းပြီး Animation ပြန်ချမယ်
       setSearchText("");
       Animated.timing(fadeAnim, {
         toValue: 0,
@@ -54,12 +57,11 @@ const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose }) => {
     }
   }, [visible]);
 
-  const filteredProducts = useMemo(() => {
-    if (!searchText) return [];
-    return ALL_PRODUCTS.filter(product =>
+  const filteredProducts = !searchText
+    ? []
+    : ALL_PRODUCTS.filter(product =>
       product.toLowerCase().includes(searchText.toLowerCase())
     );
-  }, [searchText]);
 
   return (
     <Modal
@@ -110,7 +112,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose }) => {
                   placeholder="Search games & cards..."
                   placeholderTextColor="#94a3b8"
                   value={searchText}
-                  onChangeText={setSearchText}
+                  onChangeText={setSearchText} // 🔥 Log မထုတ်တော့ဘဲ တိုက်ရိုက်ချိတ်လိုက်တယ်
                   cursorColor={BRAND_COLOR}
                   selectionColor={BRAND_COLOR}
                 />
@@ -133,7 +135,8 @@ const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose }) => {
                     renderItem={({ item }) => (
                       <TouchableOpacity
                         style={styles.resultItem}
-                        onPress={() => console.log("Selected:", item)}
+                        // ဒီနေရာမှာ item ကို နှိပ်ရင် ဘာလုပ်မလဲ ထည့်လို့ရတယ်
+                        // ဥပမာ: router.push(...)
                         activeOpacity={0.7}
                       >
                         <View style={styles.itemDot} />

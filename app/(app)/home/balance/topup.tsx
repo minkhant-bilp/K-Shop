@@ -4,7 +4,7 @@ import { FontAwesome5, Ionicons, MaterialCommunityIcons } from "@expo/vector-ico
 import { FlashList } from "@shopify/flash-list";
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useState } from "react";
 import {
     Alert,
     Image,
@@ -53,7 +53,7 @@ export default function DepositScreen() {
     const [amount, setAmount] = useState("");
     const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
 
-    const current = useMemo(() => CONFIG[country], [country]);
+    const current = CONFIG[country];
 
     const MIN_LIMIT = country === "MM" ? 2000 : 20;
 
@@ -80,7 +80,7 @@ export default function DepositScreen() {
         });
     };
 
-    const renderMethod = useCallback(({ item }: any) => {
+    const renderMethod = ({ item }: any) => {
         const isActive = selectedMethod === item.id;
         return (
             <View style={{ paddingHorizontal: 20 }}>
@@ -104,103 +104,101 @@ export default function DepositScreen() {
                 </TouchableOpacity>
             </View>
         );
-    }, [selectedMethod]);
+    };
 
-    const listHeader = useMemo(() => {
-        return (
-            <View style={{ padding: 20 }}>
-                <View style={styles.toggleContainer}>
-                    {(["MM", "TH"] as const).map((c) => (
-                        <TouchableOpacity
-                            key={c}
-                            onPress={() => {
-                                setCountry(c);
-                                setSelectedMethod(null);
-                                setAmount("");
-                            }}
-                            style={StyleSheet.flatten([styles.toggleBtn, country === c && styles.activeToggle])}
-                        >
-                            <DynamicText style={{ fontSize: 16 }}>{CONFIG[c].flag}</DynamicText>
-                            <DynamicText fontWeight="bold" style={StyleSheet.flatten([styles.toggleLabel, country === c && styles.activeToggleLabel])}>
-                                {CONFIG[c].label}
-                            </DynamicText>
-                        </TouchableOpacity>
-                    ))}
-                </View>
-
-                <LinearGradient
-                    colors={["#991b1b", "#dc2626", "#ef4444"]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.amountCard}
-                >
-                    <View style={styles.cardHeader}>
-                        <DynamicText style={styles.inputLabel} fontWeight="semibold">Deposit Amount</DynamicText>
-                        <View style={styles.currencyBadge}>
-                            <DynamicText style={styles.currencyText} fontWeight="bold">{current.currency}</DynamicText>
-                        </View>
-                    </View>
-
-                    <View style={styles.inputWrapper}>
-                        <DynamicText style={styles.symbolText}>{current.symbol}</DynamicText>
-                        <TextInput
-                            style={styles.textInput}
-                            placeholder="0.00"
-                            keyboardType="numeric"
-                            value={amount}
-                            onChangeText={setAmount}
-                            placeholderTextColor="rgba(255, 255, 255, 0.6)"
-                            textAlignVertical="center"
-                        />
-                    </View>
-
-                    {isBelowLimit && (
-                        <View style={styles.warningContainer}>
-                            <Ionicons name="alert-circle" size={14} color={COLORS.warning} />
-                            <DynamicText style={styles.warningText} fontWeight="medium">
-                                Minimum deposit is {MIN_LIMIT.toLocaleString()} {current.currency}
-                            </DynamicText>
-                        </View>
-                    )}
-
-                </LinearGradient>
-
-                <View style={styles.sectionRow}>
-                    <FontAwesome5 name="wallet" size={14} color={COLORS.primary} />
-                    <DynamicText style={styles.sectionTitle} fontWeight="bold">Payment Amount</DynamicText>
-                </View>
-
-                <View style={styles.grid}>
-                    {current.presets.map((v) => {
-                        const isActive = amount === v.toString();
-                        return (
-                            <View key={v} style={styles.gridItem}>
-                                <TouchableOpacity
-                                    activeOpacity={0.8}
-                                    onPress={() => setAmount(v.toString())}
-                                    style={StyleSheet.flatten([styles.presetBox, isActive && styles.activePresetBox])}
-                                >
-                                    <View style={StyleSheet.flatten([styles.iconCircle, isActive && styles.activeIconCircle])}>
-                                        <MaterialCommunityIcons name="cash-multiple" size={16} color={isActive ? "#FFF" : COLORS.primary} />
-                                    </View>
-                                    <DynamicText style={StyleSheet.flatten([styles.presetVal, isActive && styles.activePresetVal])} fontWeight="bold">
-                                        {v.toLocaleString()}
-                                    </DynamicText>
-                                    <DynamicText style={StyleSheet.flatten([{ fontSize: 9, color: COLORS.textMuted }, isActive && { color: "#FFF" }])}>{current.currency}
-                                    </DynamicText>
-                                </TouchableOpacity>
-                            </View>
-                        );
-                    })}
-                </View>
-
-                <View style={styles.sectionRow}>
-                    <FontAwesome5 name="shield-alt" size={14} color={COLORS.success} />
-                    <DynamicText style={styles.sectionTitle} fontWeight="bold">Secure Payments</DynamicText>
-                </View>
+    const listHeader = (
+        <View style={{ padding: 20 }}>
+            <View style={styles.toggleContainer}>
+                {(["MM", "TH"] as const).map((c) => (
+                    <TouchableOpacity
+                        key={c}
+                        onPress={() => {
+                            setCountry(c);
+                            setSelectedMethod(null);
+                            setAmount("");
+                        }}
+                        style={StyleSheet.flatten([styles.toggleBtn, country === c && styles.activeToggle])}
+                    >
+                        <DynamicText style={{ fontSize: 16 }}>{CONFIG[c].flag}</DynamicText>
+                        <DynamicText fontWeight="bold" style={StyleSheet.flatten([styles.toggleLabel, country === c && styles.activeToggleLabel])}>
+                            {CONFIG[c].label}
+                        </DynamicText>
+                    </TouchableOpacity>
+                ))}
             </View>
-        );
-    }, [country, amount, current, isBelowLimit, MIN_LIMIT]);
+
+            <LinearGradient
+                colors={["#991b1b", "#dc2626", "#ef4444"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.amountCard}
+            >
+                <View style={styles.cardHeader}>
+                    <DynamicText style={styles.inputLabel} fontWeight="semibold">Deposit Amount</DynamicText>
+                    <View style={styles.currencyBadge}>
+                        <DynamicText style={styles.currencyText} fontWeight="bold">{current.currency}</DynamicText>
+                    </View>
+                </View>
+
+                <View style={styles.inputWrapper}>
+                    <DynamicText style={styles.symbolText}>{current.symbol}</DynamicText>
+                    <TextInput
+                        style={styles.textInput}
+                        placeholder="0.00"
+                        keyboardType="numeric"
+                        value={amount}
+                        onChangeText={setAmount}
+                        placeholderTextColor="rgba(255, 255, 255, 0.6)"
+                        textAlignVertical="center"
+                    />
+                </View>
+
+                {isBelowLimit && (
+                    <View style={styles.warningContainer}>
+                        <Ionicons name="alert-circle" size={14} color={COLORS.warning} />
+                        <DynamicText style={styles.warningText} fontWeight="medium">
+                            Minimum deposit is {MIN_LIMIT.toLocaleString()} {current.currency}
+                        </DynamicText>
+                    </View>
+                )}
+
+            </LinearGradient>
+
+            <View style={styles.sectionRow}>
+                <FontAwesome5 name="wallet" size={14} color={COLORS.primary} />
+                <DynamicText style={styles.sectionTitle} fontWeight="bold">Payment Amount</DynamicText>
+            </View>
+
+            <View style={styles.grid}>
+                {current.presets.map((v) => {
+                    const isActive = amount === v.toString();
+                    return (
+                        <View key={v} style={styles.gridItem}>
+                            <TouchableOpacity
+                                activeOpacity={0.8}
+                                onPress={() => setAmount(v.toString())}
+                                style={StyleSheet.flatten([styles.presetBox, isActive && styles.activePresetBox])}
+                            >
+                                <View style={StyleSheet.flatten([styles.iconCircle, isActive && styles.activeIconCircle])}>
+                                    <MaterialCommunityIcons name="cash-multiple" size={16} color={isActive ? "#FFF" : COLORS.primary} />
+                                </View>
+                                <DynamicText style={StyleSheet.flatten([styles.presetVal, isActive && styles.activePresetVal])} fontWeight="bold">
+                                    {v.toLocaleString()}
+                                </DynamicText>
+                                <DynamicText style={StyleSheet.flatten([{ fontSize: 9, color: COLORS.textMuted }, isActive && { color: "#FFF" }])}>{current.currency}
+                                </DynamicText>
+                            </TouchableOpacity>
+                        </View>
+                    );
+                })}
+            </View>
+
+            <View style={styles.sectionRow}>
+                <FontAwesome5 name="shield-alt" size={14} color={COLORS.success} />
+                <DynamicText style={styles.sectionTitle} fontWeight="bold">Secure Payments</DynamicText>
+            </View>
+        </View>
+    );
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>

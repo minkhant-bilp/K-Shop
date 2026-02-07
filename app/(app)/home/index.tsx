@@ -10,7 +10,7 @@ import {
   Ticket
 } from "lucide-react-native";
 import React, { useState } from "react";
-import { Pressable, ScrollView, View } from "react-native";
+import { Pressable, ScrollView, View, Dimensions } from "react-native";
 
 import SearchModal from "@/components/common/search/SearchModal";
 import FlashSaleList from "@/components/pager/Category";
@@ -33,9 +33,12 @@ const icons = [
   { id: 8, title: "All features", icon: MoreHorizontal, route: "/home/all-features" },
 ];
 
+const { width } = Dimensions.get("window");
+const ITEM_WIDTH = (width - 32) / 4;
+
 const IconItemComponent = ({ item }: { item: any }) => {
   return (
-    <View className="w-[22%] mb-6 items-center">
+    <View style={{ width: ITEM_WIDTH, marginBottom: 24, alignItems: "center" }}>
       <Pressable
         className="items-center w-full"
         onPress={() => router.push(item.route)}
@@ -52,8 +55,6 @@ const IconItemComponent = ({ item }: { item: any }) => {
   );
 };
 
-const AnimatedIconItem = React.memo(IconItemComponent);
-
 const HomeScreen = () => {
   const [isSearchVisible, setIsSearchVisible] = useState(false);
 
@@ -67,9 +68,9 @@ const HomeScreen = () => {
       <ScrollView showsVerticalScrollIndicator={false}>
         <WalletCard />
 
-        <View className="flex-row flex-wrap justify-between px-4 mt-4">
-          {icons.map((item, index) => (
-            <AnimatedIconItem key={item.id} item={item} />
+        <View className="flex-row flex-wrap px-4 mt-4">
+          {icons.map((item) => (
+            <IconItemComponent key={item.id} item={item} />
           ))}
         </View>
 

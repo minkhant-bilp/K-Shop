@@ -1,6 +1,6 @@
 import DynamicText from '@/components/ui/dynamic-text/dynamic-text';
 import { LucideIcon } from 'lucide-react-native';
-import React, { memo } from 'react';
+import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 interface ContactItemProps {
@@ -37,7 +37,7 @@ const ContactItem = ({ title, subTitle, icon: Icon, color, actionLabel, onPress 
     );
 };
 
-export default memo(ContactItem);
+export default ContactItem;
 
 const styles = StyleSheet.create({
     contactBtn: {

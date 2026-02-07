@@ -1,6 +1,6 @@
 import DynamicText from '@/components/ui/dynamic-text/dynamic-text';
 import { Ionicons } from '@expo/vector-icons';
-import React, { memo } from 'react';
+import React from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 
 interface EditInputItemProps {
@@ -44,7 +44,7 @@ const EditInputItem = ({
     );
 };
 
-export default memo(EditInputItem);
+export default EditInputItem;
 
 const styles = StyleSheet.create({
     container: {
@@ -65,7 +65,6 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         paddingHorizontal: 16,
         height: 56,
-        // Premium Shadow (အရိပ်ပါးပါးလေး)
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.05,

@@ -10,7 +10,10 @@ import {
     Image,
     ScrollView,
     StyleSheet,
-    TouchableOpacity, View
+    TouchableOpacity,
+    View,
+    Modal,
+    ActivityIndicator
 } from "react-native";
 
 import { useWalletStore } from "@/store/useWalletStore";
@@ -49,6 +52,8 @@ export default function PaymentDetailScreen() {
     const [receiptImage, setReceiptImage] = useState<string | null>(null);
     const [status, setStatus] = useState<'idle' | 'success'>('idle');
 
+    const [isLoading, setIsLoading] = useState(false);
+
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
     const showToast = () => {
@@ -76,10 +81,16 @@ export default function PaymentDetailScreen() {
     };
 
     const handleConfirm = () => {
-        requestTopUp(Number(amount), methodName as string);
+        setIsLoading(true);
 
-        setReceiptImage(null);
-        setStatus('success');
+        setTimeout(() => {
+            setIsLoading(false);
+
+
+            requestTopUp(Number(amount), methodName as string);
+            setReceiptImage(null);
+            setStatus('success');
+        }, 2000);
     };
 
     if (status === 'success') {
@@ -106,6 +117,21 @@ export default function PaymentDetailScreen() {
 
     return (
         <ScreenWrapper style={styles.container} isSafeArea={true} headerShown={false}>
+
+            <Modal
+                transparent={true}
+                animationType="fade"
+                visible={isLoading}
+                onRequestClose={() => { }}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.loadingBox}>
+                        <ActivityIndicator size="large" color={COLORS.primary} />
+                        <DynamicText style={styles.loadingTitle} fontWeight="bold">Processing Payment</DynamicText>
+                        <DynamicText style={styles.loadingDesc}>Verifying your slip, please wait...</DynamicText>
+                    </View>
+                </View>
+            </Modal>
 
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
@@ -188,14 +214,16 @@ export default function PaymentDetailScreen() {
 
             <View style={styles.footer}>
                 <TouchableOpacity
-                    disabled={!receiptImage}
+                    disabled={!receiptImage || isLoading}
                     style={[
                         styles.confirmBtn,
-                        !receiptImage && styles.disabledBtn
+                        (!receiptImage || isLoading) && styles.disabledBtn
                     ]}
                     onPress={handleConfirm}
                 >
-                    <DynamicText fontWeight="bold" style={styles.btnText}>Confirm Payment</DynamicText>
+                    <DynamicText fontWeight="bold" style={styles.btnText}>
+                        {isLoading ? "Processing..." : "Confirm Payment"}
+                    </DynamicText>
                 </TouchableOpacity>
             </View>
 
@@ -220,6 +248,36 @@ export default function PaymentDetailScreen() {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: COLORS.background },
+
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: "rgba(0, 0, 0, 0.6)",
+        alignItems: "center",
+        justifyContent: "center"
+    },
+    loadingBox: {
+        width: 280,
+        backgroundColor: COLORS.white,
+        padding: 24,
+        borderRadius: 20,
+        alignItems: "center",
+        elevation: 10,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+    },
+    loadingTitle: {
+        fontSize: 18,
+        color: COLORS.textDark,
+        marginTop: 16,
+        marginBottom: 8
+    },
+    loadingDesc: {
+        fontSize: 14,
+        color: COLORS.textGray,
+        textAlign: "center"
+    },
 
     centeredContainer: {
         flex: 1,

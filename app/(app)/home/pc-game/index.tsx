@@ -51,9 +51,6 @@ const PcGame = () => {
             <DynamicText fontWeight="bold" style={styles.headerTitle}>PC Games</DynamicText>
           </View>
 
-          <TouchableOpacity style={styles.iconBtn}>
-            <Ionicons name="search" size={22} color="white" />
-          </TouchableOpacity>
         </View>
       </LinearGradient>
 
@@ -96,7 +93,6 @@ const styles = StyleSheet.create({
   },
   headerContent: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 10,
@@ -107,7 +103,8 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     color: "white",
-    letterSpacing: 0.5
+    letterSpacing: 1,
+    marginLeft: 90
   },
   subTitle: {
     fontSize: 12,

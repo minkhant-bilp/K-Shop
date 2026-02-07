@@ -1,8 +1,7 @@
 import DynamicText from "@/components/ui/dynamic-text/dynamic-text";
 import { Ionicons } from "@expo/vector-icons";
-import React, { memo } from "react";
+import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-
 
 export interface NotificationData {
     id: string;
@@ -62,7 +61,7 @@ const NotificationItem = ({ item, onPress }: NotificationProps) => {
     );
 };
 
-export default memo(NotificationItem);
+export default NotificationItem;
 
 const styles = StyleSheet.create({
     container: {

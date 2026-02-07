@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { memo } from "react";
+import React from "react";
 import { Dimensions, Image, StyleSheet, TouchableOpacity, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import DynamicText from "../ui/dynamic-text/dynamic-text";
@@ -62,7 +62,7 @@ const PcGameCard = ({ item, index, onPress }: Props) => {
 };
 
 
-export default memo(PcGameCard);
+export default PcGameCard;
 
 const styles = StyleSheet.create({
     container: {
@@ -74,7 +74,6 @@ const styles = StyleSheet.create({
         backgroundColor: "white",
         borderRadius: 16,
         overflow: "hidden",
-        // Shadow
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,

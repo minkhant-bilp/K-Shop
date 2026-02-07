@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { memo } from "react";
+import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
@@ -62,7 +62,7 @@ const TransactionItem = ({ item, index }: TransactionItemProps) => {
     );
 };
 
-export default memo(TransactionItem);
+export default TransactionItem;
 
 const styles = StyleSheet.create({
     card: {

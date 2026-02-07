@@ -1,7 +1,7 @@
 import DynamicText from "@/components/ui/dynamic-text/dynamic-text";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { memo } from "react";
+import React from "react";
 import { ImageBackground, StyleSheet, TouchableOpacity, View } from "react-native";
 import Animated, { FadeInUp } from "react-native-reanimated";
 
@@ -24,7 +24,6 @@ interface PromoProps {
 
 const PromoCard = ({ item, index, onPress }: PromoProps) => {
 
-
     const getTagColor = (tag: string) => {
         switch (tag) {
             case 'Hot': return '#ef4444';
@@ -40,7 +39,6 @@ const PromoCard = ({ item, index, onPress }: PromoProps) => {
         >
             <TouchableOpacity activeOpacity={0.9} onPress={onPress} style={styles.cardContainer}>
 
-                {/* (1) Background Image */}
                 <ImageBackground source={item.image} style={styles.bgImage} imageStyle={{ borderRadius: 16 }}>
 
                     <LinearGradient
@@ -77,7 +75,7 @@ const PromoCard = ({ item, index, onPress }: PromoProps) => {
     );
 };
 
-export default memo(PromoCard);
+export default PromoCard;
 
 const styles = StyleSheet.create({
     wrapper: {

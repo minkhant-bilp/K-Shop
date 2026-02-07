@@ -1,7 +1,7 @@
 import { FlashList } from "@shopify/flash-list";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import React, { memo, useCallback } from "react";
+import React from "react";
 import {
     Image,
     TouchableOpacity,
@@ -90,15 +90,13 @@ const GameCardComponent = ({
     );
 };
 
-const GameCard = memo(GameCardComponent);
-
 const Products: React.FC = () => {
     const router = useRouter();
     const { width } = useWindowDimensions();
 
     const numColumns = width > 600 ? 4 : 2;
 
-    const handlePressProduct = useCallback((item: Game) => {
+    const handlePressProduct = (item: Game) => {
         router.push({
             pathname: "/home/products",
             params: {
@@ -107,7 +105,7 @@ const Products: React.FC = () => {
                 image: item.image
             }
         });
-    }, []);
+    };
 
     return (
         <View className="flex-1 bg-white px-4 pt-2">
@@ -121,7 +119,7 @@ const Products: React.FC = () => {
                 renderItem={({ item, index }) => {
                     const isLastColumn = (index + 1) % numColumns === 0;
                     return (
-                        <GameCard
+                        <GameCardComponent
                             item={item}
                             isLastColumn={isLastColumn}
                             onPress={() => handlePressProduct(item)}

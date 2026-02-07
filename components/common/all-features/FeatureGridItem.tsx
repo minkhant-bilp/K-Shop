@@ -1,6 +1,6 @@
 import DynamicText from "@/components/ui/dynamic-text/dynamic-text";
 import { LucideIcon } from "lucide-react-native";
-import React, { memo } from "react";
+import React from "react";
 import { Dimensions, StyleSheet, TouchableOpacity, View } from "react-native";
 
 const { width } = Dimensions.get("window");
@@ -49,7 +49,7 @@ const FeatureGridItem = ({ item, onPress }: FeatureItemProps) => {
     );
 };
 
-export default memo(FeatureGridItem);
+export default FeatureGridItem;
 
 const styles = StyleSheet.create({
     wrapper: {

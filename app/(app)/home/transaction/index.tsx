@@ -1,30 +1,85 @@
 import { Ionicons } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
+  Image
 } from 'react-native';
 
-import TransactionItem from '@/components/transaction/TransactionItem';
 import ScreenWrapper from '@/components/ui/layout/screen-wrapper';
-import { useWalletStore } from '@/store/useWalletStore';
+import { useWalletStore, TransactionData } from '@/store/useWalletStore';
 
 const TABS = ['All', 'Income', 'Expense'] as const;
+
+const TransactionItem = ({ item }: { item: TransactionData }) => {
+
+  const getStatusConfig = (status: string) => {
+    switch (status) {
+      case 'success':
+        return { color: '#10B981', icon: 'checkmark-circle', bg: '#ECFDF5', text: 'Success' };
+      case 'failed':
+        return { color: '#EF4444', icon: 'close-circle', bg: '#FEF2F2', text: 'Failed' };
+      default:
+        return { color: '#F59E0B', icon: 'time', bg: '#FFFBEB', text: 'Pending' };
+    }
+  };
+
+  const statusInfo = getStatusConfig(item.status);
+  const isIncome = item.type === 'deposit';
+
+  return (
+    <View style={styles.card}>
+      <View style={styles.iconBox}>
+        {item.image ? (
+          <Image source={item.image} style={styles.image} resizeMode="contain" />
+        ) : (
+          <Ionicons name={isIncome ? "wallet" : "cart"} size={24} color="#64748b" />
+        )}
+      </View>
+
+      <View style={styles.content}>
+        <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
+        <Text style={styles.subTitle} numberOfLines={1}>{item.subTitle}</Text>
+        <Text style={styles.date}>{item.date}</Text>
+      </View>
+
+      <View style={styles.rightSection}>
+        <Text style={[
+          styles.amount,
+          { color: isIncome ? '#10B981' : '#0f172a' },
+          item.status === 'failed' && { color: '#94a3b8', textDecorationLine: 'line-through' }
+        ]}>
+          {isIncome ? '+' : '-'}{item.amount.toLocaleString()} {item.currency}
+        </Text>
+
+        <View style={[styles.statusBadge, { backgroundColor: statusInfo.bg }]}>
+          <Ionicons name={statusInfo.icon as any} size={12} color={statusInfo.color} />
+          <Text style={[styles.statusText, { color: statusInfo.color }]}>
+            {statusInfo.text}
+          </Text>
+        </View>
+      </View>
+    </View>
+  );
+};
 
 const Transaction = () => {
   const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>('All');
   const router = useRouter();
+
   const transactions = useWalletStore((state) => state.transactions);
 
-  const filteredData = useMemo(() => {
+  const getFilteredData = () => {
     if (activeTab === 'All') return transactions;
     if (activeTab === 'Income') return transactions.filter(i => i.type === 'deposit');
     return transactions.filter(i => i.type === 'purchase');
-  }, [activeTab, transactions]);
+  };
+
+  const filteredData = getFilteredData();
 
   return (
     <ScreenWrapper headerShown={false} isSafeArea={true}>
@@ -37,7 +92,7 @@ const Transaction = () => {
 
           <Text style={styles.headerTitle}>History</Text>
 
-          <TouchableOpacity style={styles.iconBtn} activeOpacity={0.7}>
+          <TouchableOpacity style={styles.iconBtn} activeOpacity={0.7} onPress={() => router.navigate("/(app)/(bottom-tab)/notification")}>
             <Ionicons name="notifications" size={22} color="#E11D48" />
             <View style={styles.redDot} />
           </TouchableOpacity>
@@ -67,8 +122,8 @@ const Transaction = () => {
           data={filteredData}
           estimatedItemSize={85}
           keyExtractor={(item) => item.id}
-          renderItem={({ item, index }) => (
-            <TransactionItem item={item} index={index} />
+          renderItem={({ item }) => (
+            <TransactionItem item={item} />
           )}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
@@ -186,6 +241,76 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 10,
     paddingBottom: 40,
+  },
+
+  card: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    padding: 12,
+    borderRadius: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#f1f5f9',
+    shadowColor: "#64748b",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  iconBox: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: '#f8fafc',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+    overflow: 'hidden'
+  },
+  image: {
+    width: '100%',
+    height: '100%'
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center'
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#0f172a',
+    marginBottom: 2
+  },
+  subTitle: {
+    fontSize: 13,
+    color: '#64748b',
+    fontWeight: '500',
+    marginBottom: 4
+  },
+  date: {
+    fontSize: 11,
+    color: '#94a3b8'
+  },
+  rightSection: {
+    alignItems: 'flex-end'
+  },
+  amount: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 6
+  },
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    gap: 4
+  },
+  statusText: {
+    fontSize: 11,
+    fontWeight: '700'
   },
 
   emptyState: {

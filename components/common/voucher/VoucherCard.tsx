@@ -2,7 +2,7 @@ import DynamicText from "@/components/ui/dynamic-text/dynamic-text";
 import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from 'expo-clipboard';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { memo } from "react";
+import React from "react";
 import { Alert, Platform, StyleSheet, ToastAndroid, TouchableOpacity, View } from "react-native";
 import Animated, { FadeInRight } from "react-native-reanimated";
 
@@ -48,7 +48,6 @@ const VoucherCard = ({ item, index }: VoucherProps) => {
                         <DynamicText style={styles.offText}>OFF</DynamicText>
                     </View>
 
-                    {/* Divider */}
                     <View style={styles.divider}>
                         <View style={[styles.circle, styles.topCircle]} />
                         <View style={styles.dashedLine} />
@@ -78,7 +77,7 @@ const VoucherCard = ({ item, index }: VoucherProps) => {
     );
 };
 
-export default memo(VoucherCard);
+export default VoucherCard;
 
 const styles = StyleSheet.create({
     wrapper: {
