@@ -2,13 +2,13 @@ import { router } from "expo-router";
 import {
   FileText,
   Flame,
-  Headset,
   Megaphone,
   Monitor,
   MoreHorizontal,
   Smartphone,
   Ticket
 } from "lucide-react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import { Pressable, ScrollView, View, Dimensions } from "react-native";
 
@@ -22,6 +22,10 @@ import DynamicText from "@/components/ui/dynamic-text/dynamic-text";
 import GameShopHeader from "@/components/ui/header/home-header";
 import ScreenWrapper from "@/components/ui/layout/screen-wrapper";
 
+const AdminSupportIcon = ({ size, color }: { size: number, color: string }) => (
+  <MaterialIcons name="support-agent" size={size} color={color} />
+);
+
 const icons = [
   { id: 1, title: "Popular", icon: Flame, route: "/home/popular" },
   { id: 2, title: "Bill", icon: Smartphone, route: "/home/top-up" },
@@ -29,7 +33,7 @@ const icons = [
   { id: 4, title: "Voucher", icon: Ticket, route: "/home/voucher" },
   { id: "5", title: "Promo", icon: Megaphone, route: "/home/promo" },
   { id: 6, title: "Transaction", icon: FileText, route: "/home/transaction" },
-  { id: '7', title: 'Service', icon: Headset, route: '/home/service', color: '#10b981' },
+  { id: '7', title: 'Admin', icon: AdminSupportIcon, route: '/home/service', color: '#10b981' },
   { id: 8, title: "All features", icon: MoreHorizontal, route: "/home/all-features" },
 ];
 

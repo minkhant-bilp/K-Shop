@@ -7,11 +7,15 @@ import {
   Text,
   TouchableOpacity,
   View,
-  Image
+  Image,
+  Dimensions
 } from 'react-native';
 
 import ScreenWrapper from '@/components/ui/layout/screen-wrapper';
 import { useWalletStore, TransactionData } from '@/store/useWalletStore';
+
+const { width } = Dimensions.get("window");
+const isTablet = width > 600;
 
 const TABS = ['All', 'Income', 'Expense'] as const;
 
@@ -32,35 +36,41 @@ const TransactionItem = ({ item }: { item: TransactionData }) => {
   const isIncome = item.type === 'deposit';
 
   return (
-    <View style={styles.card}>
-      <View style={styles.iconBox}>
+    <View style={[styles.card, isTablet && styles.tabletCard]}>
+
+      <View style={[styles.iconBox, isTablet && styles.tabletIconBox]}>
         {item.image ? (
           <Image source={item.image} style={styles.image} resizeMode="contain" />
         ) : (
-          <Ionicons name={isIncome ? "wallet" : "cart"} size={24} color="#64748b" />
+          <Ionicons name={isIncome ? "wallet" : "cart"} size={isTablet ? 32 : 24} color="#64748b" />
         )}
       </View>
 
-      <View style={styles.content}>
-        <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
-        <Text style={styles.subTitle} numberOfLines={1}>{item.subTitle}</Text>
-        <Text style={styles.date}>{item.date}</Text>
+      <View style={[styles.content, isTablet && styles.tabletContent]}>
+        <Text style={[styles.title, isTablet && styles.tabletTitle]} numberOfLines={1}>{item.title}</Text>
+        <Text style={[styles.subTitle, isTablet && styles.tabletSubTitle]} numberOfLines={1}>{item.subTitle}</Text>
+        {!isTablet && <Text style={styles.date}>{item.date}</Text>}
       </View>
 
-      <View style={styles.rightSection}>
+      <View style={[styles.rightSection, isTablet && styles.tabletRightSection]}>
         <Text style={[
           styles.amount,
           { color: isIncome ? '#10B981' : '#0f172a' },
-          item.status === 'failed' && { color: '#94a3b8', textDecorationLine: 'line-through' }
+          item.status === 'failed' && { color: '#94a3b8', textDecorationLine: 'line-through' },
+          isTablet && styles.tabletAmount // Tablet Amount Size
         ]}>
           {isIncome ? '+' : '-'}{item.amount.toLocaleString()} {item.currency}
         </Text>
 
-        <View style={[styles.statusBadge, { backgroundColor: statusInfo.bg }]}>
-          <Ionicons name={statusInfo.icon as any} size={12} color={statusInfo.color} />
-          <Text style={[styles.statusText, { color: statusInfo.color }]}>
-            {statusInfo.text}
-          </Text>
+        <View style={[styles.statusInfoRow, isTablet && { width: '100%', justifyContent: 'space-between', marginTop: 8 }]}>
+          {isTablet && <Text style={styles.date}>{item.date}</Text>}
+
+          <View style={[styles.statusBadge, { backgroundColor: statusInfo.bg }, isTablet && { alignSelf: 'flex-end' }]}>
+            <Ionicons name={statusInfo.icon as any} size={12} color={statusInfo.color} />
+            <Text style={[styles.statusText, { color: statusInfo.color }]}>
+              {statusInfo.text}
+            </Text>
+          </View>
         </View>
       </View>
     </View>
@@ -85,21 +95,21 @@ const Transaction = () => {
     <ScreenWrapper headerShown={false} isSafeArea={true}>
 
       <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} activeOpacity={0.7}>
-            <Ionicons name="chevron-back" size={24} color="#0f172a" />
+        <View style={[styles.header, isTablet && { paddingVertical: 25, paddingHorizontal: 30 }]}>
+          <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, isTablet && styles.tabletBtn]} activeOpacity={0.7}>
+            <Ionicons name="chevron-back" size={isTablet ? 28 : 24} color="#0f172a" />
           </TouchableOpacity>
 
-          <Text style={styles.headerTitle}>History</Text>
+          <Text style={[styles.headerTitle, isTablet && { fontSize: 24 }]}>History</Text>
 
-          <TouchableOpacity style={styles.iconBtn} activeOpacity={0.7} onPress={() => router.navigate("/(app)/(bottom-tab)/notification")}>
-            <Ionicons name="notifications" size={22} color="#E11D48" />
+          <TouchableOpacity style={[styles.iconBtn, isTablet && styles.tabletBtn]} activeOpacity={0.7} onPress={() => router.navigate("/(app)/(bottom-tab)/notification")}>
+            <Ionicons name="notifications" size={isTablet ? 26 : 22} color="#E11D48" />
             <View style={styles.redDot} />
           </TouchableOpacity>
         </View>
 
-        <View style={styles.tabWrapper}>
-          <View style={styles.tabContainer}>
+        <View style={[styles.tabWrapper, isTablet && { paddingHorizontal: 30, marginBottom: 20 }]}>
+          <View style={[styles.tabContainer, isTablet && { padding: 8 }]}>
             {TABS.map(tab => {
               const isActive = activeTab === tab;
               return (
@@ -107,9 +117,9 @@ const Transaction = () => {
                   key={tab}
                   onPress={() => setActiveTab(tab)}
                   activeOpacity={0.8}
-                  style={[styles.tabBtn, isActive && styles.activeTabBtn]}
+                  style={[styles.tabBtn, isActive && styles.activeTabBtn, isTablet && { paddingVertical: 16 }]}
                 >
-                  <Text style={[styles.tabText, isActive && styles.activeTabText]}>
+                  <Text style={[styles.tabText, isActive && styles.activeTabText, isTablet && { fontSize: 16 }]}>
                     {tab}
                   </Text>
                 </TouchableOpacity>
@@ -118,25 +128,37 @@ const Transaction = () => {
           </View>
         </View>
 
-        <FlashList
-          data={filteredData}
-          estimatedItemSize={85}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <TransactionItem item={item} />
-          )}
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-          ListEmptyComponent={
-            <View style={styles.emptyState}>
-              <View style={styles.emptyIconCircle}>
-                <Ionicons name="receipt-outline" size={40} color="#cbd5e1" />
+        <View style={{ flex: 1 }}>
+          <FlashList
+            data={filteredData}
+            numColumns={isTablet ? 3 : 1}
+            key={isTablet ? 'tablet-grid' : 'mobile-list'}
+
+            estimatedItemSize={85}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <View style={isTablet ? { padding: 8, width: '100%' } : {}}>
+                <TransactionItem item={item} />
               </View>
-              <Text style={styles.emptyText}>မှတ်တမ်းမရှိသေးပါ</Text>
-              <Text style={styles.emptySubText}>အရောင်းအဝယ်ပြုလုပ်သည့်အခါ ဤနေရာတွင် ပေါ်လာပါမည်</Text>
-            </View>
-          }
-        />
+            )}
+
+            contentContainerStyle={{
+              ...styles.listContent,
+              ...(isTablet ? { paddingHorizontal: 22 } : {})
+            }}
+
+            showsVerticalScrollIndicator={false}
+            ListEmptyComponent={
+              <View style={styles.emptyState}>
+                <View style={[styles.emptyIconCircle, isTablet && { width: 100, height: 100, borderRadius: 50 }]}>
+                  <Ionicons name="receipt-outline" size={isTablet ? 50 : 40} color="#cbd5e1" />
+                </View>
+                <Text style={[styles.emptyText, isTablet && { fontSize: 22 }]}>မှတ်တမ်းမရှိသေးပါ</Text>
+                <Text style={[styles.emptySubText, isTablet && { fontSize: 16 }]}>အရောင်းအဝယ်ပြုလုပ်သည့်အခါ ဤနေရာတွင် ပေါ်လာပါမည်</Text>
+              </View>
+            }
+          />
+        </View>
       </View>
     </ScreenWrapper>
   );
@@ -184,6 +206,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 12,
     backgroundColor: '#fff1f2',
+  },
+  tabletBtn: {
+    width: 50,
+    height: 50,
+    borderRadius: 16,
   },
   redDot: {
     position: 'absolute',
@@ -243,6 +270,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
 
+  // 🔥 Card Styles
   card: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -258,6 +286,14 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
+  tabletCard: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    padding: 16,
+    height: 180,
+    justifyContent: 'space-between'
+  },
+
   iconBox: {
     width: 48,
     height: 48,
@@ -268,13 +304,24 @@ const styles = StyleSheet.create({
     marginRight: 12,
     overflow: 'hidden'
   },
+  tabletIconBox: {
+    width: 60,
+    height: 60,
+    borderRadius: 16,
+    marginBottom: 10
+  },
   image: {
     width: '100%',
     height: '100%'
   },
+
   content: {
     flex: 1,
     justifyContent: 'center'
+  },
+  tabletContent: {
+    width: '100%',
+    marginBottom: 6
   },
   title: {
     fontSize: 16,
@@ -282,23 +329,47 @@ const styles = StyleSheet.create({
     color: '#0f172a',
     marginBottom: 2
   },
+  tabletTitle: {
+    fontSize: 18,
+    marginBottom: 4
+  },
   subTitle: {
     fontSize: 13,
     color: '#64748b',
     fontWeight: '500',
     marginBottom: 4
   },
+  tabletSubTitle: {
+    fontSize: 14,
+  },
   date: {
     fontSize: 11,
     color: '#94a3b8'
   },
+
   rightSection: {
     alignItems: 'flex-end'
+  },
+  tabletRightSection: {
+    width: '100%',
+    alignItems: 'flex-start',
+    borderTopWidth: 1,
+    borderTopColor: '#f1f5f9',
+    paddingTop: 10
   },
   amount: {
     fontSize: 16,
     fontWeight: '700',
     marginBottom: 6
+  },
+  tabletAmount: {
+    fontSize: 20,
+    marginBottom: 0
+  },
+
+  statusInfoRow: {
+    flexDirection: 'row',
+    alignItems: 'center'
   },
   statusBadge: {
     flexDirection: 'row',

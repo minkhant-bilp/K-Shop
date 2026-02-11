@@ -16,7 +16,6 @@ import {
   View
 } from "react-native";
 
-// Components
 import LanguageModal from "@/components/common/Modal/LanguageModal";
 import SettingItem from "@/components/profile/SettingItem";
 import ProfileHeader from "@/components/ui/header/profile-header";
@@ -25,6 +24,7 @@ import useLanguageStore from "@/structure/stores/useLanguageStore";
 import { getTranslation } from "@/structure/translation/i18n";
 
 const { width } = Dimensions.get("window");
+const isTablet = width > 600;
 
 const COLORS = {
   primary: "#FF3232",
@@ -49,23 +49,33 @@ const LogoutModal = ({ visible, onClose, onConfirm }: any) => {
     } else {
       scaleAnim.setValue(0);
     }
-  }, [visible]);
+  }, [scaleAnim, visible]);
 
   return (
     <Modal transparent visible={visible} animationType="fade" onRequestClose={onClose}>
       <View style={styles.overlay}>
-        <Animated.View style={[styles.modalContent, { transform: [{ scale: scaleAnim }] }]}>
+        <Animated.View
+          style={[
+            styles.modalContent,
+            isTablet && { width: 500, padding: 40, borderRadius: 30 },
+            { transform: [{ scale: scaleAnim }] }
+          ]}
+        >
 
-          <View style={styles.iconBox}>
-            <Ionicons name="log-out" size={32} color={COLORS.primary} style={{ marginLeft: 4 }} />
+          <View style={[styles.iconBox, isTablet && { width: 90, height: 90, borderRadius: 45, marginBottom: 25 }]}>
+            <Ionicons name="log-out" size={isTablet ? 45 : 32} color={COLORS.primary} style={{ marginLeft: 4 }} />
           </View>
 
-          <Text style={styles.modalTitle}>Log Out</Text>
-          <Text style={styles.modalSub}>Are you sure you want to log out?</Text>
+          <Text style={[styles.modalTitle, isTablet && { fontSize: 28, marginBottom: 15 }]}>Log Out</Text>
+          <Text style={[styles.modalSub, isTablet && { fontSize: 18, marginBottom: 35 }]}>Are you sure you want to log out?</Text>
 
-          <View style={styles.btnRow}>
-            <TouchableOpacity onPress={onClose} style={styles.cancelBtn} activeOpacity={0.8}>
-              <Text style={styles.cancelText}>Cancel</Text>
+          <View style={[styles.btnRow, isTablet && { gap: 20 }]}>
+            <TouchableOpacity
+              onPress={onClose}
+              style={[styles.cancelBtn, isTablet && { paddingVertical: 18, borderRadius: 20 }]}
+              activeOpacity={0.8}
+            >
+              <Text style={[styles.cancelText, isTablet && { fontSize: 18 }]}>Cancel</Text>
             </TouchableOpacity>
 
             <TouchableOpacity onPress={onConfirm} activeOpacity={0.8} style={styles.shadowWrapper}>
@@ -73,9 +83,9 @@ const LogoutModal = ({ visible, onClose, onConfirm }: any) => {
                 colors={[COLORS.primary, COLORS.primaryDark]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
-                style={styles.confirmBtn}
+                style={[styles.confirmBtn, isTablet && { paddingVertical: 18, borderRadius: 20 }]}
               >
-                <Text style={styles.confirmText}>Yes, Logout</Text>
+                <Text style={[styles.confirmText, isTablet && { fontSize: 18 }]}>Yes, Logout</Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>
@@ -124,60 +134,69 @@ const ProfileScreen = () => {
     <>
       <ScreenWrapper headerShown={false} isSafeArea={false} isScrollable>
         <ProfileHeader />
-        <View style={{ flex: 1, paddingHorizontal: 20, paddingTop: 48 }}>
-          <View style={{ gap: 12 }}>
-            <SettingItem
-              icon="person-outline"
-              title={t.profile || "Profile"}
-              subtitle={t.updateProfile || "Update your profile"}
-              press={() => router.navigate("/(app)/setting/setting-profile")}
-            />
 
-            <SettingItem
-              icon="copy-outline"
-              title={t.userId || "User ID"}
-              subtitle={t.copyUserId || "Copy your user ID"}
-              right={USER_ID}
-              press={handleCopyUserId}
-            />
+        <View style={{ flex: 1, alignItems: 'center' }}>
+          <View style={{
+            flex: 1,
+            width: isTablet ? 600 : '100%',
+            paddingHorizontal: isTablet ? 0 : 20,
+            paddingTop: isTablet ? 60 : 48
+          }}>
 
-            <SettingItem
-              icon="language-outline"
-              title={t.language || "Language"}
-              subtitle={t.selectLanguage || "Select your language"}
-              right={getLanguageDisplayName()}
-              press={() => setLanguageModalVisible(true)}
-            />
+            <View style={{ gap: isTablet ? 20 : 12 }}>
+              <SettingItem
+                icon="person-outline"
+                title={t.profile || "Profile"}
+                subtitle={t.updateProfile || "Update your profile"}
+                press={() => router.navigate("/(app)/setting/setting-profile")}
+              />
 
-            <SettingItem
-              icon="bug-outline"
-              title={t.bugsReport || "Bugs Report"}
-              subtitle={t.reportBugs || "Send report if you see bugs"}
-              arrow
-              press={() => router.navigate("/setting/bugs-report")}
-            />
-            <SettingItem
-              icon="lock-closed-outline"
-              title={t.privacyPolicy || "Privacy Policy"}
-              subtitle={t.readPrivacyPolicy || "Read our privacy policy"}
-              arrow
-              press={() => router.navigate("/setting/privacy")}
-            />
-            <SettingItem
-              icon="information-circle-outline"
-              title={t.aboutUs || "About Us"}
-              subtitle={t.learnMoreAboutUs || "Learn more about us"}
-              arrow
-              press={() => router.navigate("/setting/about")}
-            />
+              <SettingItem
+                icon="copy-outline"
+                title={t.userId || "User ID"}
+                subtitle={t.copyUserId || "Copy your user ID"}
+                right={USER_ID}
+                press={handleCopyUserId}
+              />
 
-            <SettingItem
-              icon="log-out-outline"
-              title={t.logout || "Logout"}
-              subtitle={t.logoutAccount || "Logout your account"}
-              arrow
-              press={() => setShowLogoutModal(true)}
-            />
+              <SettingItem
+                icon="language-outline"
+                title={t.language || "Language"}
+                subtitle={t.selectLanguage || "Select your language"}
+                right={getLanguageDisplayName()}
+                press={() => setLanguageModalVisible(true)}
+              />
+
+              <SettingItem
+                icon="bug-outline"
+                title={t.bugsReport || "Bugs Report"}
+                subtitle={t.reportBugs || "Send report if you see bugs"}
+                arrow
+                press={() => router.navigate("/setting/bugs-report")}
+              />
+              <SettingItem
+                icon="lock-closed-outline"
+                title={t.privacyPolicy || "Privacy Policy"}
+                subtitle={t.readPrivacyPolicy || "Read our privacy policy"}
+                arrow
+                press={() => router.navigate("/setting/privacy")}
+              />
+              <SettingItem
+                icon="information-circle-outline"
+                title={t.aboutUs || "About Us"}
+                subtitle={t.learnMoreAboutUs || "Learn more about us"}
+                arrow
+                press={() => router.navigate("/setting/about")}
+              />
+
+              <SettingItem
+                icon="log-out-outline"
+                title={t.logout || "Logout"}
+                subtitle={t.logoutAccount || "Logout your account"}
+                arrow
+                press={() => setShowLogoutModal(true)}
+              />
+            </View>
           </View>
         </View>
       </ScreenWrapper>
@@ -197,7 +216,6 @@ const ProfileScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  // Modal Styles
   overlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.6)",

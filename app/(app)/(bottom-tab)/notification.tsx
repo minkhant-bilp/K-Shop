@@ -1,19 +1,13 @@
 import NotificationItem, { NotificationData } from '@/components/common/noti/NotificationItem';
-import DynamicText from '@/components/ui/dynamic-text/dynamic-text';
 import ScreenWrapper from '@/components/ui/layout/screen-wrapper';
 import { Ionicons } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { Platform, StatusBar, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Platform, StatusBar, StyleSheet, TouchableOpacity, View, Dimensions, Text } from 'react-native';
 
-
-// const NOTIFICATIONS: NotificationData[] = [
-//     { id: '1', type: 'order', title: 'Payment Successful', message: 'Your top-up of 1000 Diamonds has been successfully added.', time: '2m ago', isRead: false },
-//     { id: '2', type: 'promo', title: 'Weekend Flash Sale!', message: 'Get 50% Bonus Diamonds only for today!', time: '1h ago', isRead: false },
-//     { id: '3', type: 'security', title: 'Login Alert', message: 'New login detected from iPhone 14 Pro Max.', time: '5h ago', isRead: true },
-// ];
-
+const { width } = Dimensions.get("window");
+const isTablet = width > 600;
 
 const NOTIFICATIONS: NotificationData[] = [];
 
@@ -28,15 +22,20 @@ const Notification = () => {
                 colors={["#991b1b", "#dc2626", "#ef4444"]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
-                style={styles.header}
+                style={[styles.header, isTablet && { paddingBottom: 40 }]}
             >
                 <View style={{ height: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }} />
-                <View style={styles.headerContent}>
-                    <DynamicText fontWeight="bold" style={styles.headerTitle}>Notifications</DynamicText>
+                <View style={[styles.headerContent, isTablet && { paddingHorizontal: 30, paddingTop: 30 }]}>
+                    <Text
+                        className='font-bold'
+                        style={[styles.headerTitle, isTablet && { fontSize: 30 }]}
+                    >
+                        Notifications
+                    </Text>
 
                     {hasNotifications && (
                         <TouchableOpacity activeOpacity={0.7}>
-                            <Ionicons name="checkmark-done-outline" size={24} color="rgba(255,255,255,0.8)" />
+                            <Ionicons name="checkmark-done-outline" size={isTablet ? 32 : 24} color="rgba(255,255,255,0.8)" />
                         </TouchableOpacity>
                     )}
                 </View>
@@ -62,17 +61,32 @@ const Notification = () => {
                     <View style={styles.emptyStateContainer}>
                         <LinearGradient
                             colors={["#fff1f2", "#ffe4e6"]}
-                            style={styles.emptyIconCircle}
+                            style={[
+                                styles.emptyIconCircle,
+                                isTablet && { width: 180, height: 180, borderRadius: 90, marginBottom: 40 }
+                            ]}
                         >
-                            <Ionicons name="mail-open-outline" size={50} color="#E11D48" />
+                            <Ionicons
+                                name="mail-open-outline"
+                                size={isTablet ? 80 : 50}
+                                color="#E11D48"
+                            />
                             <View style={[styles.dot, { top: 25, right: 25, backgroundColor: "#fca5a5" }]} />
                             <View style={[styles.dot, { bottom: 30, left: 25, backgroundColor: "#fecaca", width: 6, height: 6 }]} />
                         </LinearGradient>
 
-                        <DynamicText fontWeight="bold" style={styles.emptyText}>No Notifications Yet</DynamicText>
-                        <DynamicText style={styles.emptySubText}>
+                        <Text
+                            className='font-bold'
+                            style={[styles.emptyText, isTablet && { fontSize: 28, marginBottom: 15 }]}
+                        >
+                            No Notifications Yet
+                        </Text>
+
+                        <Text
+                            style={[styles.emptySubText, isTablet && { fontSize: 18, lineHeight: 28 }]}
+                        >
                             Well let you know when updates{"\n"}and promos arrive!
-                        </DynamicText>
+                        </Text>
 
                     </View>
                 )}

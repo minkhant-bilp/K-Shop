@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   Animated,
   Dimensions,
+  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -19,8 +20,12 @@ import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 
 const { width } = Dimensions.get("window");
 
+const isTablet = width > 600;
+
+const contentWidth = isTablet ? 500 : "100%";
+
 const COLORS = {
-  primary: "#FF3232", // Brand Red
+  primary: "#FF3232",
   darkRed: "#b91c1c",
   dark: "#0f172a",
   gray: "#64748b",
@@ -34,20 +39,14 @@ const SignUpScreen = () => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
-  // Form State
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  // UI State
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Animations
   const fadeAnim = useState(new Animated.Value(0))[0];
   const toastAnim = useRef(new Animated.Value(-150)).current;
-
-  // Toast State
   const [toastConfig, setToastConfig] = useState({ message: "", type: "error" });
 
   useEffect(() => {
@@ -56,11 +55,10 @@ const SignUpScreen = () => {
       duration: 800,
       useNativeDriver: true,
     }).start();
-  }, []);
+  }, [fadeAnim]);
 
   const showToast = (message: string, type: "error" | "success") => {
-    setToastConfig({ message, type });
-
+    setToastConfig({ message, type: type as "error" | "success" });
     Animated.sequence([
       Animated.timing(toastAnim, {
         toValue: insets.top + 10,
@@ -81,60 +79,47 @@ const SignUpScreen = () => {
       showToast("Please enter your Full Name!", "error");
       return;
     }
-
-    // 2. Check Email
     if (!email.trim()) {
       showToast("Email address is required!", "error");
       return;
     }
-
     const emailRegex = /\S+@\S+\.\S+/;
     if (!emailRegex.test(email)) {
       showToast("Please enter a valid email address!", "error");
       return;
     }
-
     if (!password.trim()) {
       showToast("Password is required!", "error");
       return;
     }
-
-    if (password.length < 8) {
-      showToast("Password must be at least 8 characters!", "error");
+    if (password.length < 6) {
+      showToast("Password must be at least 6 characters!", "error");
       return;
     }
 
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
-
       showToast("Account Created Successfully!", "success");
-
-      setTimeout(() => {
-        router.replace("/(app)/(bottom-tab)/home");
-      }, 100);
-
+      setTimeout(() => router.replace("/(app)/(bottom-tab)/home"), 100);
     }, 1500);
   };
 
   return (
     <View style={styles.container}>
-
       <Animated.View
         style={[
           styles.toastContainer,
           {
             transform: [{ translateY: toastAnim }],
             backgroundColor: toastConfig.type === "success" ? COLORS.success : COLORS.darkRed,
-            marginTop: Platform.OS === 'android' ? 30 : 0
+            marginTop: Platform.OS === 'android' ? 30 : 0,
+            alignSelf: 'center',
+            width: isTablet ? 400 : width - 40,
           }
         ]}
       >
-        <Ionicons
-          name={toastConfig.type === "success" ? "checkmark-circle" : "warning"}
-          size={28}
-          color="white"
-        />
+        <Ionicons name={toastConfig.type === "success" ? "checkmark-circle" : "warning"} size={28} color="white" />
         <View style={{ marginLeft: 12, flex: 1 }}>
           <Text style={styles.toastTitle}>{toastConfig.type === "success" ? "Success" : "Action Required"}</Text>
           <Text style={styles.toastText}>{toastConfig.message}</Text>
@@ -142,101 +127,117 @@ const SignUpScreen = () => {
       </Animated.View>
 
       <SafeAreaView style={{ flex: 1 }}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={{ flex: 1 }}
-        >
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1, paddingBottom: 30 }}>
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: 30, alignItems: 'center' }} // 🔥 Center Content for Tablet
+          >
 
-            <Animated.View style={[styles.header, { opacity: fadeAnim, transform: [{ translateY: fadeAnim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }] }]}>
-              <Text style={styles.title}>Create Account</Text>
-              <Text style={styles.subtitle}>Sign up to get started!</Text>
-            </Animated.View>
+            <View style={{ width: contentWidth }}>
 
-            <View style={styles.formContainer}>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Full Name</Text>
-                <View style={[styles.inputWrapper, !name && styles.inputError]}>
-                  <Ionicons name="person" size={20} color={COLORS.gray} />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="John Doe"
-                    placeholderTextColor="#94a3b8"
-                    value={name}
-                    onChangeText={setName}
+              <View style={styles.logoContainer}>
+                <View>
+                  <Image
+                    source={require('@/assets/game_image/pc-image/image.png')}
+                    style={styles.logo}
+                    resizeMode="contain"
                   />
                 </View>
               </View>
 
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Email Address</Text>
-                <View style={styles.inputWrapper}>
-                  <Ionicons name="mail" size={20} color={COLORS.gray} />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="example@gmail.com"
-                    placeholderTextColor="#94a3b8"
-                    keyboardType="email-address"
-                    value={email}
-                    onChangeText={setEmail}
-                  />
+              <Animated.View
+                style={[
+                  styles.header,
+                  { opacity: fadeAnim, transform: [{ translateY: fadeAnim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }] }
+                ]}
+              >
+                <Text style={styles.title}>Create Account</Text>
+                <Text style={styles.subtitle}>Sign up to get started!</Text>
+              </Animated.View>
+
+              <View style={styles.formContainer}>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Full Name</Text>
+                  <View style={styles.inputWrapper}>
+                    <Ionicons name="person" size={20} color={COLORS.gray} />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="John Doe"
+                      placeholderTextColor="#94a3b8"
+                      value={name}
+                      onChangeText={setName}
+                    />
+                  </View>
                 </View>
-              </View>
 
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Password</Text>
-                <View style={styles.inputWrapper}>
-                  <Ionicons name="lock-closed" size={20} color={COLORS.gray} />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="••••••••"
-                    placeholderTextColor="#94a3b8"
-                    secureTextEntry={!showPassword}
-                    value={password}
-                    onChangeText={setPassword}
-                  />
-                  <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                    <Ionicons name={showPassword ? "eye-off" : "eye"} size={20} color={COLORS.gray} />
-                  </TouchableOpacity>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Email Address</Text>
+                  <View style={styles.inputWrapper}>
+                    <Ionicons name="mail" size={20} color={COLORS.gray} />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="example@gmail.com"
+                      placeholderTextColor="#94a3b8"
+                      keyboardType="email-address"
+                      value={email}
+                      onChangeText={setEmail}
+                    />
+                  </View>
                 </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Password</Text>
+                  <View style={styles.inputWrapper}>
+                    <Ionicons name="lock-closed" size={20} color={COLORS.gray} />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="••••••••"
+                      placeholderTextColor="#94a3b8"
+                      secureTextEntry={!showPassword}
+                      value={password}
+                      onChangeText={setPassword}
+                    />
+                    <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                      <Ionicons name={showPassword ? "eye-off" : "eye"} size={20} color={COLORS.gray} />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                <TouchableOpacity activeOpacity={0.8} onPress={handleSignUp} style={styles.shadowBtn}>
+                  <LinearGradient
+                    colors={[COLORS.primary, COLORS.darkRed]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={styles.primaryBtn}
+                  >
+                    {isLoading ? (
+                      <ActivityIndicator color="white" />
+                    ) : (
+                      <Text style={styles.btnText}>Sign Up</Text>
+                    )}
+                  </LinearGradient>
+                </TouchableOpacity>
+
+                <View style={styles.dividerBox}>
+                  <View style={styles.line} />
+                  <Text style={styles.orText}>Or sign up with</Text>
+                  <View style={styles.line} />
+                </View>
+
+                <TouchableOpacity style={styles.googleBtn} activeOpacity={0.8}>
+                  <AntDesign name="google" size={22} color="black" />
+                  <Text style={styles.googleText}>Continue with Google</Text>
+                </TouchableOpacity>
               </View>
 
-              <TouchableOpacity activeOpacity={0.8} onPress={handleSignUp} style={styles.shadowBtn}>
-                <LinearGradient
-                  colors={[COLORS.primary, COLORS.darkRed]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={styles.primaryBtn}
-                >
-                  {isLoading ? (
-                    <ActivityIndicator color="white" />
-                  ) : (
-                    <Text style={styles.btnText}>Sign Up</Text>
-                  )}
-                </LinearGradient>
-              </TouchableOpacity>
-
-              <View style={styles.dividerBox}>
-                <View style={styles.line} />
-                <Text style={styles.orText}>Or sign up with</Text>
-                <View style={styles.line} />
+              <View style={styles.footer}>
+                <Text style={{ color: COLORS.gray }}>Already have an account? </Text>
+                <TouchableOpacity onPress={() => router.push("/(auth)/sign-in")}>
+                  <Text style={{ color: COLORS.primary, fontWeight: "800" }}>Login</Text>
+                </TouchableOpacity>
               </View>
-
-              <TouchableOpacity style={styles.googleBtn} activeOpacity={0.8}>
-                <AntDesign name="google" size={22} color="black" />
-                <Text style={styles.googleText}>Continue with Google</Text>
-              </TouchableOpacity>
 
             </View>
-
-            <View style={styles.footer}>
-              <Text style={{ color: COLORS.gray }}>Already have an account? </Text>
-              <TouchableOpacity onPress={() => router.push("/(auth)/sign-in")}>
-                <Text style={{ color: COLORS.primary, fontWeight: "800" }}>Login</Text>
-              </TouchableOpacity>
-            </View>
-
           </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
@@ -245,13 +246,14 @@ const SignUpScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.white },
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.white
+  },
 
   toastContainer: {
     position: "absolute",
     top: 0,
-    left: 20,
-    right: 20,
     zIndex: 9999,
     borderRadius: 16,
     paddingVertical: 12,
@@ -273,29 +275,38 @@ const styles = StyleSheet.create({
   toastText: {
     color: "rgba(255,255,255,0.95)",
     fontWeight: "500",
-    fontSize: 13,
+    fontSize: 13
+  },
+
+  logoContainer: {
+    alignItems: 'center',
+  },
+  logo: {
+    width: 100,
+    height: 100,
   },
 
   header: {
-    marginTop: 40,
     paddingHorizontal: 24,
-    marginBottom: 40
+    marginBottom: 30,
   },
   title: {
     fontSize: 34,
     fontWeight: "800",
     color: COLORS.dark,
-    letterSpacing: 0.5
+    letterSpacing: 0.5,
+    textAlign: "left"
   },
   subtitle: {
     fontSize: 16,
     color: COLORS.gray,
     marginTop: 8,
-    fontWeight: "500"
+    fontWeight: "500",
+    textAlign: "left"
   },
 
   formContainer: {
-    paddingHorizontal: 24,
+    paddingHorizontal: 24
   },
   inputGroup: {
     marginBottom: 20
@@ -316,8 +327,6 @@ const styles = StyleSheet.create({
     height: 58,
     borderWidth: 1,
     borderColor: COLORS.border,
-  },
-  inputError: {
   },
   input: {
     flex: 1,
@@ -340,7 +349,7 @@ const styles = StyleSheet.create({
     height: 60,
     borderRadius: 18,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   btnText: {
     color: "white",
@@ -360,8 +369,8 @@ const styles = StyleSheet.create({
   },
   orText: {
     marginHorizontal: 12,
-    color: COLORS.gray,
-    fontSize: 14,
+    color: COLORS.gray
+    , fontSize: 14,
     fontWeight: "500"
   },
 

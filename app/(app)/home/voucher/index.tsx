@@ -3,11 +3,14 @@ import { FlashList } from '@shopify/flash-list';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Platform, StatusBar, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { Platform, StatusBar, StyleSheet, TextInput, TouchableOpacity, View, Dimensions, Text } from 'react-native';
 
 import VoucherCard, { VoucherData } from '@/components/common/voucher/VoucherCard';
 import DynamicText from '@/components/ui/dynamic-text/dynamic-text';
 import ScreenWrapper from '@/components/ui/layout/screen-wrapper';
+
+const { width } = Dimensions.get("window");
+const isTablet = width > 600;
 
 const VOUCHERS: VoucherData[] = [
   { id: '1', title: 'New User Promo', code: 'NEW50', discount: '50%', validUntil: '30 Jan 2026', status: 'active' },
@@ -27,34 +30,33 @@ const Voucher = () => {
         colors={["#991b1b", "#dc2626", "#ef4444"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={styles.header}
+        style={[styles.header, isTablet && { paddingBottom: 40 }]}
       >
         <View style={{ height: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }} />
 
-        <View style={styles.headerContent}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <Ionicons name="arrow-back" size={24} color="#dc2626" />
+        <View style={[styles.headerContent, isTablet && { paddingHorizontal: 30, paddingTop: 20 }]}>
+          <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, isTablet && styles.tabletBackBtn]}>
+            <Ionicons name="arrow-back" size={isTablet ? 28 : 24} color="#dc2626" />
           </TouchableOpacity>
 
-          <DynamicText fontWeight="bold" style={styles.headerTitle}>My Vouchers</DynamicText>
+          <Text className='font-bold' style={[styles.headerTitle, isTablet && { fontSize: 26 }]}>My Vouchers</Text>
 
-          <View style={{ width: 40 }} />
+          <View style={{ width: isTablet ? 50 : 40 }} />
         </View>
 
-        {/* Input Section */}
-        <View style={styles.inputContainer}>
-          <View style={styles.inputWrapper}>
-            <Ionicons name="ticket-outline" size={20} color="rgba(255,255,255,0.7)" style={{ marginLeft: 10 }} />
+        <View style={[styles.inputContainer, isTablet && { paddingHorizontal: 30, gap: 15 }]}>
+          <View style={[styles.inputWrapper, isTablet && { height: 60, borderRadius: 16 }]}>
+            <Ionicons name="ticket-outline" size={isTablet ? 24 : 20} color="rgba(255,255,255,0.7)" style={{ marginLeft: 10 }} />
             <TextInput
               placeholder="Enter Voucher Code"
               placeholderTextColor="rgba(255,255,255,0.6)"
-              style={styles.input}
+              style={[styles.input, isTablet && { fontSize: 18 }]}
               value={inputCode}
               onChangeText={setInputCode}
             />
           </View>
-          <TouchableOpacity style={styles.redeemBtn} activeOpacity={0.8}>
-            <DynamicText fontWeight="bold" style={{ color: "#dc2626" }}>Claim</DynamicText>
+          <TouchableOpacity style={[styles.redeemBtn, isTablet && { height: 60, paddingHorizontal: 30, borderRadius: 16 }]} activeOpacity={0.8}>
+            <DynamicText fontWeight="bold" style={{ color: "#dc2626", fontSize: isTablet ? 18 : 14 }}>Claim</DynamicText>
           </TouchableOpacity>
         </View>
       </LinearGradient>
@@ -63,16 +65,21 @@ const Voucher = () => {
         <FlashList
           data={VOUCHERS}
           estimatedItemSize={100}
+          contentContainerStyle={{
+            ...styles.listContent,
+            ...(isTablet ? { paddingHorizontal: 20 } : {})
+          }}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           renderItem={({ item, index }) => (
-            <VoucherCard item={item} index={index} />
+            <View style={isTablet && { marginBottom: 10 }}>
+              <VoucherCard item={item} index={index} />
+            </View>
           )}
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Ionicons name="pricetags-outline" size={50} color="#cbd5e1" />
-              <DynamicText style={styles.emptyText}>No Vouchers Available</DynamicText>
+              <Ionicons name="pricetags-outline" size={isTablet ? 70 : 50} color="#cbd5e1" />
+              <Text style={[styles.emptyText, isTablet && { fontSize: 20 }]}>No Vouchers Available</Text>
             </View>
           }
         />
@@ -118,6 +125,11 @@ const styles = StyleSheet.create({
     shadowColor: "black",
     shadowOpacity: 0.1,
     elevation: 3
+  },
+  tabletBackBtn: {
+    width: 52,
+    height: 52,
+    borderRadius: 18,
   },
 
   inputContainer: {

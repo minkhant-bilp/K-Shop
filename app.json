@@ -31,6 +31,7 @@
       "expo-router",
       [
         "expo-splash-screen",
+      
         {
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
@@ -43,7 +44,8 @@
       ],
       "expo-font",
       "expo-web-browser",
-      "expo-video"
+      "expo-video",
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true,

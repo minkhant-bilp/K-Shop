@@ -3,11 +3,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
 import React from "react";
-import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View, ToastAndroid, Platform, Alert, Dimensions } from "react-native";
+import * as Clipboard from 'expo-clipboard';
 
 import { useWalletStore } from "@/store/useWalletStore";
 
-const { height } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
+const isTablet = width > 600;
 
 const COLORS = {
     primary: "#E11D48",
@@ -30,6 +32,17 @@ const Order = () => {
     const transactions = useWalletStore((state) => state.transactions);
     const orderList = transactions.filter((t) => t.type === 'purchase');
 
+    const numColumns = isTablet ? 2 : 1;
+
+    const handleCopyID = async (id: string) => {
+        await Clipboard.setStringAsync(id);
+        if (Platform.OS === 'android') {
+            ToastAndroid.show("Transaction ID Copied!", ToastAndroid.SHORT);
+        } else {
+            Alert.alert("Copied", "Transaction ID copied to clipboard.");
+        }
+    };
+
     const getStatusStyles = (status: string) => {
         switch (status.toLowerCase()) {
             case "success": return { bg: COLORS.successBg, text: COLORS.success, icon: "checkmark-circle" };
@@ -41,54 +54,75 @@ const Order = () => {
 
     const EmptyState = () => (
         <View style={styles.emptyWrapper}>
-            <View style={styles.emptyIconCircle}>
-                <Ionicons name="receipt-outline" size={40} color={COLORS.primary} />
+            <View style={[styles.emptyIconCircle, isTablet && { width: 120, height: 120, borderRadius: 60 }]}>
+                <Ionicons name="receipt-outline" size={isTablet ? 60 : 40} color={COLORS.primary} />
             </View>
-            <Text style={styles.emptyTitle}>No Orders Yet</Text>
-            <Text style={styles.emptySub}>You havent made any purchases yet.</Text>
+            <Text style={[styles.emptyTitle, isTablet && { fontSize: 24 }]}>No Orders Yet</Text>
+            <Text style={[styles.emptySub, isTablet && { fontSize: 18 }]}>You haven t made any purchases yet.</Text>
 
-            <TouchableOpacity style={styles.actionBtn} activeOpacity={0.8} onPress={() => router.navigate("/(app)/home/popular")}>
-                <Text style={styles.actionBtnText}>Start Shopping</Text>
+            <TouchableOpacity
+                style={[styles.actionBtn, isTablet && { paddingVertical: 16, paddingHorizontal: 32, borderRadius: 20 }]}
+                activeOpacity={0.8}
+                onPress={() => router.navigate("/(app)/home/popular")}
+            >
+                <Text style={[styles.actionBtnText, isTablet && { fontSize: 18 }]}>Start Shopping</Text>
             </TouchableOpacity>
         </View>
     );
 
-    const renderItem = ({ item }: { item: any }) => {
+    const renderItem = ({ item, index }: { item: any, index: number }) => {
         const statusStyle = getStatusStyles(item.status);
         const priceDisplay = `${item.amount.toLocaleString()} ${item.currency}`;
         const imageSource = item.image ? item.image : null;
 
         return (
-            <View style={styles.card}>
+            <View
+                style={[
+                    styles.card,
+                    isTablet && styles.cardTablet,
+                    isTablet && { marginRight: index % 2 === 0 ? 15 : 0 }
+                ]}
+            >
                 <View style={styles.cardHeader}>
-                    <View style={styles.iconContainer}>
+                    <View style={[styles.iconContainer, isTablet && { width: 64, height: 64, borderRadius: 18 }]}>
                         {imageSource ? (
                             <Image source={imageSource} style={styles.itemImage} resizeMode="contain" />
                         ) : (
-                            <Ionicons name="game-controller" size={24} color={COLORS.primary} />
+                            <Ionicons name="game-controller" size={isTablet ? 32 : 24} color={COLORS.primary} />
                         )}
                     </View>
 
                     <View style={styles.textContainer}>
-                        <Text style={styles.itemTitle} numberOfLines={1}>{item.title}</Text>
-                        <Text style={styles.itemSubTitle} numberOfLines={1}>{item.subTitle}</Text>
+                        <TouchableOpacity
+                            style={styles.idRow}
+                            activeOpacity={0.6}
+                            onPress={() => handleCopyID(item.transactionId || "N/A")}
+                        >
+                            <Text style={[styles.transIdLabel, isTablet && { fontSize: 14 }]}>ID:</Text>
+                            <Text style={[styles.transIdText, isTablet && { fontSize: 15 }]}>{item.transactionId || "N/A"}</Text>
+                            <Ionicons name="copy-outline" size={isTablet ? 16 : 14} color={COLORS.primary} style={{ marginLeft: 4 }} />
+                        </TouchableOpacity>
+
+                        <Text style={[styles.itemTitle, isTablet && { fontSize: 20 }]} numberOfLines={1}>{item.title}</Text>
+                        <Text style={[styles.itemSubTitle, isTablet && { fontSize: 15 }]} numberOfLines={1}>{item.subTitle}</Text>
                     </View>
 
-                    <View style={[styles.statusBadge, { backgroundColor: statusStyle.bg }]}>
-                        <Ionicons name={statusStyle.icon as any} size={12} color={statusStyle.text} style={{ marginRight: 4 }} />
-                        <Text style={[styles.statusText, { color: statusStyle.text }]}>
+                    <View style={[styles.statusBadge, { backgroundColor: statusStyle.bg }, isTablet && { paddingHorizontal: 14, paddingVertical: 8 }]}>
+                        <Ionicons name={statusStyle.icon as any} size={isTablet ? 16 : 12} color={statusStyle.text} style={{ marginRight: 4 }} />
+                        <Text style={[styles.statusText, { color: statusStyle.text }, isTablet && { fontSize: 13 }]}>
                             {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
                         </Text>
                     </View>
                 </View>
+
                 <View style={styles.divider} />
 
                 <View style={styles.cardFooter}>
                     <View style={styles.dateRow}>
-                        <Ionicons name="calendar-outline" size={14} color={COLORS.textGray} />
-                        <Text style={styles.dateText}>{item.date}</Text>
+                        <Ionicons name="calendar-outline" size={isTablet ? 18 : 14} color={COLORS.textGray} />
+                        <Text style={[styles.dateText, isTablet && { fontSize: 14 }]}>{item.date}</Text>
                     </View>
-                    <Text style={styles.priceText}>{priceDisplay}</Text>
+                    <Text style={[styles.priceText, isTablet && { fontSize: 20 }]}>{priceDisplay}</Text>
                 </View>
             </View>
         );
@@ -98,21 +132,28 @@ const Order = () => {
         <ScreenWrapper headerShown={false} isSafeArea={false} isScrollable={false}>
             <View style={styles.container}>
 
-                <View style={styles.header}>
-                    <TouchableOpacity onPress={() => router.back()} style={styles.backBtn} activeOpacity={0.7}>
-                        <Ionicons name="chevron-back" size={24} color={COLORS.textDark} />
+                <View style={[styles.header, isTablet && { paddingTop: 60, paddingBottom: 30 }]}>
+                    <TouchableOpacity
+                        onPress={() => router.back()}
+                        style={[styles.backBtn, isTablet && { width: 50, height: 50, borderRadius: 16 }]}
+                        activeOpacity={0.7}
+                    >
+                        <Ionicons name="chevron-back" size={isTablet ? 28 : 24} color={COLORS.textDark} />
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>My Orders</Text>
-                    <View style={styles.placeholderIcon} />
+                    <Text style={[styles.headerTitle, isTablet && { fontSize: 26 }]}>My Orders</Text>
+                    <View style={[styles.placeholderIcon, isTablet && { width: 50 }]} />
                 </View>
 
-                <View style={styles.listContainer}>
+                <View style={[styles.listContainer, isTablet && { paddingHorizontal: 30 }]}>
                     <FlashList
                         data={orderList}
                         renderItem={renderItem}
+                        numColumns={numColumns}
+                        key={isTablet ? 'tablet-2-cols' : 'mobile-1-col'}
                         estimatedItemSize={140}
                         keyExtractor={(item) => item.id}
-                        contentContainerStyle={styles.listContent}
+                        // 🔥🔥🔥 Fixed: Separate logic for style
+                        contentContainerStyle={isTablet ? styles.listContentTablet : styles.listContent}
                         showsVerticalScrollIndicator={false}
                         ListEmptyComponent={EmptyState}
                     />
@@ -128,7 +169,6 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: COLORS.bg
     },
-
     header: {
         flexDirection: "row",
         justifyContent: "space-between",
@@ -160,7 +200,6 @@ const styles = StyleSheet.create({
     placeholderIcon: {
         width: 40
     },
-
     emptyWrapper: {
         flex: 1,
         justifyContent: 'center',
@@ -203,15 +242,19 @@ const styles = StyleSheet.create({
         fontWeight: "700",
         fontSize: 14
     },
-
     listContainer: {
         flex: 1
     },
+    // 🔥 Normal Content Style
     listContent: {
         paddingHorizontal: 20,
         paddingBottom: 40
     },
-
+    // 🔥 Tablet Content Style (Removed paddingHorizontal)
+    listContentTablet: {
+        paddingBottom: 40,
+        paddingHorizontal: 0
+    },
     card: {
         backgroundColor: COLORS.card,
         borderRadius: 20,
@@ -223,7 +266,13 @@ const styles = StyleSheet.create({
         shadowRadius: 12,
         elevation: 3,
         borderWidth: 1,
-        borderColor: COLORS.border
+        borderColor: COLORS.border,
+        flex: 1,
+    },
+    cardTablet: {
+        padding: 24,
+        borderRadius: 24,
+        marginBottom: 20,
     },
     cardHeader: {
         flexDirection: "row",
@@ -247,6 +296,27 @@ const styles = StyleSheet.create({
     textContainer: {
         flex: 1,
         marginRight: 8
+    },
+    idRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: "#F1F5F9",
+        alignSelf: 'flex-start',
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 6,
+        marginBottom: 6,
+    },
+    transIdLabel: {
+        fontSize: 12,
+        color: COLORS.textGray,
+        marginRight: 4,
+    },
+    transIdText: {
+        fontSize: 13,
+        color: COLORS.textDark,
+        fontWeight: "700",
+        letterSpacing: 0.5
     },
     itemTitle: {
         fontSize: 16,

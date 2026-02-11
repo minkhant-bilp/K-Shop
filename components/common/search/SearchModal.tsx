@@ -17,6 +17,7 @@ import {
 } from "react-native";
 
 const { width } = Dimensions.get("window");
+const isTablet = width > 600;
 
 const BRAND_COLOR = "#FF3232";
 
@@ -38,8 +39,6 @@ const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose }) => {
 
   useEffect(() => {
     if (visible) {
-      // Modal ပေါ်လာရင် Input ကို Focus ချက်ချင်းလုပ်မယ်
-      // Animation စမယ်
       setTimeout(() => inputRef.current?.focus(), 100);
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -47,7 +46,6 @@ const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose }) => {
         useNativeDriver: true,
       }).start();
     } else {
-      // ပိတ်ရင် စာတွေရှင်းပြီး Animation ပြန်ချမယ်
       setSearchText("");
       Animated.timing(fadeAnim, {
         toValue: 0,
@@ -55,7 +53,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose }) => {
         useNativeDriver: true,
       }).start();
     }
-  }, [visible]);
+  }, [fadeAnim, visible]);
 
   const filteredProducts = !searchText
     ? []
@@ -86,7 +84,11 @@ const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose }) => {
             <Animated.View
               style={[
                 styles.modalContent,
-                { opacity: fadeAnim, transform: [{ scale: fadeAnim }] }
+                {
+                  width: isTablet ? 500 : width * 0.9,
+                  opacity: fadeAnim,
+                  transform: [{ scale: fadeAnim }]
+                }
               ]}
             >
 
@@ -112,7 +114,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose }) => {
                   placeholder="Search games & cards..."
                   placeholderTextColor="#94a3b8"
                   value={searchText}
-                  onChangeText={setSearchText} // 🔥 Log မထုတ်တော့ဘဲ တိုက်ရိုက်ချိတ်လိုက်တယ်
+                  onChangeText={setSearchText}
                   cursorColor={BRAND_COLOR}
                   selectionColor={BRAND_COLOR}
                 />
@@ -135,8 +137,6 @@ const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose }) => {
                     renderItem={({ item }) => (
                       <TouchableOpacity
                         style={styles.resultItem}
-                        // ဒီနေရာမှာ item ကို နှိပ်ရင် ဘာလုပ်မလဲ ထည့်လို့ရတယ်
-                        // ဥပမာ: router.push(...)
                         activeOpacity={0.7}
                       >
                         <View style={styles.itemDot} />
@@ -174,7 +174,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   modalContent: {
-    width: width * 0.9,
     backgroundColor: "white",
     borderRadius: 24,
     padding: 24,
@@ -187,7 +186,6 @@ const styles = StyleSheet.create({
     borderColor: '#fff1f2'
   },
 
-  // Header
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

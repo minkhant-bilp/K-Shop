@@ -1,8 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from "react";
-import { Image, Modal, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Image, Modal, StyleSheet, TouchableOpacity, View, Dimensions, Text } from "react-native";
 import Animated, { ZoomIn } from "react-native-reanimated";
-import DynamicText from "../ui/dynamic-text/dynamic-text";
+
+const { width } = Dimensions.get("window");
+const isTablet = width > 600;
 
 type PackageItem = { id: number; amount: string; price: string; image: any; };
 type PaymentMethod = { id: string; name: string; image: any; };
@@ -22,72 +24,93 @@ export default function SuccessModal({ visible, onClose, item, payment }: Succes
         <Modal visible={visible} animationType="fade" transparent={false}>
             <View style={styles.container}>
 
+                <View style={[styles.contentWrapper, isTablet && styles.tabletWrapper]}>
 
-                <View style={styles.headerSection}>
+                    <View style={styles.headerSection}>
+                        <Animated.View
+                            entering={ZoomIn.springify().damping(12).mass(1)}
+                            style={[styles.iconCircle, isTablet && { width: 120, height: 120, borderRadius: 60, marginBottom: 30 }]}
+                        >
+                            <Ionicons name="checkmark" size={isTablet ? 60 : 45} color="#ea580c" />
+                        </Animated.View>
 
-                    <Animated.View
-                        entering={ZoomIn.springify().damping(12).mass(1)}
-                        style={styles.iconCircle}
-                    >
-                        <Ionicons name="checkmark" size={45} color="#ea580c" />
-                    </Animated.View>
-
-                    <DynamicText fontWeight="bold" style={styles.title}>Payment Successful</DynamicText>
-                    <DynamicText style={styles.subtitle}>Thanks for your order, it now confirmed.</DynamicText>
-                </View>
-
-                <View style={styles.receiptCard}>
-                    <DynamicText fontWeight="bold" style={styles.cardTitle}>Payment details</DynamicText>
-
-                    <View style={styles.divider} />
-
-                    <View style={styles.row}>
-                        <DynamicText style={styles.label}>Transaction ID</DynamicText>
-                        <DynamicText fontWeight="bold" style={styles.value}>{transactionID}</DynamicText>
+                        <Text className='font-bold' style={[styles.title, isTablet && { fontSize: 32 }]}>Payment Successful</Text>
+                        <Text style={[styles.subtitle, isTablet && { fontSize: 18, marginTop: 5 }]}>Thanks for your order, it now confirmed.</Text>
                     </View>
 
-                    <View style={styles.row}>
-                        <DynamicText style={styles.label}>Date</DynamicText>
-                        <DynamicText fontWeight="bold" style={styles.value}>{today}</DynamicText>
-                    </View>
+                    <View style={[styles.receiptCard, isTablet && { padding: 40, borderRadius: 30 }]}>
+                        <Text className='font-bold' style={[styles.cardTitle, isTablet && { fontSize: 20, marginBottom: 20 }]}>Payment details</Text>
 
-                    <View style={styles.row}>
-                        <DynamicText style={styles.label}>Payment Method</DynamicText>
-                        <View style={styles.methodBadge}>
-                            {payment?.image && <Image source={payment.image} style={styles.miniIcon} />}
-                            <DynamicText fontWeight="bold" style={styles.value}>{payment?.name || "Wallet"}</DynamicText>
+                        <View style={styles.divider} />
+
+                        <View style={[styles.row, isTablet && { marginBottom: 20 }]}>
+                            <Text style={[styles.label, isTablet && { fontSize: 16 }]}>Transaction ID</Text>
+                            <Text className='font-bold' style={[styles.value, isTablet && { fontSize: 16 }]}>{transactionID}</Text>
+                        </View>
+
+                        <View style={[styles.row, isTablet && { marginBottom: 20 }]}>
+                            <Text style={[styles.label, isTablet && { fontSize: 16 }]}>Date</Text>
+                            <Text className='font-bold' style={[styles.value, isTablet && { fontSize: 16 }]}>{today}</Text>
+                        </View>
+
+                        <View style={[styles.row, isTablet && { marginBottom: 20 }]}>
+                            <Text style={[styles.label, isTablet && { fontSize: 16 }]}>Payment Method</Text>
+                            <View style={styles.methodBadge}>
+                                {payment?.image && <Image source={payment.image} style={[styles.miniIcon, isTablet && { width: 30, height: 30 }]} />}
+                                <Text className='font-bold' style={[styles.value, isTablet && { fontSize: 16 }]}>{payment?.name || "Wallet"}</Text>
+                            </View>
+                        </View>
+
+                        <View style={styles.divider} />
+
+                        <View style={[styles.row, isTablet && { marginBottom: 20 }]}>
+                            <Text style={[styles.label, isTablet && { fontSize: 16 }]}>Total</Text>
+                            <Text className='font-bold' style={[styles.totalValue, isTablet && { fontSize: 24 }]}>{item?.price}</Text>
+                        </View>
+
+                        <View style={[styles.row, isTablet && { marginBottom: 10 }]}>
+                            <Text style={[styles.label, isTablet && { fontSize: 16 }]}>Status</Text>
+                            <View style={styles.successBadge}>
+                                <Ionicons name="checkmark-circle" size={isTablet ? 20 : 16} color="#16a34a" />
+                                <Text className='font-bold' style={[styles.successText, isTablet && { fontSize: 16 }]}>Success</Text>
+                            </View>
                         </View>
                     </View>
 
-                    <View style={styles.divider} />
-
-                    <View style={styles.row}>
-                        <DynamicText style={styles.label}>Total</DynamicText>
-                        <DynamicText fontWeight="bold" style={styles.totalValue}>{item?.price}</DynamicText>
+                    <View style={[styles.footer, isTablet && { marginTop: 40 }]}>
+                        <TouchableOpacity
+                            style={[styles.button, isTablet && { paddingVertical: 20, borderRadius: 25 }]}
+                            onPress={onClose}
+                            activeOpacity={0.9}
+                        >
+                            <Text className='font-bold' style={[styles.buttonText, isTablet && { fontSize: 20 }]}>Continue</Text>
+                            <Ionicons name="arrow-forward" size={isTablet ? 24 : 20} color="#ea580c" />
+                        </TouchableOpacity>
                     </View>
 
-                    <View style={styles.row}>
-                        <DynamicText style={styles.label}>Status</DynamicText>
-                        <View style={styles.successBadge}>
-                            <Ionicons name="checkmark-circle" size={16} color="#16a34a" />
-                            <DynamicText fontWeight="bold" style={styles.successText}>Success</DynamicText>
-                        </View>
-                    </View>
                 </View>
-                <View style={styles.footer}>
-                    <TouchableOpacity style={styles.button} onPress={onClose} activeOpacity={0.9}>
-                        <DynamicText fontWeight="bold" style={styles.buttonText}>Continue</DynamicText>
-                        <Ionicons name="arrow-forward" size={20} color="#ea580c" />
-                    </TouchableOpacity>
-                </View>
-
             </View>
         </Modal>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "red", padding: 20, justifyContent: "center", alignItems: "center" },
+    container: {
+        flex: 1,
+        backgroundColor: "#E11D48",
+        padding: 20,
+        justifyContent: "center",
+        alignItems: "center"
+    },
+
+
+    contentWrapper: {
+        width: '100%',
+        alignItems: 'center'
+    },
+    tabletWrapper: {
+        width: 600,
+    },
 
     headerSection: { alignItems: "center", marginBottom: 30 },
     iconCircle: {
@@ -113,7 +136,6 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: "rgba(255,255,255,0.9)"
     },
-
 
     receiptCard: {
         width: "100%",
@@ -158,7 +180,6 @@ const styles = StyleSheet.create({
         fontSize: 18
     },
 
-
     methodBadge: {
         flexDirection: "row",
         alignItems: "center"
@@ -170,7 +191,6 @@ const styles = StyleSheet.create({
         marginRight: 6
     },
 
-
     successBadge: {
         flexDirection: "row",
         alignItems: "center"
@@ -181,10 +201,8 @@ const styles = StyleSheet.create({
         marginLeft: 4
     },
 
-
     footer: {
-        position: "absolute",
-        bottom: 40,
+        marginTop: 40,
         width: "100%"
     },
     button: {
@@ -194,7 +212,12 @@ const styles = StyleSheet.create({
         alignItems: "center",
         paddingVertical: 16,
         borderRadius: 50,
-        width: "100%"
+        width: "100%",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3
     },
     buttonText: {
         color: "#ea580c",

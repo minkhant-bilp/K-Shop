@@ -5,10 +5,13 @@ import React from "react";
 import {
     Image,
     TouchableOpacity,
-    useWindowDimensions,
-    View
+    View,
+    Dimensions
 } from "react-native";
 import DynamicText from "../ui/dynamic-text/dynamic-text";
+
+const { width } = Dimensions.get("window");
+const isTablet = width > 600;
 
 type Game = {
     id: string;
@@ -40,7 +43,7 @@ const GameCardComponent = ({
 }) => {
     return (
         <View
-            className={`flex-1 mb-4 ${isLastColumn ? "mr-0" : "mr-3"} bg-white rounded-2xl p-2.5`}
+            className={`flex-1 mb-4  ${isLastColumn ? "mr-0" : "mr-3"} bg-white rounded-2xl ${isTablet ? 'p-4' : 'p-2.5'}`}
             style={{
                 shadowColor: "#E11D48",
                 shadowOffset: { width: 0, height: 4 },
@@ -51,16 +54,21 @@ const GameCardComponent = ({
                 borderColor: "#f1f5f9"
             }}
         >
-            <View className="w-full shadow-sm">
+            <View className="w-full shadow-sm top-[-20px] ">
                 <Image
                     source={item.image}
-                    className="w-full h-36 rounded-xl bg-slate-100"
+                    className={`w-full ${isTablet ? 'h-52' : 'h-36'} rounded-xl bg-slate-100`}
                     resizeMode="cover"
                 />
             </View>
 
-            <View className="mt-3 mb-3 px-1">
-                <DynamicText fontWeight="bold" fontSize="sm" numberOfLines={1} style={{ color: "#0f172a" }}>
+            <View className={`${isTablet ? 'mt-4 mb-4' : 'mt-3 mb-3'} px-1`}>
+                <DynamicText
+                    fontWeight="bold"
+                    fontSize={isTablet ? "lg" : "sm"}
+                    numberOfLines={1}
+                    style={{ color: "#0f172a" }}
+                >
                     {item.title}
                 </DynamicText>
             </View>
@@ -74,14 +82,18 @@ const GameCardComponent = ({
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
                     style={{
-                        paddingVertical: 10,
+                        paddingVertical: isTablet ? 14 : 10,
                         borderRadius: 12,
                         alignItems: "center",
                         justifyContent: "center",
                         width: "100%"
                     }}
                 >
-                    <DynamicText fontWeight="bold" fontSize="xs" style={{ color: "white", letterSpacing: 0.5 }}>
+                    <DynamicText
+                        fontWeight="bold"
+                        fontSize={isTablet ? "sm" : "xs"}
+                        style={{ color: "white", letterSpacing: 0.5 }}
+                    >
                         BUY NOW
                     </DynamicText>
                 </LinearGradient>
@@ -92,9 +104,8 @@ const GameCardComponent = ({
 
 const Products: React.FC = () => {
     const router = useRouter();
-    const { width } = useWindowDimensions();
 
-    const numColumns = width > 600 ? 4 : 2;
+    const numColumns = isTablet ? 3 : 2;
 
     const handlePressProduct = (item: Game) => {
         router.push({
@@ -108,10 +119,11 @@ const Products: React.FC = () => {
     };
 
     return (
-        <View className="flex-1 bg-white px-4 pt-2">
+        <View className={`flex-1 bg-white ${isTablet ? 'px-8 pt-4' : 'px-4 pt-2'}`}>
             <FlashList
                 data={GAME_LIST}
                 numColumns={numColumns}
+                key={isTablet ? 'tablet-3-cols' : 'mobile-2-cols'}
                 estimatedItemSize={260}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: 100, paddingTop: 10 }}

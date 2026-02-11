@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 
 export interface TransactionData {
-  id: string;
+  id: string; // Internal Unique ID
+  transactionId: string; // 🔥 External Display ID (9231...)
   type: 'purchase' | 'deposit';
   title: string;
   subTitle: string;
@@ -29,8 +30,8 @@ interface WalletState {
 }
 
 export const useWalletStore = create<WalletState>((set, get) => ({
-  mmBalance: 500000,
-  thBalance: 5000,
+  mmBalance: 1000,
+  thBalance: 100,
   selectedCountry: "MM",
   transactions: [],
 
@@ -48,8 +49,13 @@ export const useWalletStore = create<WalletState>((set, get) => ({
     const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
+    // 🔥 Generate Transaction ID
+    const randomNum = Math.floor(1000 + Math.random() * 9000);
+    const transactionId = `9231 5213 ${randomNum}`;
+
     const newTransaction: TransactionData = {
-        id: `ORDER-${Date.now()}`, 
+        id: `ORDER-${Date.now()}`,
+        transactionId: transactionId, // 🔥 Save Transaction ID
         type: 'purchase',
         title: gameName,    
         subTitle: packageName,
@@ -83,13 +89,14 @@ export const useWalletStore = create<WalletState>((set, get) => ({
 
     const newTransaction: TransactionData = {
         id: `BILL-${Date.now()}`,
+        transactionId: `BILL-${Math.floor(100000 + Math.random() * 900000)}`, // 🔥 Fake ID for bill
         type: 'purchase',
         title: 'Phone Bill',
         subTitle: `${phoneNumber} • ${packageName}`,
         date: `${dateStr} • ${timeStr}`,
         amount: price,
         currency: country === "MM" ? "Ks" : "Baht",
-        status: 'pending',
+        status: 'failed',
         image: image
     };
 
@@ -110,13 +117,14 @@ export const useWalletStore = create<WalletState>((set, get) => ({
 
     const newTransaction: TransactionData = {
         id: `TOPUP-${Date.now()}`,
+        transactionId: `TOPUP-${Math.floor(100000 + Math.random() * 900000)}`, // 🔥 Fake ID
         type: 'deposit',
         title: methodName,
         subTitle: "Wallet Topup",
         date: dateStr,
         amount: amount,
         currency: currency,
-        status: 'failed',
+        status: 'failed', 
         image: require('@/assets/game_image/wave.png')
     };
 

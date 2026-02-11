@@ -3,11 +3,15 @@ import { FlashList } from '@shopify/flash-list';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { Platform, StatusBar, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Platform, StatusBar, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import PcGameCard, { PcGameData } from '@/components/pc-game/PcGameCard';
 import DynamicText from '@/components/ui/dynamic-text/dynamic-text';
 import ScreenWrapper from '@/components/ui/layout/screen-wrapper';
+
+
+const { width } = Dimensions.get('window');
+const isTablet = width > 600;
 
 const PC_GAMES: PcGameData[] = [
   { id: '1', title: 'Grand Theft Auto V', price: '15,000 Ks', platform: 'Steam', genre: 'Open World', image: require('@/assets/game_image/pc-image/pc1.png') },
@@ -57,7 +61,9 @@ const PcGame = () => {
       <View style={styles.listContainer}>
         <FlashList
           data={PC_GAMES}
-          numColumns={2}
+          numColumns={isTablet ? 3 : 2}
+          key={isTablet ? 'tablet-3-cols' : 'mobile-2-cols'}
+
           estimatedItemSize={250}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}

@@ -12,8 +12,17 @@ import {
     StatusBar,
     StyleSheet,
     TouchableOpacity,
-    View
+    View,
+    Dimensions,
+    Text
 } from 'react-native';
+
+// 🔥 Screen Width ယူပြီး Tablet လား စစ်မယ်
+const { width } = Dimensions.get("window");
+const isTablet = width > 600;
+
+// 🔥 Tablet Max Content Width
+const CONTENT_MAX_WIDTH = 600;
 
 export default function About() {
     const router = useRouter();
@@ -29,97 +38,99 @@ export default function About() {
 
             <LinearGradient
                 colors={["#991b1b", "#dc2626", "#ef4444"]}
-                style={styles.header}
+                style={[styles.header, isTablet && { paddingBottom: 60, alignItems: 'center' }]} // Tablet Header Padding & Center
             >
                 <View style={{ height: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }} />
 
-                <View style={styles.headerContent}>
-                    <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-                        <Ionicons name="arrow-back" size={24} color="#dc2626" />
+                <View style={[styles.headerContent, isTablet && { width: CONTENT_MAX_WIDTH, paddingHorizontal: 0, marginTop: 15 }]}>
+                    <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, isTablet && { width: 50, height: 50, borderRadius: 16 }]}>
+                        <Ionicons name="arrow-back" size={isTablet ? 28 : 24} color="#dc2626" />
                     </TouchableOpacity>
-                    <DynamicText fontWeight="bold" style={styles.headerTitle}>About Us</DynamicText>
-                    <View style={{ width: 40 }} />
+                    <Text className='font-bold' style={[styles.headerTitle, isTablet && { fontSize: 26 }]}>About Us</Text>
+                    <View style={{ width: isTablet ? 50 : 40 }} />
                 </View>
             </LinearGradient>
 
-            <ScrollView
-                style={styles.body}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: 60 }}
-            >
-                <View style={styles.logoSection}>
-                    <View style={styles.logoContainer}>
-                        <Image
-                            source={require("@/assets/game_image/klogo.png")}
-                            style={styles.appLogo}
-                        />
+            <View style={{ flex: 1, backgroundColor: "#F8FAFC", alignItems: 'center' }}>
+                <ScrollView
+                    style={[styles.body, isTablet && { width: CONTENT_MAX_WIDTH, marginTop: -40, paddingHorizontal: 0 }]}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ paddingBottom: 60 }}
+                >
+                    <View style={[styles.logoSection, isTablet && { marginTop: 40, marginBottom: 40 }]}>
+                        <View style={[styles.logoContainer, isTablet && { width: 140, height: 140, borderRadius: 30, padding: 10 }]}>
+                            <Image
+                                source={require("@/assets/game_image/klogo.png")}
+                                style={[styles.appLogo, isTablet && { borderRadius: 25 }]}
+                            />
+                        </View>
+                        <Text className='font-bold' style={[styles.appName, isTablet && { fontSize: 32, marginBottom: 10 }]}>GameShop</Text>
+                        <View style={[styles.versionBadge, isTablet && { paddingHorizontal: 15, paddingVertical: 6, borderRadius: 16 }]}>
+                            <Text style={[styles.versionText, isTablet && { fontSize: 16 }]}>Version 1.0.0</Text>
+                        </View>
                     </View>
-                    <DynamicText fontWeight="bold" style={styles.appName}>GameShop</DynamicText>
-                    <View style={styles.versionBadge}>
-                        <DynamicText style={styles.versionText}>Version 1.0.0</DynamicText>
+
+                    <View style={[styles.card, isTablet && { padding: 30, borderRadius: 25, marginBottom: 25 }]}>
+                        <Text className='font-bold' style={[styles.cardTitle, isTablet && { fontSize: 20, marginBottom: 15 }]}>Our Mission</Text>
+                        <Text style={[styles.cardContent, isTablet && { fontSize: 16, lineHeight: 28 }]}>
+                            We provide the fastest and most secure game top-up services for gamers in Myanmar. Enjoy seamless transactions and 24/7 support.
+                        </Text>
                     </View>
-                </View>
 
-                <View style={styles.card}>
-                    <DynamicText fontWeight="bold" style={styles.cardTitle}>Our Mission</DynamicText>
-                    <DynamicText style={styles.cardContent}>
-                        We provide the fastest and most secure game top-up services for gamers in Myanmar. Enjoy seamless transactions and 24/7 support.
-                    </DynamicText>
-                </View>
-
-                <View style={styles.card}>
-                    <DynamicText fontWeight="bold" style={styles.cardTitle}>Why Choose Us?</DynamicText>
-                    <View style={styles.featureRow}>
-                        <Ionicons name="flash" size={16} color="#E11D48" />
-                        <DynamicText style={styles.featureText}>Instant Delivery</DynamicText>
+                    <View style={[styles.card, isTablet && { padding: 30, borderRadius: 25, marginBottom: 25 }]}>
+                        <Text className='font-bold' style={[styles.cardTitle, isTablet && { fontSize: 20, marginBottom: 15 }]}>Why Choose Us?</Text>
+                        <View style={[styles.featureRow, isTablet && { marginBottom: 15 }]}>
+                            <Ionicons name="flash" size={isTablet ? 24 : 16} color="#E11D48" />
+                            <Text style={[styles.featureText, isTablet && { fontSize: 16, marginLeft: 15 }]}>Instant Delivery</Text>
+                        </View>
+                        <View style={[styles.featureRow, isTablet && { marginBottom: 15 }]}>
+                            <Ionicons name="shield-checkmark" size={isTablet ? 24 : 16} color="#E11D48" />
+                            <Text style={[styles.featureText, isTablet && { fontSize: 16, marginLeft: 15 }]}>100% Secure Payment</Text>
+                        </View>
+                        <View style={[styles.featureRow, isTablet && { marginBottom: 15 }]}>
+                            <Ionicons name="headset" size={isTablet ? 24 : 16} color="#E11D48" />
+                            <Text style={[styles.featureText, isTablet && { fontSize: 16, marginLeft: 15 }]}>24/7 Customer Support</Text>
+                        </View>
                     </View>
-                    <View style={styles.featureRow}>
-                        <Ionicons name="shield-checkmark" size={16} color="#E11D48" />
-                        <DynamicText style={styles.featureText}>100% Secure Payment</DynamicText>
+
+                    <Text className='font-bold' style={[styles.socialHeader, isTablet && { fontSize: 20, marginTop: 20 }]}>Follow Us</Text>
+
+                    <View style={[styles.socialRow, isTablet && { gap: 25, marginBottom: 40 }]}>
+                        <TouchableOpacity
+                            style={[styles.socialBtn, { backgroundColor: "#1877F2" }, isTablet && { width: 60, height: 60, borderRadius: 30 }]}
+                            onPress={() => openLink("https://facebook.com")}
+                        >
+                            <Ionicons name="logo-facebook" size={isTablet ? 32 : 24} color="white" />
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[styles.socialBtn, { backgroundColor: "#229ED9" }, isTablet && { width: 60, height: 60, borderRadius: 30 }]}
+                            onPress={() => openLink("https://t.me")}
+                        >
+                            <Ionicons name="paper-plane" size={isTablet ? 32 : 24} color="white" />
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[styles.socialBtn, { backgroundColor: "#E1306C" }, isTablet && { width: 60, height: 60, borderRadius: 30 }]}
+                            onPress={() => openLink("https://instagram.com")}
+                        >
+                            <Ionicons name="logo-instagram" size={isTablet ? 32 : 24} color="white" />
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[styles.socialBtn, { backgroundColor: "#000000" }, isTablet && { width: 60, height: 60, borderRadius: 30 }]}
+                            onPress={() => openLink("https://tiktok.com")}
+                        >
+                            <Ionicons name="logo-tiktok" size={isTablet ? 32 : 24} color="white" />
+                        </TouchableOpacity>
                     </View>
-                    <View style={styles.featureRow}>
-                        <Ionicons name="headset" size={16} color="#E11D48" />
-                        <DynamicText style={styles.featureText}>24/7 Customer Support</DynamicText>
-                    </View>
-                </View>
 
-                <DynamicText fontWeight="bold" style={styles.socialHeader}>Follow Us</DynamicText>
+                    <Text style={[styles.copyright, isTablet && { fontSize: 14 }]}>
+                        © 2026 GameShop. All rights reserved.
+                    </Text>
 
-                <View style={styles.socialRow}>
-                    <TouchableOpacity
-                        style={[styles.socialBtn, { backgroundColor: "#1877F2" }]}
-                        onPress={() => openLink("https://facebook.com")}
-                    >
-                        <Ionicons name="logo-facebook" size={24} color="white" />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        style={[styles.socialBtn, { backgroundColor: "#229ED9" }]}
-                        onPress={() => openLink("https://t.me")}
-                    >
-                        <Ionicons name="paper-plane" size={24} color="white" />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        style={[styles.socialBtn, { backgroundColor: "#E1306C" }]}
-                        onPress={() => openLink("https://instagram.com")}
-                    >
-                        <Ionicons name="logo-instagram" size={24} color="white" />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        style={[styles.socialBtn, { backgroundColor: "#000000" }]}
-                        onPress={() => openLink("https://tiktok.com")}
-                    >
-                        <Ionicons name="logo-tiktok" size={24} color="white" />
-                    </TouchableOpacity>
-                </View>
-
-                <DynamicText style={styles.copyright}>
-                    © 2026 GameShop. All rights reserved.
-                </DynamicText>
-
-            </ScrollView>
+                </ScrollView>
+            </View>
 
         </ScreenWrapper>
     )
@@ -136,6 +147,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 10,
         elevation: 10,
+        width: '100%'
     },
     headerContent: {
         flexDirection: 'row',
@@ -143,6 +155,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 20,
         paddingTop: 10,
+        width: '100%'
     },
     headerTitle: {
         fontSize: 20,
@@ -160,9 +173,10 @@ const styles = StyleSheet.create({
 
     body: {
         flex: 1,
-        backgroundColor: "#F8FAFC",
+        // backgroundColor: "#F8FAFC", (Moved to parent View)
         marginTop: -30,
         paddingHorizontal: 20,
+        width: '100%'
     },
 
     // Logo Section

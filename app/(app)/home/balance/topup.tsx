@@ -1,6 +1,6 @@
 import DynamicText from "@/components/ui/dynamic-text/dynamic-text";
 import ScreenWrapper from "@/components/ui/layout/screen-wrapper";
-import { FontAwesome5, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { FlashList } from "@shopify/flash-list";
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
@@ -9,40 +9,58 @@ import {
     Alert,
     Image,
     Keyboard,
+    Modal,
     Platform,
     StyleSheet,
     TextInput,
     TouchableOpacity,
     TouchableWithoutFeedback,
-    View
+    Text,
+    View,
+    Dimensions
 } from "react-native";
 
+const { width } = Dimensions.get("window");
+const isTablet = width > 600;
+const contentWidth = isTablet ? 600 : "100%";
+
 const COLORS = {
-    primary: "#E11D48",
-    background: "#FFFFFF",
-    surface: "#FFF1F2",
+    primary: "#FF3232",
+    background: "#F8FAFC",
+    surface: "#FFFFFF",
     textDark: "#0F172A",
     textMuted: "#64748B",
-    border: "#FECDD3",
+    border: "#E2E8F0",
     success: "#10B981",
     warning: "#FCD34D",
+    activeLight: "#FEF2F2",
+    infoBg: "#F0F9FF",
+    infoText: "#0369A1"
 };
 
 const CONFIG = {
     MM: {
         flag: "🇲🇲", label: "Myanmar", currency: "MMK", symbol: "Ks",
-        presets: [5000, 10000, 20000, 50000, 100000, 500000],
+        presets: [5000, 10000, 20000, 50000, 100000],
         methods: [
-            { id: "kpay", name: "KBZ Pay", logo: require("@/assets/game_image/diamond.png") },
-            { id: "wave", name: "Wave Money", logo: require("@/assets/game_image/diamond.png") },
+            {
+                id: "mmqr",
+                name: "MMQR Pay",
+                logo: require("@/assets/game_image/pc-image/mmqr.png"),
+                desc: "Kpay | Wave Pay | Banking နဲ့ပတ်သတ်တာ အကုန် Support လုပ်ထားတဲ့အတွက် ကြောင့် မိမိကြိုက်နှစ်သက်ရာ ဖြစ် MM QR Pay QR. ကိုးယူပြီး ကြိုက်နှစ်သက်ရာ တစ်ခု ဖြစ် ငွေလွှဲနိုင်ပါသည်။ နောက်တစ်ဆင့်မှာ ငွေစလွှဲရပါမည်"
+            },
         ],
     },
     TH: {
         flag: "🇹🇭", label: "Thailand", currency: "THB", symbol: "฿",
         presets: [100, 500, 1000, 2000, 5000, 10000],
         methods: [
-            { id: "kbank", name: "K-Bank", logo: require("@/assets/game_image/diamond.png") },
-            { id: "scb", name: "SCB Bank", logo: require("@/assets/game_image/diamond.png") },
+            {
+                id: "truemoney",
+                name: "TrueMoney Wallet",
+                logo: require("@/assets/game_image/truemoney.png"),
+                desc: "KBank | SCB Bank | TTB Bank | KTB Bank | True Money စသဖြစ် အကုန်လုံး Support လုပ်ထားတဲ့အတွက်ကြောင့် လူကြီးမင်းအနေနဲ့ ငွေလွဲမည်ဆိုပါက True Money QR. မှတစ်ဆင့် မိမိတို့ ကြိုက်နှစ်သက်ရာ Banking App မှာ တစ်ဆင့် ငွေလွဲနိုင်ပါသည်။ နောက်တစ်ဆင့်မှာ ငွေစလွှဲရပါမည်"
+            },
         ],
     },
 };
@@ -52,23 +70,22 @@ export default function DepositScreen() {
     const [country, setCountry] = useState<"MM" | "TH">("MM");
     const [amount, setAmount] = useState("");
     const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
+    const [showHelp, setShowHelp] = useState(false);
 
     const current = CONFIG[country];
-
     const MIN_LIMIT = country === "MM" ? 2000 : 20;
-
     const numAmount = parseFloat(amount) || 0;
     const isBelowLimit = amount.length > 0 && numAmount < MIN_LIMIT;
     const isReadyToPay = numAmount >= MIN_LIMIT && selectedMethod !== null;
+
+    const PRESET_UNIT = country === "MM" ? "MMK" : "B";
 
     const handleDeposit = () => {
         if (!selectedMethod || numAmount < MIN_LIMIT) {
             Alert.alert("Invalid Amount", `Minimum deposit is ${MIN_LIMIT} ${current.symbol}`);
             return;
         }
-
         const methodDetails = current.methods.find(m => m.id === selectedMethod);
-
         router.push({
             pathname: "/home/balance/paymet",
             params: {
@@ -83,24 +100,40 @@ export default function DepositScreen() {
     const renderMethod = ({ item }: any) => {
         const isActive = selectedMethod === item.id;
         return (
-            <View style={{ paddingHorizontal: 20 }}>
+            <View style={{ paddingHorizontal: 20, marginBottom: 12 }}>
                 <TouchableOpacity
-                    activeOpacity={0.8}
+                    activeOpacity={0.9}
                     onPress={() => setSelectedMethod(item.id)}
                     style={StyleSheet.flatten([styles.methodCard, isActive && styles.activeMethodCard])}
                 >
-                    <View style={styles.methodInfo}>
-                        <View style={styles.logoBox}>
-                            <Image source={item.logo} style={styles.paymentLogo} resizeMode="contain" />
+                    <View style={styles.methodContentRow}>
+                        <View style={styles.methodInfo}>
+                            <View style={styles.logoBox}>
+                                <Image source={item.logo} style={styles.paymentLogo} resizeMode="contain" />
+                            </View>
+                            <View>
+                                <DynamicText fontWeight="bold" style={styles.methodName}>{item.name}</DynamicText>
+                                <DynamicText style={styles.methodSub}>Automatic Verification</DynamicText>
+                            </View>
                         </View>
-                        <View>
-                            <DynamicText fontWeight="bold" style={styles.methodName}>{item.name}</DynamicText>
-                            <DynamicText style={styles.methodSub}>Automatic Verification</DynamicText>
+                        <View style={StyleSheet.flatten([styles.radio, isActive && styles.radioActive])}>
+                            {isActive && <View style={styles.radioDot} />}
                         </View>
                     </View>
-                    <View style={StyleSheet.flatten([styles.radio, isActive && styles.radioActive])}>
-                        {isActive && <View style={styles.radioDot} />}
-                    </View>
+
+                    {isActive && (
+                        <View style={styles.instructionBox}>
+                            <View style={styles.instructionHeader}>
+                                <Ionicons name="information-circle" size={18} color={COLORS.primary} />
+                                <DynamicText fontWeight="bold" style={styles.instructionTitle}>
+                                    အသုံးပြုပုံ
+                                </DynamicText>
+                            </View>
+                            <DynamicText style={styles.instructionText}>
+                                {item.desc}
+                            </DynamicText>
+                        </View>
+                    )}
                 </TouchableOpacity>
             </View>
         );
@@ -161,12 +194,11 @@ export default function DepositScreen() {
                         </DynamicText>
                     </View>
                 )}
-
             </LinearGradient>
 
             <View style={styles.sectionRow}>
                 <FontAwesome5 name="wallet" size={14} color={COLORS.primary} />
-                <DynamicText style={styles.sectionTitle} fontWeight="bold">Payment Amount</DynamicText>
+                <DynamicText style={styles.sectionTitle} fontWeight="bold">Quick Select</DynamicText>
             </View>
 
             <View style={styles.grid}>
@@ -175,18 +207,22 @@ export default function DepositScreen() {
                     return (
                         <View key={v} style={styles.gridItem}>
                             <TouchableOpacity
-                                activeOpacity={0.8}
+                                activeOpacity={0.7}
                                 onPress={() => setAmount(v.toString())}
-                                style={StyleSheet.flatten([styles.presetBox, isActive && styles.activePresetBox])}
+                                style={[styles.presetCard, isActive && styles.activePresetCard]}
                             >
-                                <View style={StyleSheet.flatten([styles.iconCircle, isActive && styles.activeIconCircle])}>
-                                    <MaterialCommunityIcons name="cash-multiple" size={16} color={isActive ? "#FFF" : COLORS.primary} />
-                                </View>
-                                <DynamicText style={StyleSheet.flatten([styles.presetVal, isActive && styles.activePresetVal])} fontWeight="bold">
-                                    {v.toLocaleString()}
-                                </DynamicText>
-                                <DynamicText style={StyleSheet.flatten([{ fontSize: 9, color: COLORS.textMuted }, isActive && { color: "#FFF" }])}>{current.currency}
-                                </DynamicText>
+                                <Text
+                                    className="font-bold"
+                                    style={[styles.presetText, isActive && styles.activePresetText]}
+                                >
+                                    {v.toLocaleString()} <DynamicText style={{ fontSize: 12 }}>{PRESET_UNIT}</DynamicText>
+                                </Text>
+
+                                {isActive && (
+                                    <View style={styles.checkIcon}>
+                                        <Ionicons name="checkmark-circle" size={16} color={COLORS.primary} />
+                                    </View>
+                                )}
                             </TouchableOpacity>
                         </View>
                     );
@@ -195,7 +231,7 @@ export default function DepositScreen() {
 
             <View style={styles.sectionRow}>
                 <FontAwesome5 name="shield-alt" size={14} color={COLORS.success} />
-                <DynamicText style={styles.sectionTitle} fontWeight="bold">Secure Payments</DynamicText>
+                <DynamicText style={styles.sectionTitle} fontWeight="bold">Payment Method</DynamicText>
             </View>
         </View>
     );
@@ -204,35 +240,79 @@ export default function DepositScreen() {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <ScreenWrapper style={styles.container} isSafeArea={true} headerShown={false}>
 
-                <View style={styles.header}>
-                    <TouchableOpacity onPress={() => router.back()} style={styles.backCircle}>
-                        <Ionicons name="arrow-back" size={22} color={COLORS.primary} />
-                    </TouchableOpacity>
-                    <DynamicText style={styles.headerTitle} fontWeight="bold">Deposit</DynamicText>
-                    <View style={{ width: 45 }} />
+                <View style={[styles.mainWrapper, { width: contentWidth }]}>
+
+                    <View style={styles.header}>
+                        <TouchableOpacity onPress={() => router.back()} style={styles.backCircle}>
+                            <Ionicons name="arrow-back" size={22} color={COLORS.primary} />
+                        </TouchableOpacity>
+                        <DynamicText style={styles.headerTitle} fontWeight="bold">Deposit</DynamicText>
+                        <TouchableOpacity style={styles.helpBtn} activeOpacity={0.7} onPress={() => setShowHelp(true)}>
+                            <Ionicons name="help-circle-outline" size={26} color={COLORS.primary} />
+                        </TouchableOpacity>
+                    </View>
+
+                    <FlashList
+                        data={current.methods}
+                        extraData={selectedMethod}
+                        renderItem={renderMethod}
+                        keyExtractor={(item) => item.id}
+                        ListHeaderComponent={listHeader}
+                        estimatedItemSize={85}
+                        contentContainerStyle={{ paddingBottom: 120 }}
+                        showsVerticalScrollIndicator={false}
+                        keyboardShouldPersistTaps="handled"
+                    />
+
+                    <View style={styles.footer}>
+                        <TouchableOpacity
+                            disabled={!isReadyToPay}
+                            style={StyleSheet.flatten([styles.payBtn, !isReadyToPay && styles.disabledBtn])}
+                            onPress={handleDeposit}
+                        >
+                            <DynamicText fontWeight="bold" style={styles.payBtnText}>Confirm Deposit</DynamicText>
+                        </TouchableOpacity>
+                    </View>
+
                 </View>
 
-                <FlashList
-                    data={current.methods}
-                    extraData={selectedMethod}
-                    renderItem={renderMethod}
-                    keyExtractor={(item) => item.id}
-                    ListHeaderComponent={listHeader}
-                    estimatedItemSize={85}
-                    contentContainerStyle={{ paddingBottom: 120 }}
-                    showsVerticalScrollIndicator={false}
-                    keyboardShouldPersistTaps="handled"
-                />
+                <Modal
+                    visible={showHelp}
+                    transparent
+                    animationType="fade"
+                    onRequestClose={() => setShowHelp(false)}
+                >
+                    <View style={styles.modalOverlay}>
+                        <View style={[styles.modalContainer, isTablet && { width: 500 }]}>
+                            <View style={styles.modalHeader}>
+                                <View style={styles.modalIconBox}>
+                                    <Ionicons name="information" size={24} color="#FFF" />
+                                </View>
+                                <DynamicText style={styles.modalTitle} fontWeight="bold">How to Deposit?</DynamicText>
+                            </View>
+                            <View style={styles.modalBody}>
+                                <View style={styles.stepRow}>
+                                    <View style={styles.stepCircle}><DynamicText style={styles.stepNum}>1</DynamicText></View>
+                                    <DynamicText style={styles.stepText}>Select your country.</DynamicText>
+                                </View>
+                                <View style={styles.stepLine} />
+                                <View style={styles.stepRow}>
+                                    <View style={styles.stepCircle}><DynamicText style={styles.stepNum}>2</DynamicText></View>
+                                    <DynamicText style={styles.stepText}>Enter amount or choose package.</DynamicText>
+                                </View>
+                                <View style={styles.stepLine} />
+                                <View style={styles.stepRow}>
+                                    <View style={styles.stepCircle}><DynamicText style={styles.stepNum}>3</DynamicText></View>
+                                    <DynamicText style={styles.stepText}>Select payment & confirm.</DynamicText>
+                                </View>
+                            </View>
+                            <TouchableOpacity style={styles.modalCloseBtn} activeOpacity={0.8} onPress={() => setShowHelp(false)}>
+                                <DynamicText style={styles.modalCloseText} fontWeight="bold">Understood</DynamicText>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
 
-                <View style={styles.footer}>
-                    <TouchableOpacity
-                        disabled={!isReadyToPay}
-                        style={StyleSheet.flatten([styles.payBtn, !isReadyToPay && styles.disabledBtn])}
-                        onPress={handleDeposit}
-                    >
-                        <DynamicText fontWeight="bold" style={styles.payBtnText}>Confirm Deposit</DynamicText>
-                    </TouchableOpacity>
-                </View>
             </ScreenWrapper>
         </TouchableWithoutFeedback>
     );
@@ -241,7 +321,12 @@ export default function DepositScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: COLORS.background
+        backgroundColor: COLORS.background,
+        alignItems: 'center',
+    },
+    mainWrapper: {
+        flex: 1,
+        backgroundColor: COLORS.background,
     },
     header: {
         flexDirection: "row",
@@ -263,6 +348,14 @@ const styles = StyleSheet.create({
         color: COLORS.textDark,
         lineHeight: 34,
         paddingVertical: 2
+    },
+    helpBtn: {
+        width: 45,
+        height: 45,
+        borderRadius: 22.5,
+        backgroundColor: COLORS.surface,
+        alignItems: "center",
+        justifyContent: "center",
     },
 
     toggleContainer: {
@@ -298,8 +391,9 @@ const styles = StyleSheet.create({
         borderRadius: 28,
         marginBottom: 30,
         elevation: 8,
-        shadowColor: "#000",
-        shadowOpacity: 0.3
+        shadowColor: "#dc2626",
+        shadowOpacity: 0.4,
+        shadowOffset: { width: 0, height: 4 }
     },
     cardHeader: {
         flexDirection: "row",
@@ -307,12 +401,12 @@ const styles = StyleSheet.create({
         alignItems: "center"
     },
     inputLabel: {
-        color: "rgba(255, 255, 255, 0.8)",
+        color: "rgba(255, 255, 255, 0.9)",
         fontSize: 13,
         textTransform: "uppercase"
     },
     currencyBadge: {
-        backgroundColor: "rgba(255,255,255,0.2)",
+        backgroundColor: "rgba(255,255,255,0.25)",
         paddingHorizontal: 10,
         paddingVertical: 4,
         borderRadius: 8
@@ -327,11 +421,11 @@ const styles = StyleSheet.create({
         marginTop: 15,
     },
     symbolText: {
-        fontSize: 30,
+        fontSize: 32,
         fontWeight: "bold",
         color: "#FFF",
         marginRight: 10,
-        lineHeight: 40,
+        lineHeight: 45,
     },
     textInput: {
         flex: 1,
@@ -342,7 +436,6 @@ const styles = StyleSheet.create({
         lineHeight: 55,
         height: Platform.OS === 'android' ? 65 : undefined,
     },
-
     warningContainer: {
         flexDirection: "row",
         alignItems: "center",
@@ -363,12 +456,14 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         gap: 10,
-        marginBottom: 15
+        marginBottom: 15,
+        marginTop: 10
     },
     sectionTitle: {
         fontSize: 18,
         color: COLORS.textDark
     },
+
     grid: {
         flexDirection: "row",
         flexWrap: "wrap",
@@ -379,52 +474,67 @@ const styles = StyleSheet.create({
         width: "33.33%",
         padding: 6
     },
-    presetBox: {
-        backgroundColor: "#FFF",
-        borderWidth: 2,
-        borderColor: COLORS.border,
-        borderRadius: 22,
-        paddingVertical: 18,
-        alignItems: "center"
-    },
-    activePresetBox: {
-        backgroundColor: COLORS.primary,
-        borderColor: COLORS.primary
-    },
-    iconCircle: {
-        width: 32,
-        height: 32,
+    presetCard: {
+        backgroundColor: "#FFFFFF",
         borderRadius: 16,
-        backgroundColor: COLORS.surface,
+        paddingVertical: 14,
         alignItems: "center",
-        justifyContent: "center",
-        marginBottom: 8
+        justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: COLORS.border,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 3,
+        elevation: 2,
+        height: 60,
+        position: 'relative'
     },
-    activeIconCircle: {
-        backgroundColor: "rgba(255,255,255,0.2)"
+    activePresetCard: {
+        borderColor: COLORS.primary,
+        backgroundColor: COLORS.activeLight,
+        borderWidth: 1.5,
+        shadowColor: COLORS.primary,
+        shadowOpacity: 0.15,
     },
-    presetVal: {
-        fontSize: 16,
-        color: COLORS.textDark
+    presetText: {
+        fontSize: 14,
+        color: COLORS.textDark,
+        fontWeight: "600"
     },
-    activePresetVal: {
-        color: "#FFF"
+    activePresetText: {
+        color: COLORS.primary,
+        fontWeight: "800"
+    },
+    checkIcon: {
+        position: 'absolute',
+        top: 4,
+        right: 4
     },
 
     methodCard: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
         padding: 16,
-        borderRadius: 22,
+        borderRadius: 18,
         backgroundColor: "#FFF",
-        borderWidth: 2,
+        borderWidth: 1,
         borderColor: COLORS.border,
-        marginBottom: 12
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.03,
+        shadowRadius: 3,
+        elevation: 1
     },
     activeMethodCard: {
         borderColor: COLORS.primary,
-        backgroundColor: COLORS.surface
+        backgroundColor: COLORS.surface,
+        borderWidth: 1.5,
+        shadowColor: COLORS.primary,
+        shadowOpacity: 0.1
+    },
+    methodContentRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
     },
     methodInfo: {
         flexDirection: "row",
@@ -432,19 +542,19 @@ const styles = StyleSheet.create({
         gap: 15
     },
     logoBox: {
-        width: 50,
-        height: 50,
-        borderRadius: 16,
-        backgroundColor: "#FFF",
+        width: 48,
+        height: 48,
+        borderRadius: 12,
+        backgroundColor: "#F8FAFC",
         alignItems: "center",
         justifyContent: "center",
         overflow: "hidden",
         borderWidth: 1,
-        borderColor: COLORS.border
+        borderColor: "#F1F5F9"
     },
     paymentLogo: {
-        width: "80%",
-        height: "80%"
+        width: "70%",
+        height: "70%"
     },
     methodName: {
         fontSize: 16,
@@ -473,24 +583,135 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.primary
     },
 
+    instructionBox: {
+        marginTop: 12,
+        backgroundColor: COLORS.infoBg,
+        borderRadius: 12,
+        padding: 12,
+        borderWidth: 1,
+        borderColor: "#BAE6FD",
+    },
+    instructionHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 4,
+        gap: 6
+    },
+    instructionTitle: {
+        fontSize: 13,
+        color: COLORS.primary,
+    },
+    instructionText: {
+        fontSize: 13,
+        color: COLORS.textDark,
+        lineHeight: 18,
+        opacity: 0.9
+    },
+
     footer: {
         position: "absolute",
         bottom: 0,
         width: "100%",
         padding: 24,
-        backgroundColor: "rgba(255,255,255,0.95)"
+        backgroundColor: "rgba(255,255,255,0.98)",
+        borderTopWidth: 1,
+        borderColor: COLORS.border
     },
     payBtn: {
         backgroundColor: COLORS.primary,
-        paddingVertical: 20,
-        borderRadius: 22,
-        alignItems: "center"
+        paddingVertical: 18,
+        borderRadius: 18,
+        alignItems: "center",
+        shadowColor: COLORS.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 5
     },
     disabledBtn: {
-        backgroundColor: "#E2E8F0"
+        backgroundColor: "#CBD5E1",
+        shadowOpacity: 0,
+        elevation: 0
     },
     payBtnText: {
         color: "#FFF",
         fontSize: 18
     },
+
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: "rgba(0,0,0,0.6)",
+        justifyContent: "center",
+        alignItems: "center",
+        padding: 24
+    },
+    modalContainer: {
+        width: "100%",
+        backgroundColor: "#FFF",
+        borderRadius: 24,
+        padding: 24,
+        alignItems: "center",
+        elevation: 10,
+    },
+    modalHeader: {
+        alignItems: "center",
+        marginBottom: 20
+    },
+    modalIconBox: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: COLORS.primary,
+        alignItems: "center",
+        justifyContent: "center",
+        marginBottom: 12,
+        elevation: 5
+    },
+    modalTitle: {
+        fontSize: 20,
+        color: COLORS.textDark,
+        textAlign: "center"
+    },
+    modalBody: {
+        width: "100%",
+        marginBottom: 24
+    },
+    stepRow: {
+        flexDirection: "row",
+        gap: 12
+    },
+    stepCircle: {
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        backgroundColor: "#F1F5F9",
+        alignItems: "center",
+        justifyContent: "center",
+        borderWidth: 1,
+        borderColor: COLORS.border
+    },
+    stepNum: {
+        fontSize: 12,
+        fontWeight: "bold",
+        color: COLORS.primary
+    },
+    stepText: {
+        flex: 1,
+        fontSize: 14,
+        color: COLORS.textMuted,
+        lineHeight: 22
+    },
+    stepLine: {
+
+    },
+    modalCloseBtn: {
+        width: "100%",
+        backgroundColor: COLORS.primary,
+        paddingVertical: 14, borderRadius: 16,
+        alignItems: "center"
+    },
+    modalCloseText: {
+        color: "#FFF",
+        fontSize: 16
+    }
 });

@@ -14,11 +14,16 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  View
+  View,
+  Dimensions
 } from "react-native";
 import Animated, { useAnimatedStyle, withSpring, ZoomIn } from "react-native-reanimated";
 
 type Country = "TH" | "MM";
+
+// 🔥 Screen Width ယူပြီး Tablet လား စစ်မယ်
+const { width } = Dimensions.get("window");
+const isTablet = width > 600;
 
 const THAI_PRODUCTS = [
   { id: "tm1", title: "True Move", price: "20 Baht", amount: 20, image: require("@/assets/bill_image/thai.png") },
@@ -89,9 +94,9 @@ const ActionSheet = ({ visible, item, country, onClose, onConfirm }: any) => {
       <Pressable style={styles.overlay} onPress={onClose}>
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={{ width: '100%' }}
+          style={{ width: '100%', alignItems: 'center' }} // Center for tablet
         >
-          <Pressable style={styles.sheetContainer} onPress={Keyboard.dismiss}>
+          <Pressable style={[styles.sheetContainer, isTablet && { width: 500, borderTopLeftRadius: 20, borderTopRightRadius: 20, marginBottom: 20, borderRadius: 20 }]} onPress={Keyboard.dismiss}>
 
             <View style={styles.handleBar} />
 
@@ -175,18 +180,47 @@ const ActionSheet = ({ visible, item, country, onClose, onConfirm }: any) => {
   );
 };
 
+// 🔥 Product Card Component (Responsive Design)
 const ProductCard = ({ item, index, onPress }: { item: any, index: number, onPress: (item: any) => void }) => (
-  <Animated.View entering={ZoomIn.delay(index * 20).springify()} style={{ width: "31%" }}>
+  <Animated.View
+    entering={ZoomIn.delay(index * 20).springify()}
+    style={{ width: "31%" }} // 3 Columns
+  >
     <Pressable
       onPress={() => onPress(item)}
-      className="bg-white rounded-xl p-2 border border-slate-100 shadow-sm items-center h-40 justify-center w-full"
+      // 🔥 Tablet ဆိုရင် Height (h-60) နဲ့ Padding ကိုပိုကြီးပေးထားတယ်, Phone ဆိုရင် h-40 (Original)
+      className={`bg-white rounded-xl border border-slate-100 shadow-sm items-center justify-center w-full 
+        ${isTablet ? 'h-60 p-4' : 'h-40 p-2'}`}
     >
-      <Image source={item.image} className="w-12 h-12 rounded-full mb-2" resizeMode="contain" />
-      <DynamicText fontWeight="bold" fontSize="xs" numberOfLines={1} style={{ color: "#334155", textAlign: 'center', marginBottom: 6 }}>
+      <Image
+        source={item.image}
+        // 🔥 Tablet ဆိုရင် Image Size ကြီးပေးတယ်
+        style={{
+          width: isTablet ? 80 : 48,
+          height: isTablet ? 80 : 48,
+          borderRadius: isTablet ? 20 : 999,
+          marginBottom: isTablet ? 12 : 8
+        }}
+        resizeMode="contain"
+      />
+
+      {/* 🔥 Tablet Text Size Adjustment */}
+      <DynamicText
+        fontWeight="bold"
+        fontSize={isTablet ? "lg" : "xs"} // Tablet: Large, Phone: XS
+        numberOfLines={1}
+        style={{ color: "#334155", textAlign: 'center', marginBottom: 6 }}
+      >
         {item.title}
       </DynamicText>
-      <View className="bg-rose-50 px-2 py-1 rounded-md w-full items-center">
-        <DynamicText fontWeight="bold" style={{ fontSize: 11, color: "#E11D48" }}>{item.price}</DynamicText>
+
+      <View className={`bg-rose-50 rounded-md w-full items-center ${isTablet ? 'px-4 py-2' : 'px-2 py-1'}`}>
+        <DynamicText
+          fontWeight="bold"
+          style={{ fontSize: isTablet ? 16 : 11, color: "#E11D48" }} // Tablet Price Font Bigger
+        >
+          {item.price}
+        </DynamicText>
       </View>
     </Pressable>
   </Animated.View>
@@ -227,11 +261,12 @@ export default function PhoneBillProducts() {
   };
 
   return (
-    <View className="flex-1 bg-white p-4">
+    <View className="flex-1 bg-white p-4" style={isTablet && { paddingHorizontal: 40 }}>
       {/* Switcher */}
       <View
         className="h-12 bg-slate-100 rounded-full flex-row items-center relative mb-4 p-1 border border-slate-200"
         onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width - 8)}
+        style={isTablet && { height: 60, marginBottom: 20 }} // Tablet Switcher Height
       >
         <Animated.View
           style={[
@@ -244,10 +279,10 @@ export default function PhoneBillProducts() {
           ]}
         />
         <Pressable onPress={() => setCountry("TH")} className="flex-1 h-full justify-center items-center z-10">
-          <DynamicText fontWeight="bold" fontSize="sm" style={{ color: country === "TH" ? "#1e293b" : "#94a3b8" }}>🇹🇭 Thailand</DynamicText>
+          <DynamicText fontWeight="bold" fontSize={isTablet ? "lg" : "sm"} style={{ color: country === "TH" ? "#1e293b" : "#94a3b8" }}>🇹🇭 Thailand</DynamicText>
         </Pressable>
         <Pressable onPress={() => setCountry("MM")} className="flex-1 h-full justify-center items-center z-10">
-          <DynamicText fontWeight="bold" fontSize="sm" style={{ color: country === "MM" ? "#1e293b" : "#94a3b8" }}>🇲🇲 Myanmar</DynamicText>
+          <DynamicText fontWeight="bold" fontSize={isTablet ? "lg" : "sm"} style={{ color: country === "MM" ? "#1e293b" : "#94a3b8" }}>🇲🇲 Myanmar</DynamicText>
         </Pressable>
       </View>
 

@@ -2,12 +2,15 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, Dimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Button from "../button/button";
 import DynamicText from "../dynamic-text/dynamic-text";
 
 export const SECONDARY_COLOR = ["#FF3232", "#000000"];
+
+const { width } = Dimensions.get("window");
+const isTablet = width > 600;
 
 interface GameShopHeaderProps {
   title?: string;
@@ -28,7 +31,14 @@ const GameShopHeader: React.FC<GameShopHeaderProps> = ({
       colors={SECONDARY_COLOR as any}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 0 }}
-      style={[styles.container, { paddingTop: insets.top }]}
+      style={[
+        styles.container,
+        {
+          paddingTop: insets.top,
+          paddingHorizontal: isTablet ? 40 : 20,
+          minHeight: isTablet ? 100 : 88
+        }
+      ]}
     >
       <DynamicText fontSize="2xl" fontWeight="bold" fontColor="#fff">
         {title}

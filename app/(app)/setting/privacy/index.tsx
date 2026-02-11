@@ -10,8 +10,15 @@ import {
     StatusBar,
     StyleSheet,
     TouchableOpacity,
-    View
+    View,
+    Dimensions,
+    Text
 } from 'react-native';
+
+const { width } = Dimensions.get("window");
+const isTablet = width > 600;
+
+const CONTENT_MAX_WIDTH = 700;
 
 const POLICY_SECTIONS = [
     {
@@ -46,45 +53,49 @@ export default function Privacy() {
 
             <LinearGradient
                 colors={["#991b1b", "#dc2626", "#ef4444"]}
-                style={styles.header}
+                style={[styles.header, isTablet && { paddingBottom: 60, alignItems: 'center' }]} // Tablet Header Padding & Center
             >
                 <View style={{ height: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }} />
 
-                <View style={styles.headerContent}>
-                    <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-                        <Ionicons name="arrow-back" size={24} color="#dc2626" />
+                <View style={[styles.headerContent, isTablet && { width: CONTENT_MAX_WIDTH, paddingHorizontal: 0, marginTop: 15 }]}>
+                    <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, isTablet && { width: 50, height: 50, borderRadius: 16 }]}>
+                        <Ionicons name="arrow-back" size={isTablet ? 28 : 24} color="#dc2626" />
                     </TouchableOpacity>
-                    <DynamicText fontWeight="bold" style={styles.headerTitle}>Privacy Policy</DynamicText>
-                    <View style={{ width: 40 }} />
+                    <Text className='font-bold' style={[styles.headerTitle, isTablet && { fontSize: 26 }]}>Privacy Policy</Text>
+                    <View style={{ width: isTablet ? 50 : 40 }} />
                 </View>
 
-                <View style={styles.dateSection}>
-                    <DynamicText style={styles.dateText}>Last Updated: Jan 20, 2026</DynamicText>
+                <View style={[styles.dateSection, isTablet && { marginTop: 25 }]}>
+                    <Text style={[styles.dateText, isTablet && { fontSize: 16, paddingHorizontal: 20, paddingVertical: 6, borderRadius: 25 }]}>
+                        Last Updated: Jan 20, 2026
+                    </Text>
                 </View>
             </LinearGradient>
 
-            <ScrollView
-                style={styles.body}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: 40 }}
-            >
-                {POLICY_SECTIONS.map((item, index) => (
-                    <View key={index} style={styles.sectionCard}>
-                        <View style={styles.iconBox}>
-                            <Ionicons name="shield-checkmark-outline" size={20} color="#E11D48" />
+            <View style={{ flex: 1, backgroundColor: "#F8FAFC", alignItems: 'center' }}>
+                <ScrollView
+                    style={[styles.body, isTablet && { width: CONTENT_MAX_WIDTH, marginTop: -40, paddingHorizontal: 0 }]}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ paddingBottom: 40 }}
+                >
+                    {POLICY_SECTIONS.map((item, index) => (
+                        <View key={index} style={[styles.sectionCard, isTablet && { padding: 30, marginBottom: 20, borderRadius: 20 }]}>
+                            <View style={[styles.iconBox, isTablet && { width: 50, height: 50, borderRadius: 25, marginRight: 20 }]}>
+                                <Ionicons name="shield-checkmark-outline" size={isTablet ? 28 : 20} color="#E11D48" />
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <Text className='font-bold' style={[styles.sectionTitle, isTablet && { fontSize: 20, marginBottom: 10 }]}>{item.title}</Text>
+                                <Text style={[styles.sectionContent, isTablet && { fontSize: 16, lineHeight: 26 }]}>{item.content}</Text>
+                            </View>
                         </View>
-                        <View style={{ flex: 1 }}>
-                            <DynamicText fontWeight="bold" style={styles.sectionTitle}>{item.title}</DynamicText>
-                            <DynamicText style={styles.sectionContent}>{item.content}</DynamicText>
-                        </View>
-                    </View>
-                ))}
+                    ))}
 
-                <DynamicText style={styles.footerText}>
-                    By using our app, you agree to our Terms of Service.
-                </DynamicText>
+                    <Text style={[styles.footerText, isTablet && { fontSize: 14, marginTop: 20 }]}>
+                        By using our app, you agree to our Terms of Service.
+                    </Text>
 
-            </ScrollView>
+                </ScrollView>
+            </View>
 
         </ScreenWrapper>
     )
@@ -101,6 +112,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 10,
         elevation: 10,
+        width: '100%'
     },
     headerContent: {
         flexDirection: 'row',
@@ -108,6 +120,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 20,
         paddingTop: 10,
+        width: '100%'
     },
     headerTitle: {
         fontSize: 20,
@@ -138,10 +151,10 @@ const styles = StyleSheet.create({
 
     body: {
         flex: 1,
-        backgroundColor: "#F8FAFC",
         marginTop: -20,
         paddingTop: 30,
         paddingHorizontal: 20,
+        width: '100%'
     },
 
     sectionCard: {

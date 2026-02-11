@@ -2,7 +2,7 @@ import { FlashList } from '@shopify/flash-list';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { Platform, StatusBar, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Platform, StatusBar, StyleSheet, TouchableOpacity, View, Text } from 'react-native';
 
 import {
   ArrowLeft,
@@ -18,6 +18,9 @@ import {
 import FeatureGridItem, { FeatureData } from '@/components/common/all-features/FeatureGridItem';
 import DynamicText from '@/components/ui/dynamic-text/dynamic-text';
 import ScreenWrapper from '@/components/ui/layout/screen-wrapper';
+
+const { width } = Dimensions.get("window");
+const isTablet = width > 600;
 
 const FEATURES: FeatureData[] = [
   { id: '1', title: 'Popular', icon: Flame, route: '/home/popular' },
@@ -39,36 +42,59 @@ const AllFeatures = () => {
         colors={["#991b1b", "#dc2626", "#ef4444"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={styles.header}
+        style={[styles.header, isTablet && { paddingBottom: 40 }]}
       >
         <View style={{ height: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }} />
 
-        <View style={styles.headerContent}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <ArrowLeft size={24} color="#dc2626" />
+        <View style={[styles.headerContent, isTablet && { paddingHorizontal: 30, paddingTop: 20 }]}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={[styles.backBtn, isTablet && { width: 50, height: 50, borderRadius: 16 }]}
+          >
+            <ArrowLeft size={isTablet ? 28 : 24} color="#dc2626" />
           </TouchableOpacity>
 
+          {isTablet && (
+            <DynamicText fontWeight="bold" style={{ fontSize: 24, color: "white", marginLeft: 20 }}>
+              All Features
+            </DynamicText>
+          )}
 
-          <View style={{ width: 42 }} />
+          <View style={{ width: isTablet ? 50 : 42 }} />
         </View>
       </LinearGradient>
 
       <View style={styles.container}>
         <FlashList
           data={FEATURES}
-          numColumns={4}
+          numColumns={isTablet ? 5 : 4}
+          key={isTablet ? 'tablet-5-cols' : 'mobile-4-cols'}
+
           estimatedItemSize={90}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContent}
+
+          contentContainerStyle={{
+            ...styles.listContent,
+            ...(isTablet ? { paddingHorizontal: 30, paddingTop: 30 } : {})
+          }}
           showsVerticalScrollIndicator={false}
+
           renderItem={({ item }) => (
-            <FeatureGridItem
-              item={item}
-              onPress={() => router.push(item.route as any)}
-            />
+            <View style={isTablet && { padding: 10 }}>
+              <FeatureGridItem
+                item={item}
+                onPress={() => router.push(item.route as any)}
+              />
+            </View>
           )}
+
           ListHeaderComponent={
-            <DynamicText fontWeight="bold" style={styles.sectionTitle}>Main Features</DynamicText>
+            <Text
+              className='font-bold'
+              style={[styles.sectionTitle, isTablet && { fontSize: 22, marginLeft: 30, marginBottom: 25 }]}
+            >
+              Main Features
+            </Text>
           }
         />
       </View>

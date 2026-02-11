@@ -2,63 +2,29 @@ import { useWalletStore } from "@/store/useWalletStore";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import React, { useEffect } from "react";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import React from "react";
+import { StyleSheet, TouchableOpacity, View, Text, Dimensions } from "react-native";
 import DynamicText from "../ui/dynamic-text/dynamic-text";
 
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withDelay,
-  withRepeat,
-  withSequence,
-  withTiming
-} from "react-native-reanimated";
+const { width } = Dimensions.get("window");
+const isTablet = width > 600;
 
 export default function WalletCard() {
   const router = useRouter();
 
   const { mmBalance, thBalance, selectedCountry, setCountry } = useWalletStore();
 
-  const currentBalance = selectedCountry === "MM" ? mmBalance : thBalance;
-  const rotation = useSharedValue(0);
-
-  useEffect(() => {
-    const threshold = selectedCountry === "MM" ? 2000 : 20;
-
-    if (currentBalance < threshold) {
-      rotation.value = withRepeat(
-        withSequence(
-          withTiming(-10, { duration: 50 }),
-          withTiming(10, { duration: 50 }),
-          withTiming(-10, { duration: 50 }),
-          withTiming(0, { duration: 50 }),
-          withDelay(2000, withTiming(0, { duration: 0 }))
-        ),
-        -1,
-        false
-      );
-    } else {
-      // ပိုက်ဆံများရင် ငြိမ်မယ်
-      rotation.value = withTiming(0);
-    }
-  }, [currentBalance, selectedCountry]);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${rotation.value}deg` }],
-  }));
-
   const toggleCountry = () => {
     setCountry(selectedCountry === "MM" ? "TH" : "MM");
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, isTablet && styles.tabletContainer]}>
       <LinearGradient
         colors={["#991b1b", "#dc2626", "#ef4444"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={styles.card}
+        style={[styles.card, isTablet && styles.tabletCard]}
       >
         <View style={styles.topSection}>
           <View style={styles.leftContent}>
@@ -80,16 +46,16 @@ export default function WalletCard() {
               />
             </TouchableOpacity>
 
-            <DynamicText
-              fontWeight="bold"
-              style={styles.balance}
+            <Text
+              className="font-bold"
+              style={[styles.balance, isTablet && styles.tabletBalance]}
               numberOfLines={1}
               adjustsFontSizeToFit
             >
               {selectedCountry === "MM"
                 ? `${mmBalance.toLocaleString()} Ks`
                 : ` ${thBalance.toLocaleString()} ฿`}
-            </DynamicText>
+            </Text>
           </View>
 
           <TouchableOpacity
@@ -97,10 +63,9 @@ export default function WalletCard() {
             style={styles.topUpBtn}
             onPress={() => router.navigate("/home/balance/topup")}
           >
-            {/* Animated Icon */}
-            <Animated.View style={[styles.iconCircle, animatedStyle]}>
+            <View style={styles.iconCircle}>
               <Ionicons name="wallet" size={20} color="#991b1b" />
-            </Animated.View>
+            </View>
 
             <DynamicText fontWeight="bold" style={styles.topUpText}>
               ငွေဖြည့်ရန်
@@ -143,10 +108,18 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     borderRadius: 20,
   },
+  tabletContainer: {
+    marginHorizontal: width * 0.15,
+    marginTop: 20,
+  },
   card: {
     borderRadius: 20,
     padding: 20,
     paddingBottom: 15,
+  },
+  tabletCard: {
+    padding: 30,
+    paddingBottom: 25,
   },
   topSection: {
     flexDirection: "row",
@@ -181,6 +154,10 @@ const styles = StyleSheet.create({
     color: "white",
     letterSpacing: 0.5,
     marginLeft: 4,
+  },
+  tabletBalance: {
+    fontSize: 36,
+    lineHeight: 46,
   },
   topUpBtn: {
     alignItems: "center",

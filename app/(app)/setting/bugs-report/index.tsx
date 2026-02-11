@@ -14,8 +14,17 @@ import {
     TextInput,
     TouchableOpacity,
     TouchableWithoutFeedback,
-    View
+    View,
+    Dimensions,
+    Text
 } from 'react-native';
+
+// 🔥 Screen Width ယူပြီး Tablet လား စစ်မယ်
+const { width } = Dimensions.get("window");
+const isTablet = width > 600;
+
+// 🔥 Tablet Max Content Width
+const CONTENT_MAX_WIDTH = 600;
 
 export default function Bugs() {
     const router = useRouter();
@@ -41,75 +50,77 @@ export default function Bugs() {
 
                 <LinearGradient
                     colors={["#991b1b", "#dc2626", "#ef4444"]}
-                    style={styles.header}
+                    style={[styles.header, isTablet && { paddingBottom: 60, alignItems: 'center' }]} // Tablet Header Padding & Center
                 >
                     <View style={{ height: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }} />
 
-                    <View style={styles.headerContent}>
-                        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-                            <Ionicons name="arrow-back" size={24} color="#dc2626" />
+                    <View style={[styles.headerContent, isTablet && { width: CONTENT_MAX_WIDTH, paddingHorizontal: 0, marginTop: 10 }]}>
+                        <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, isTablet && { width: 50, height: 50, borderRadius: 16 }]}>
+                            <Ionicons name="arrow-back" size={isTablet ? 28 : 24} color="#dc2626" />
                         </TouchableOpacity>
-                        <DynamicText fontWeight="bold" style={styles.headerTitle}>Report a Bug</DynamicText>
-                        <View style={{ width: 40 }} />
+                        <Text className='font-bold' style={[styles.headerTitle, isTablet && { fontSize: 24 }]}>Report a Bug</Text>
+                        <View style={{ width: isTablet ? 50 : 40 }} />
                     </View>
 
                     <View style={styles.heroSection}>
-                        <DynamicText style={styles.heroText}>
+                        <Text style={[styles.heroText, isTablet && { fontSize: 18, lineHeight: 28 }]}>
                             တွေ့ရှိထားသော အမှားအယွင်းများကို{"\n"}အောက်ပါအတိုင်း ဖြည့်စွက်ပေးပါ
-                        </DynamicText>
+                        </Text>
                     </View>
                 </LinearGradient>
 
-                <ScrollView
-                    style={styles.body}
-                    showsVerticalScrollIndicator={false}
-                    contentContainerStyle={{ paddingBottom: 40 }}
-                >
-                    <View style={styles.inputGroup}>
-                        <DynamicText fontWeight="semibold" style={styles.label}>Issue Title</DynamicText>
-                        <View style={styles.inputBox}>
-                            <Ionicons name="alert-circle-outline" size={20} color="#E11D48" style={{ marginRight: 10 }} />
-                            <TextInput
-                                style={styles.input}
-                                placeholder="e.g., Cannot top up diamonds"
-                                placeholderTextColor="#94a3b8"
-                                value={title}
-                                onChangeText={setTitle}
-                            />
-                        </View>
-                    </View>
-
-                    <View style={styles.inputGroup}>
-                        <DynamicText fontWeight="semibold" style={styles.label}>Description</DynamicText>
-                        <View style={[styles.inputBox, styles.textAreaBox]}>
-                            <TextInput
-                                style={[styles.input, styles.textArea]}
-                                placeholder="Please describe what happened..."
-                                placeholderTextColor="#94a3b8"
-                                multiline={true}
-                                numberOfLines={4}
-                                textAlignVertical="top"
-                                value={description}
-                                onChangeText={setDescription}
-                            />
-                        </View>
-                    </View>
-
-                    <TouchableOpacity
-                        activeOpacity={0.8}
-                        onPress={handleSubmit}
-                        style={styles.submitBtnContainer}
+                <View style={{ flex: 1, backgroundColor: "#F8FAFC", alignItems: 'center' }}>
+                    <ScrollView
+                        style={[styles.body, isTablet && { width: CONTENT_MAX_WIDTH, marginTop: -40, paddingHorizontal: 0 }]}
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={{ paddingBottom: 40 }}
                     >
-                        <LinearGradient
-                            colors={["#E11D48", "#be123c"]}
-                            style={styles.submitBtn}
-                        >
-                            <DynamicText fontWeight="bold" style={styles.submitText}>Submit Report</DynamicText>
-                            <Ionicons name="paper-plane-outline" size={20} color="white" style={{ marginLeft: 8 }} />
-                        </LinearGradient>
-                    </TouchableOpacity>
+                        <View style={[styles.inputGroup, isTablet && { marginBottom: 25 }]}>
+                            <Text className='font-bold' style={[styles.label, isTablet && { fontSize: 16, marginBottom: 10 }]}>Issue Title</Text>
+                            <View style={[styles.inputBox, isTablet && { height: 65, paddingHorizontal: 20 }]}>
+                                <Ionicons name="alert-circle-outline" size={isTablet ? 24 : 20} color="#E11D48" style={{ marginRight: 10 }} />
+                                <TextInput
+                                    style={[styles.input, isTablet && { fontSize: 18 }]}
+                                    placeholder="e.g., Cannot top up diamonds"
+                                    placeholderTextColor="#94a3b8"
+                                    value={title}
+                                    onChangeText={setTitle}
+                                />
+                            </View>
+                        </View>
 
-                </ScrollView>
+                        <View style={[styles.inputGroup, isTablet && { marginBottom: 25 }]}>
+                            <Text className='font-bold' style={[styles.label, isTablet && { fontSize: 16, marginBottom: 10 }]}>Description</Text>
+                            <View style={[styles.inputBox, styles.textAreaBox, isTablet && { height: 200 }]}>
+                                <TextInput
+                                    style={[styles.input, styles.textArea, isTablet && { fontSize: 18 }]}
+                                    placeholder="Please describe what happened..."
+                                    placeholderTextColor="#94a3b8"
+                                    multiline={true}
+                                    numberOfLines={4}
+                                    textAlignVertical="top"
+                                    value={description}
+                                    onChangeText={setDescription}
+                                />
+                            </View>
+                        </View>
+
+                        <TouchableOpacity
+                            activeOpacity={0.8}
+                            onPress={handleSubmit}
+                            style={[styles.submitBtnContainer, isTablet && { marginTop: 20 }]}
+                        >
+                            <LinearGradient
+                                colors={["#E11D48", "#be123c"]}
+                                style={[styles.submitBtn, isTablet && { paddingVertical: 18, borderRadius: 20 }]}
+                            >
+                                <Text className='font-bold' style={[styles.submitText, isTablet && { fontSize: 18 }]}>Submit Report</Text>
+                                <Ionicons name="paper-plane-outline" size={isTablet ? 24 : 20} color="white" style={{ marginLeft: 8 }} />
+                            </LinearGradient>
+                        </TouchableOpacity>
+
+                    </ScrollView>
+                </View>
 
             </ScreenWrapper>
         </TouchableWithoutFeedback>
@@ -127,6 +138,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 10,
         elevation: 10,
+        width: '100%'
     },
     headerContent: {
         flexDirection: 'row',
@@ -134,6 +146,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 20,
         paddingTop: 10,
+        width: '100%'
     },
     headerTitle: {
         fontSize: 20,
@@ -160,10 +173,11 @@ const styles = StyleSheet.create({
 
     body: {
         flex: 1,
-        backgroundColor: "#F8FAFC",
+        // backgroundColor: "#F8FAFC", (Moved to parent View)
         marginTop: -20,
         paddingTop: 30,
         paddingHorizontal: 20,
+        width: '100%'
     },
     inputGroup: {
         marginBottom: 20

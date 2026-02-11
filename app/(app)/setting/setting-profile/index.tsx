@@ -1,5 +1,4 @@
 import EditProfileItem from '@/components/common/profile-logic/EditProfileItem';
-import DynamicText from '@/components/ui/dynamic-text/dynamic-text';
 import ScreenWrapper from '@/components/ui/layout/screen-wrapper';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -14,8 +13,15 @@ import {
     StyleSheet,
     TouchableOpacity,
     TouchableWithoutFeedback,
-    View
+    View,
+    Dimensions,
+    Text
 } from 'react-native';
+
+const { width } = Dimensions.get("window");
+const isTablet = width > 600;
+
+const CONTENT_MAX_WIDTH = 600;
 
 const SettingProfile = () => {
     const router = useRouter();
@@ -28,58 +34,69 @@ const SettingProfile = () => {
             <ScreenWrapper headerShown={false} isSafeArea={false}>
 
                 <Stack.Screen options={{ headerShown: false }} />
+
                 <LinearGradient
                     colors={["#991b1b", "#dc2626", "#ef4444"]}
-                    style={styles.header}
+                    style={[styles.header, isTablet && { paddingBottom: 50, alignItems: 'center' }]} // Tablet Header Padding & Center
                 >
                     <View style={{ height: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }} />
 
-                    <View style={styles.headerTop}>
-                        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-                            <Ionicons name="arrow-back" size={24} color="#dc2626" />
+                    <View style={[styles.headerTop, isTablet && { width: CONTENT_MAX_WIDTH, paddingHorizontal: 0, marginTop: 10 }]}>
+                        <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, isTablet && { width: 50, height: 50, borderRadius: 16 }]}>
+                            <Ionicons name="arrow-back" size={isTablet ? 28 : 24} color="#dc2626" />
                         </TouchableOpacity>
-                        <DynamicText fontWeight="bold" style={styles.headerTitle}>Edit Profile</DynamicText>
-                        <TouchableOpacity style={styles.saveBtn}>
-                            <DynamicText fontWeight="bold" style={styles.saveText}>Save</DynamicText>
+                        <Text className='font-bold' style={[styles.headerTitle, isTablet && { fontSize: 24 }]}>Edit Profile</Text>
+                        <TouchableOpacity style={[styles.saveBtn, isTablet && { paddingHorizontal: 24, paddingVertical: 10, borderRadius: 25 }]}>
+                            <Text className='font-bold' style={[styles.saveText, isTablet && { fontSize: 16 }]}>Save</Text>
                         </TouchableOpacity>
                     </View>
 
-                    <View style={styles.profileSection}>
+                    <View style={[styles.profileSection, isTablet && { marginTop: 30 }]}>
                         <View style={styles.imageContainer}>
                             <Image
                                 source={require("@/assets/game_image/photo1.png")}
-                                style={styles.profileImage}
+                                style={[styles.profileImage, isTablet && { width: 160, height: 160, borderRadius: 80 }]}
                             />
-                            <TouchableOpacity style={styles.cameraBtn} activeOpacity={0.8}>
-                                <Ionicons name="camera" size={18} color="white" />
+                            <TouchableOpacity
+                                style={[
+                                    styles.cameraBtn,
+                                    isTablet && { width: 46, height: 46, borderRadius: 23, borderWidth: 4 }
+                                ]}
+                                activeOpacity={0.8}
+                            >
+                                <Ionicons name="camera" size={isTablet ? 24 : 18} color="white" />
                             </TouchableOpacity>
                         </View>
-                        <DynamicText style={styles.userIdText}>ID: @tgi72505</DynamicText>
+                        <Text style={[styles.userIdText, isTablet && { fontSize: 18, marginTop: 10 }]}>ID: @tgi72505</Text>
                     </View>
                 </LinearGradient>
 
-                <ScrollView
-                    style={styles.body}
-                    showsVerticalScrollIndicator={false}
-                    contentContainerStyle={{ paddingBottom: 40 }}
-                >
-                    <EditProfileItem
-                        label="Full Name"
-                        value={name}
-                        placeholder="Enter your name"
-                        icon="person-outline"
-                        onChangeText={setName}
-                    />
+                <View style={{ flex: 1, backgroundColor: "#F8FAFC", alignItems: 'center' }}>
+                    <ScrollView
+                        style={[styles.body, isTablet && { width: CONTENT_MAX_WIDTH, marginTop: -40, paddingHorizontal: 0 }]}
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={{ paddingBottom: 40 }}
+                    >
+                        <View style={isTablet && { gap: 20 }}>
+                            <EditProfileItem
+                                label="Full Name"
+                                value={name}
+                                placeholder="Enter your name"
+                                icon="person-outline"
+                                onChangeText={setName}
+                            />
 
-                    <EditProfileItem
-                        label="Email Address"
-                        value={email}
-                        placeholder="Enter email address"
-                        icon="mail-outline"
-                        isEditable={false}
-                    />
+                            <EditProfileItem
+                                label="Email Address"
+                                value={email}
+                                placeholder="Enter email address"
+                                icon="mail-outline"
+                                isEditable={false}
+                            />
+                        </View>
 
-                </ScrollView>
+                    </ScrollView>
+                </View>
             </ScreenWrapper>
         </TouchableWithoutFeedback>
     );
@@ -98,6 +115,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 10,
         elevation: 10,
+        width: '100%'
     },
     headerTop: {
         flexDirection: 'row',
@@ -105,6 +123,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 20,
         paddingTop: 10,
+        width: '100%'
     },
     headerTitle: {
         fontSize: 20,
@@ -167,9 +186,9 @@ const styles = StyleSheet.create({
     },
     body: {
         flex: 1,
-        backgroundColor: "#F8FAFC",
         marginTop: -20,
         paddingTop: 30,
         paddingHorizontal: 20,
+        width: '100%'
     }
 });

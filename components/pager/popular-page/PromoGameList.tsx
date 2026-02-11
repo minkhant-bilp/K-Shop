@@ -3,8 +3,11 @@ import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
 import { ChevronLeft, ChevronRight } from "lucide-react-native";
 import React, { useRef, useState } from "react";
-import { Image, Pressable, TouchableOpacity, View } from "react-native";
+import { Image, Pressable, TouchableOpacity, View, Dimensions } from "react-native";
 import Animated, { FadeInRight, useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
+
+const { width } = Dimensions.get("window");
+const isTablet = width > 600;
 
 const promoGames = [
     { id: "1", title: "Genshin Impact", desc: "Genesis Crystal", image: require("@/assets/game_image/category1.png") },
@@ -33,18 +36,18 @@ const AnimatedGameCard = ({ item, index, onPress }: { item: any, index: number, 
             >
                 <Animated.View
                     style={animatedStyle}
-                    className="flex-row bg-white rounded-2xl p-3 w-72 border-1 shadow-lg"
+                    className={`flex-row bg-white rounded-2xl p-3 border-1 shadow-lg ${isTablet ? 'w-[350px]' : 'w-72'}`}
                 >
                     <Image
                         source={item.image}
-                        className="w-28 h-28 rounded-xl bg-slate-50"
+                        className={`${isTablet ? 'w-[130px] h-[130px]' : 'w-28 h-28'} rounded-xl bg-slate-50`}
                         resizeMode="cover"
                     />
 
                     <View className="ml-3 flex-1 justify-center">
                         <DynamicText
                             fontWeight="bold"
-                            fontSize="sm"
+                            fontSize={isTablet ? "base" : "sm"}
                             numberOfLines={1}
                             style={{ color: "#0f172a", marginBottom: 4 }}
                         >
@@ -52,7 +55,7 @@ const AnimatedGameCard = ({ item, index, onPress }: { item: any, index: number, 
                         </DynamicText>
 
                         <DynamicText
-                            fontSize="xs"
+                            fontSize={isTablet ? "sm" : "xs"}
                             numberOfLines={1}
                             style={{ color: "#64748b", marginBottom: 4 }}
                         >
@@ -61,7 +64,7 @@ const AnimatedGameCard = ({ item, index, onPress }: { item: any, index: number, 
 
                         <DynamicText
                             fontWeight="bold"
-                            fontSize="xs"
+                            fontSize={isTablet ? "sm" : "xs"}
                             style={{ color: "#ef4444" }}
                         >
                             Save 20%
@@ -87,14 +90,14 @@ export default function PromoGameList() {
     };
 
     return (
-        <View className="w-full my-2 relative justify-center"><View className="min-h-[100px]">
+        <View className={`w-full my-2 relative justify-center ${isTablet ? 'min-h-[160px]' : 'min-h-[100px]'}`}>
             <FlashList
                 ref={listRef}
                 data={promoGames}
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 10 }}
-                estimatedItemSize={280}
+                estimatedItemSize={isTablet ? 360 : 280}
                 onScroll={(e) => {
                     const offsetX = e.nativeEvent.contentOffset.x;
                     const contentWidth = e.nativeEvent.contentSize.width;
@@ -124,15 +127,14 @@ export default function PromoGameList() {
                     />
                 )}
             />
-        </View>
 
             {!isEnd && (
                 <TouchableOpacity
                     onPress={goToEnd}
                     activeOpacity={0.8}
-                    className="absolute right-2 top-[40%] z-20 bg-rose-600 shadow-md p-1 rounded-full border border-slate-100"
+                    className={`absolute right-2 top-[40%] z-20 bg-rose-600 shadow-md ${isTablet ? 'p-2' : 'p-1'} rounded-full border border-slate-100`}
                 >
-                    <ChevronRight size={18} color="white" />
+                    <ChevronRight size={isTablet ? 24 : 18} color="white" />
                 </TouchableOpacity>
             )}
 
@@ -140,9 +142,9 @@ export default function PromoGameList() {
                 <TouchableOpacity
                     onPress={goToStart}
                     activeOpacity={0.8}
-                    className="absolute left-1 top-[40%] z-20 bg-rose-600 shadow-md p-1 rounded-full border border-slate-100"
+                    className={`absolute left-1 top-[40%] z-20 bg-rose-600 shadow-md ${isTablet ? 'p-2' : 'p-1'} rounded-full border border-slate-100`}
                 >
-                    <ChevronLeft size={18} color="white" />
+                    <ChevronLeft size={isTablet ? 24 : 18} color="white" />
                 </TouchableOpacity>
             )}
 

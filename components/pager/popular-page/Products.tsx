@@ -3,7 +3,7 @@ import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
 import { ChevronLeft, ChevronRight } from "lucide-react-native";
 import React, { useRef, useState } from "react";
-import { Image, Pressable, TouchableOpacity, View } from "react-native";
+import { Image, Pressable, TouchableOpacity, View, Dimensions } from "react-native";
 import Animated, { FadeInRight, useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 
 type Game = {
@@ -11,6 +11,9 @@ type Game = {
     title: string;
     image: any;
 };
+
+const { width } = Dimensions.get("window");
+const isTablet = width > 600;
 
 const GAME_LIST: Game[] = [
     { id: "1", title: "Mobile Legend", image: require("@/assets/game_image/photo1.png") },
@@ -41,17 +44,18 @@ const AnimatedProductCard = ({ item, index, onPress }: { item: Game, index: numb
             >
                 <Animated.View
                     style={animatedStyle}
-                    className="w-36 mr-4 bg-white rounded-2xl p-2.5 shadow-sm border border-slate-100"
+                    className={`${isTablet ? 'w-52 mr-6' : 'w-36 mr-4'} bg-white rounded-2xl p-2.5 shadow-sm border border-slate-100`}
                 >
                     <Image
                         source={item.image}
-                        className="w-full h-28 rounded-xl bg-slate-50"
+                        className={`w-full ${isTablet ? 'h-40' : 'h-28'} rounded-xl bg-slate-50`}
                         resizeMode="cover"
                     />
                     <View className="mt-2.5 items-center">
                         <DynamicText
                             fontWeight="bold"
-                            fontSize="xs"
+
+                            fontSize={isTablet ? "sm" : "xs"}
                             numberOfLines={1}
                             style={{ color: "#334155" }}
                         >
@@ -78,7 +82,7 @@ export default function Products() {
     };
 
     return (
-        <View className="relative w-full min-h-[180px] justify-center my-2">
+        <View className={`relative w-full ${isTablet ? 'min-h-[250px]' : 'min-h-[180px]'} justify-center my-2`}>
 
             <FlashList<Game>
                 ref={listRef}
@@ -86,11 +90,12 @@ export default function Products() {
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 10 }}
-                estimatedItemSize={140}
+                estimatedItemSize={isTablet ? 220 : 140}
                 onScroll={(e) => {
                     const offsetX = e.nativeEvent.contentOffset.x;
                     const contentWidth = e.nativeEvent.contentSize.width;
-                    const layoutWidth = e.nativeEvent.layoutMeasurement.width; if (contentWidth > 0 && layoutWidth > 0) {
+                    const layoutWidth = e.nativeEvent.layoutMeasurement.width;
+                    if (contentWidth > 0 && layoutWidth > 0) {
                         setIsEnd(offsetX + layoutWidth >= contentWidth - 10);
                     }
                 }}
@@ -117,18 +122,18 @@ export default function Products() {
             {!isEnd && (
                 <TouchableOpacity
                     onPress={goToEnd}
-                    className="absolute right-2 top-[40%] z-10 bg-rose-600 p-1.5 rounded-full shadow-md border border-slate-100"
+                    className={`absolute right-2 top-[40%] z-10 bg-rose-600 ${isTablet ? 'p-2.5' : 'p-1.5'} rounded-full shadow-md border border-slate-100`}
                 >
-                    <ChevronRight size={20} color="white" />
+                    <ChevronRight size={isTablet ? 24 : 20} color="white" />
                 </TouchableOpacity>
             )}
 
             {isEnd && (
                 <TouchableOpacity
                     onPress={goToStart}
-                    className="absolute left-2 top-[40%] z-10 bg-rose-600 p-1.5 rounded-full shadow-md border border-slate-100"
+                    className={`absolute left-2 top-[40%] z-10 bg-rose-600 ${isTablet ? 'p-2.5' : 'p-1.5'} rounded-full shadow-md border border-slate-100`}
                 >
-                    <ChevronLeft size={20} color="white" />
+                    <ChevronLeft size={isTablet ? 24 : 20} color="white" />
                 </TouchableOpacity>
             )}
 

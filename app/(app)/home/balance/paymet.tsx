@@ -1,7 +1,6 @@
 import DynamicText from "@/components/ui/dynamic-text/dynamic-text";
 import ScreenWrapper from "@/components/ui/layout/screen-wrapper";
-import { FontAwesome5, Ionicons, MaterialIcons } from "@expo/vector-icons";
-import * as Clipboard from 'expo-clipboard';
+import { FontAwesome5, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
@@ -34,11 +33,15 @@ const COLORS = {
 
 const getMethodIcon = (id: string) => {
     switch (id) {
-        case "kpay": return require("@/assets/game_image/diamond.png");
-        case "wave": return require("@/assets/game_image/diamond.png");
-        case "kbank": return require("@/assets/game_image/diamond.png");
-        case "scb": return require("@/assets/game_image/diamond.png");
-        default: return require("@/assets/game_image/diamond.png");
+        case "truemoney": return require("@/assets/game_image/truemoney.png");
+        default: return require("@/assets/game_image/pc-image/mmqr.png");
+    }
+};
+
+const getQrImage = (id: string) => {
+    switch (id) {
+        case "truemoney": return require("@/assets/game_image/truemoney1.png");
+        default: return require("@/assets/game_image/pc-image/mmqr2.png");
     }
 };
 
@@ -56,17 +59,6 @@ export default function PaymentDetailScreen() {
 
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
-    const showToast = () => {
-        Animated.timing(fadeAnim, { toValue: 1, duration: 300, useNativeDriver: true }).start();
-        setTimeout(() => {
-            Animated.timing(fadeAnim, { toValue: 0, duration: 300, useNativeDriver: true }).start();
-        }, 2000);
-    };
-
-    const handleCopy = async () => {
-        await Clipboard.setStringAsync("09759395923");
-        showToast();
-    };
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -85,8 +77,6 @@ export default function PaymentDetailScreen() {
 
         setTimeout(() => {
             setIsLoading(false);
-
-
             requestTopUp(Number(amount), methodName as string);
             setReceiptImage(null);
             setStatus('success');
@@ -106,8 +96,8 @@ export default function PaymentDetailScreen() {
                         <DynamicText style={styles.resultDesc}>
                             Your deposit request has been received. We will verify and top-up your account shortly.
                         </DynamicText>
-                        <TouchableOpacity style={styles.primaryBtn} onPress={() => router.dismissAll()}>
-                            <DynamicText style={styles.btnText} fontWeight="bold">Back to Home</DynamicText>
+                        <TouchableOpacity style={styles.primaryBtn} onPress={() => router.navigate("/(app)/(bottom-tab)/history")}>
+                            <DynamicText style={styles.btnText} fontWeight="bold">Back to History</DynamicText>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -164,7 +154,7 @@ export default function PaymentDetailScreen() {
                         <View style={styles.methodBadge}>
                             <Image
                                 source={getMethodIcon(methodId as string)}
-                                style={{ width: 20, height: 20, marginRight: 5 }}
+                                style={{ width: 35, height: 35, marginRight: 5 }}
                                 resizeMode="contain"
                             />
                             <DynamicText style={styles.methodText} fontWeight="semibold">{methodName}</DynamicText>
@@ -172,25 +162,33 @@ export default function PaymentDetailScreen() {
                     </View>
                 </View>
 
+                <View style={styles.reminderBox}>
+                    <View style={{ flex: 1, alignItems: 'center' }}>
+                        <DynamicText style={styles.reminderTitle} fontWeight="bold">သတိပြုရန်</DynamicText>
+                        <DynamicText style={styles.reminderText}>
+                            မိတ်ဆွေ {methodName} ကို ငွေလွှဲပြီးရင် ငွေလွှဲစလစ်လေးကို Save ထားဖို့ မမေ့ပါနဲ့နော်။ အောက်ဆုံးမှာ ငွေလွှဲစလစ်ဖြည့်ပေးရပါမည်။
+                        </DynamicText>
+                    </View>
+                </View>
+
+                {/* 🔥 Scan to Pay Section with Dynamic QR */}
                 <View style={styles.accountCard}>
-                    <DynamicText style={styles.sectionTitle} fontWeight="bold">Transfer To</DynamicText>
-                    <View style={styles.accountBox}>
-                        <View>
-                            <DynamicText style={styles.accLabel}>Account Name</DynamicText>
-                            <DynamicText style={styles.accValue} fontWeight="bold">K Shop</DynamicText>
-                        </View>
+                    <View style={styles.scanHeader}>
+                        <MaterialCommunityIcons name="qrcode-scan" size={22} color={COLORS.primary} />
+                        <DynamicText style={styles.sectionTitle} fontWeight="bold">Scan to Pay</DynamicText>
                     </View>
-                    <View style={[styles.accountBox, { borderBottomWidth: 0 }]}>
-                        <View>
-                            <DynamicText style={styles.accLabel}>Account Number</DynamicText>
-                            <DynamicText style={styles.accValue} fontWeight="bold">09759395923</DynamicText>
-                        </View>
-                        <TouchableOpacity onPress={handleCopy} style={styles.copyBtn}>
-                            <MaterialIcons name="content-copy" size={20} color={COLORS.primary} />
-                            <DynamicText style={styles.copyText}>Copy</DynamicText>
-                        </TouchableOpacity>
+
+                    <View style={styles.qrContainer}>
+                        <Image
+                            // 🔥 Dynamic QR Image Loading Logic
+                            source={getQrImage(methodId as string)}
+                            style={styles.qrImage}
+                            resizeMode="contain"
+                        />
                     </View>
-                </View><View style={styles.uploadSection}>
+                </View>
+
+                <View style={styles.uploadSection}>
                     <DynamicText style={styles.sectionTitle} fontWeight="bold">Upload Screenshot</DynamicText>
                     <TouchableOpacity style={styles.uploadBox} onPress={pickImage}>
                         {receiptImage ? (
@@ -390,7 +388,7 @@ const styles = StyleSheet.create({
     methodBadge: {
         flexDirection: "row",
         alignItems: "center",
-        backgroundColor: COLORS.surface,
+
         paddingHorizontal: 10,
         paddingVertical: 5,
         borderRadius: 10
@@ -400,46 +398,70 @@ const styles = StyleSheet.create({
         fontSize: 14
     },
 
+    reminderBox: {
+        backgroundColor: COLORS.surface,
+        borderRadius: 16,
+        paddingVertical: 15,
+        paddingHorizontal: 20,
+        marginBottom: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: COLORS.border,
+        shadowColor: COLORS.primary,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 5,
+        elevation: 2,
+        overflow: 'hidden'
+    },
+    reminderTitle: {
+        fontSize: 14,
+        color: COLORS.primary,
+        marginBottom: 5,
+        textAlign: 'center'
+    },
+    reminderText: {
+        fontSize: 12,
+        color: COLORS.textDark,
+        lineHeight: 18,
+        textAlign: 'center',
+        flexWrap: 'wrap'
+    },
+
     accountCard: {
         backgroundColor: COLORS.white,
         borderRadius: 20,
         padding: 20,
-        marginBottom: 20
+        marginBottom: 20,
+        alignItems: 'center',
+        elevation: 2
+    },
+    scanHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        alignSelf: 'flex-start',
+        marginBottom: 15,
+        gap: 10
     },
     sectionTitle: {
         fontSize: 16,
         color: COLORS.textDark,
-        marginBottom: 15
     },
-    accountBox: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        paddingVertical: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: "#F1F5F9"
+
+    qrContainer: {
+        width: '100%',
+        height: 350,
+        backgroundColor: COLORS.background,
+        borderRadius: 15,
+        overflow: 'hidden',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 10
     },
-    accLabel: {
-        fontSize: 12,
-        color: COLORS.textGray,
-        marginBottom: 4
-    },
-    accValue: {
-        fontSize: 16,
-        color: COLORS.textDark
-    },
-    copyBtn: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: COLORS.surface,
-        padding: 8,
-        borderRadius: 8,
-        gap: 5
-    },
-    copyText: {
-        color: COLORS.primary,
-        fontSize: 12,
-        fontWeight: "bold"
+    qrImage: {
+        width: '100%',
+        height: '100%',
     },
 
     uploadSection: {

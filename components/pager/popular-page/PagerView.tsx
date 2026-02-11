@@ -6,10 +6,11 @@ import React from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
-// Screen အကျယ်
 const { width } = Dimensions.get("window");
+const isTablet = width > 600;
 
-// Video Link (ကြိုက်တာပြောင်းလို့ရ)
+const cardWidth = isTablet ? 500 : width - 40;
+
 const VIDEO_SOURCE = 'https://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4';
 
 const PagerView = () => {
@@ -21,12 +22,11 @@ const PagerView = () => {
     });
 
     return (
-        <View className="py-4">
-
+        <View className="py-4" style={{ alignItems: 'center' }}>
 
             <Animated.View
                 entering={FadeInDown.delay(200).springify()}
-                style={styles.container}
+                style={[styles.container, { width: cardWidth }]}
             >
                 <View style={styles.card}>
                     <VideoView
@@ -76,8 +76,6 @@ export default PagerView;
 
 const styles = StyleSheet.create({
     container: {
-        paddingHorizontal: 20,
-        width: width,
         alignItems: 'center',
     },
     card: {
