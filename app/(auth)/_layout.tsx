@@ -1,20 +1,21 @@
-import { Stack } from "expo-router";
+import { Redirect, Stack } from "expo-router";
 import React from "react";
+import useAuthStore from "@/structure/stores/useAuthStore";
 
 export default function AuthLayout() {
+  const isLoggedIn = useAuthStore((s) => s.isLoggedIn());
+
+  if (isLoggedIn) {
+    return <Redirect href="/(app)/(bottom-tab)/home" />;
+  }
+
   return (
-    <React.Fragment>
-      <Stack>
-        <Stack.Protected guard={true}>
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-        </Stack.Protected>
-        <Stack.Protected guard={true}>
-          <Stack.Screen
-            name="sign-in"
-            options={{ headerShown: false, presentation: "card" }}
-          />
-        </Stack.Protected>
-      </Stack>
-    </React.Fragment>
+    <Stack>
+      <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="sign-in"
+        options={{ headerShown: false, presentation: "card" }}
+      />
+    </Stack>
   );
 }

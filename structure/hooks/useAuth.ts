@@ -1,11 +1,24 @@
-import { useMutation } from "@tanstack/react-query";
+import type { LoginReq, RegisterReq } from "@/structure/api/apiReqModel";
+import type { LoginRes, RegisterRes } from "@/structure/api/apiResModel";
 import { AuthServices } from "@/structure/api/services/authServices";
-import type { RegisterReq } from "@/structure/api/apiReqModel";
-import type { RegisterRes } from "@/structure/api/apiResModel";
+import useAuthStore from "@/structure/stores/useAuthStore";
+import { useMutation } from "@tanstack/react-query";
 
 export const useAuth = () => {
+  const setAuth = useAuthStore((s) => s.setAuth);
+
   const registerMutation = useMutation<RegisterRes, Error, RegisterReq>({
     mutationFn: (data) => AuthServices.register(data),
+    onSuccess: (data) => {
+      setAuth(data.token, data.user);
+    },
+  });
+
+  const loginMutation = useMutation<LoginRes, Error, LoginReq>({
+    mutationFn: (data) => AuthServices.login(data),
+    onSuccess: (data) => {
+      setAuth(data.token, data.user);
+    },
   });
 
   return {
@@ -19,6 +32,17 @@ export const useAuth = () => {
       error: registerMutation.error,
       data: registerMutation.data,
       reset: registerMutation.reset,
+    },
+    login: loginMutation.mutateAsync,
+    loginMutation: {
+      mutate: loginMutation.mutate,
+      mutateAsync: loginMutation.mutateAsync,
+      isPending: loginMutation.isPending,
+      isError: loginMutation.isError,
+      isSuccess: loginMutation.isSuccess,
+      error: loginMutation.error,
+      data: loginMutation.data,
+      reset: loginMutation.reset,
     },
   };
 };

@@ -38,9 +38,9 @@ export default function RootLayout() {
             contentStyle: { backgroundColor: "#000" },
           }}
         >
+          <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="(app)" />
-
         </Stack>
         </SafeAreaProvider>
       </GluestackUIProvider>

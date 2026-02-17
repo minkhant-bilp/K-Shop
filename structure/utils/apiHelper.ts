@@ -1,3 +1,4 @@
+import useAuthStore from "@/structure/stores/useAuthStore";
 import axios from "axios";
 import Toast from "react-native-toast-message";
 import { zg2uni } from "../utils";
@@ -21,6 +22,10 @@ const apiHelper = axios.create({
 apiHelper.interceptors.request.use(
   async (config) => {
     try {
+      const token = useAuthStore.getState().token;
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
       const fullUrl = config.baseURL
         ? `${config.baseURL}${config.url}`
         : config.url;
@@ -61,16 +66,12 @@ apiHelper.interceptors.response.use(
       const { status, data } = error.response;
 
       if (status === 401) {
+        useAuthStore.getState().clearAuth();
         Toast.show({
           type: "error",
           text1: "Unauthorized",
           text2: "Please log in again.",
         });
-
-        // Optional: Clear tokens and redirect to login screen
-        // await AsyncStorage.removeItem("authToken");
-        // Navigate to login (adjust based on your navigation setup)
-        // navigation.navigate("Login");
       } else if (status === 500) {
         Toast.show({
           type: "error",

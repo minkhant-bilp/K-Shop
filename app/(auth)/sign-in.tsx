@@ -1,7 +1,7 @@
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Animated,
@@ -16,7 +16,9 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuth } from "@/structure/hooks/useAuth";
 
 const { width } = Dimensions.get("window");
 const isTablet = width > 600;
@@ -35,18 +37,13 @@ const COLORS = {
 
 const LoginScreen = () => {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
+  const { loginMutation } = useAuth();
 
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const fadeAnim = useState(new Animated.Value(0))[0];
-  const toastAnim = useRef(new Animated.Value(-150)).current;
-
-  const [toastConfig, setToastConfig] = useState({ message: "", type: "error" });
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -56,73 +53,31 @@ const LoginScreen = () => {
     }).start();
   }, [fadeAnim]);
 
-  const showToast = (message: string, type: "error" | "success") => {
-    setToastConfig({ message, type: type as "error" | "success" });
-
-    Animated.sequence([
-      Animated.timing(toastAnim, {
-        toValue: insets.top + 10,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-      Animated.delay(2000),
-      Animated.timing(toastAnim, {
-        toValue: -150,
-        duration: 300,
-        useNativeDriver: true,
-      })
-    ]).start();
-  };
-
-  const handleSignIn = () => {
-    if (!email.trim()) {
-      showToast("Email address is required!", "error");
-      return;
-    }
-
-    const emailRegex = /\S+@\S+\.\S+/;
-    if (!emailRegex.test(email)) {
-      showToast("Please enter a valid email address!", "error");
+  const handleSignIn = async () => {
+    if (!username.trim()) {
+      Toast.show({ type: "error", text1: "Error", text2: "Username is required!" });
       return;
     }
 
     if (!password.trim()) {
-      showToast("Password is required!", "error");
+      Toast.show({ type: "error", text1: "Error", text2: "Password is required!" });
       return;
     }
 
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      showToast("Login Successful!", "success");
-      setTimeout(() => {
-        router.replace("/(app)/(bottom-tab)/home");
-      }, 1000);
-    }, 1500);
+    try {
+      await loginMutation.mutateAsync({ username: username.trim(), password });
+      Toast.show({ type: "success", text1: "Success", text2: "Login Successful!" });
+      setTimeout(() => router.replace("/(app)/(bottom-tab)/home"), 100);
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } }; message?: string };
+      const message =
+        err.response?.data?.message ?? err.message ?? "Login failed. Please try again.";
+      Toast.show({ type: "error", text1: "Error", text2: message });
+    }
   };
 
   return (
     <View style={styles.container}>
-
-      <Animated.View
-        style={[
-          styles.toastContainer,
-          {
-            transform: [{ translateY: toastAnim }],
-            backgroundColor: toastConfig.type === "success" ? COLORS.success : COLORS.darkRed,
-            marginTop: Platform.OS === 'android' ? 30 : 0,
-            alignSelf: 'center',
-            width: isTablet ? 400 : width - 40,
-          }
-        ]}
-      >
-        <Ionicons name={toastConfig.type === "success" ? "checkmark-circle" : "warning"} size={28} color="white" />
-        <View style={{ marginLeft: 12, flex: 1 }}>
-          <Text style={styles.toastTitle}>{toastConfig.type === "success" ? "Success" : "Action Required"}</Text>
-          <Text style={styles.toastText}>{toastConfig.message}</Text>
-        </View>
-      </Animated.View>
-
       <SafeAreaView style={{ flex: 1 }}>
         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
           <ScrollView
@@ -150,16 +105,16 @@ const LoginScreen = () => {
               <View style={styles.formContainer}>
 
                 <View style={styles.inputGroup}>
-                  <Text style={styles.label}>Email Address</Text>
+                  <Text style={styles.label}>Username</Text>
                   <View style={styles.inputWrapper}>
-                    <Ionicons name="mail" size={20} color={COLORS.gray} />
+                    <Ionicons name="person" size={20} color={COLORS.gray} />
                     <TextInput
                       style={styles.input}
-                      placeholder="example@gmail.com"
+                      placeholder="Enter your username"
                       placeholderTextColor="#94a3b8"
-                      keyboardType="email-address"
-                      value={email}
-                      onChangeText={setEmail}
+                      autoCapitalize="none"
+                      value={username}
+                      onChangeText={setUsername}
                     />
                   </View>
                 </View>
@@ -193,7 +148,7 @@ const LoginScreen = () => {
                     end={{ x: 1, y: 0 }}
                     style={styles.primaryBtn}
                   >
-                    {isLoading ? (
+                    {loginMutation.isPending ? (
                       <ActivityIndicator color="white" />
                     ) : (
                       <Text style={styles.btnText}>Log In</Text>
@@ -216,7 +171,7 @@ const LoginScreen = () => {
 
               <View style={styles.footer}>
                 <Text style={{ color: COLORS.gray }}>Dont have an account? </Text>
-                <TouchableOpacity onPress={() => router.push("/(app)/(bottom-tab)/home")}>
+                <TouchableOpacity onPress={() => router.push("/(auth)")}>
                   <Text style={{ color: COLORS.primary, fontWeight: "800" }}>Sign Up</Text>
                 </TouchableOpacity>
               </View>
@@ -234,33 +189,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.white
-  },
-
-  toastContainer: {
-    position: "absolute",
-    top: 0,
-    zIndex: 9999,
-    borderRadius: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    elevation: 20,
-  },
-  toastTitle: {
-    color: "white",
-    fontWeight: "800",
-    fontSize: 14,
-    marginBottom: 2
-  },
-  toastText: {
-    color: "rgba(255,255,255,0.95)",
-    fontWeight: "500",
-    fontSize: 13
   },
 
   logoContainer: {

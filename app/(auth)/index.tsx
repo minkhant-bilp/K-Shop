@@ -1,8 +1,8 @@
+import { useAuth } from "@/structure/hooks/useAuth";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { useAuth } from "@/structure/hooks/useAuth";
 import {
   ActivityIndicator,
   Animated,
@@ -15,10 +15,10 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
-import Toast from "react-native-toast-message";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 
 const { width } = Dimensions.get("window");
 
@@ -58,24 +58,44 @@ const SignUpScreen = () => {
 
   const handleSignUp = async () => {
     if (!name.trim()) {
-      Toast.show({ type: "error", text1: "Error", text2: "Please enter your Full Name!" });
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Please enter your Full Name!",
+      });
       return;
     }
     if (!email.trim()) {
-      Toast.show({ type: "error", text1: "Error", text2: "Email address is required!" });
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Email address is required!",
+      });
       return;
     }
     const emailRegex = /\S+@\S+\.\S+/;
     if (!emailRegex.test(email)) {
-      Toast.show({ type: "error", text1: "Error", text2: "Please enter a valid email address!" });
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Please enter a valid email address!",
+      });
       return;
     }
     if (!password.trim()) {
-      Toast.show({ type: "error", text1: "Error", text2: "Password is required!" });
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Password is required!",
+      });
       return;
     }
     if (password.length < 6) {
-      Toast.show({ type: "error", text1: "Error", text2: "Password must be at least 6 characters!" });
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Password must be at least 6 characters!",
+      });
       return;
     }
 
@@ -85,12 +105,21 @@ const SignUpScreen = () => {
         email: email.trim(),
         password,
       });
-      Toast.show({ type: "success", text1: "Success", text2: "Account Created Successfully!" });
-      setTimeout(() => router.replace("/(app)/(bottom-tab)/home"), 100);
+      Toast.show({
+        type: "success",
+        text1: "Success",
+        text2: "Account Created Successfully!",
+      });
+      setTimeout(() => router.replace("/(auth)/sign-in"), 100);
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } }; message?: string };
+      const err = error as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
       const message =
-        err.response?.data?.message ?? err.message ?? "Registration failed. Please try again.";
+        err.response?.data?.message ??
+        err.message ??
+        "Registration failed. Please try again.";
       Toast.show({ type: "error", text1: "Error", text2: message });
     }
   };
@@ -98,18 +127,23 @@ const SignUpScreen = () => {
   return (
     <View style={styles.container}>
       <SafeAreaView style={{ flex: 1 }}>
-        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={{ flex: 1 }}
+        >
           <ScrollView
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ flexGrow: 1, paddingBottom: 30, alignItems: 'center' }} // 🔥 Center Content for Tablet
+            contentContainerStyle={{
+              flexGrow: 1,
+              paddingBottom: 30,
+              alignItems: "center",
+            }} // 🔥 Center Content for Tablet
           >
-
             <View style={{ width: contentWidth }}>
-
               <View style={styles.logoContainer}>
                 <View>
                   <Image
-                    source={require('@/assets/game_image/pc-image/image.png')}
+                    source={require("@/assets/game_image/pc-image/image.png")}
                     style={styles.logo}
                     resizeMode="contain"
                   />
@@ -119,7 +153,17 @@ const SignUpScreen = () => {
               <Animated.View
                 style={[
                   styles.header,
-                  { opacity: fadeAnim, transform: [{ translateY: fadeAnim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }] }
+                  {
+                    opacity: fadeAnim,
+                    transform: [
+                      {
+                        translateY: fadeAnim.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [20, 0],
+                        }),
+                      },
+                    ],
+                  },
                 ]}
               >
                 <Text style={styles.title}>Create Account</Text>
@@ -159,7 +203,11 @@ const SignUpScreen = () => {
                 <View style={styles.inputGroup}>
                   <Text style={styles.label}>Password</Text>
                   <View style={styles.inputWrapper}>
-                    <Ionicons name="lock-closed" size={20} color={COLORS.gray} />
+                    <Ionicons
+                      name="lock-closed"
+                      size={20}
+                      color={COLORS.gray}
+                    />
                     <TextInput
                       style={styles.input}
                       placeholder="••••••••"
@@ -168,13 +216,23 @@ const SignUpScreen = () => {
                       value={password}
                       onChangeText={setPassword}
                     />
-                    <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                      <Ionicons name={showPassword ? "eye-off" : "eye"} size={20} color={COLORS.gray} />
+                    <TouchableOpacity
+                      onPress={() => setShowPassword(!showPassword)}
+                    >
+                      <Ionicons
+                        name={showPassword ? "eye-off" : "eye"}
+                        size={20}
+                        color={COLORS.gray}
+                      />
                     </TouchableOpacity>
                   </View>
                 </View>
 
-                <TouchableOpacity activeOpacity={0.8} onPress={handleSignUp} style={styles.shadowBtn}>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={handleSignUp}
+                  style={styles.shadowBtn}
+                >
                   <LinearGradient
                     colors={[COLORS.primary, COLORS.darkRed]}
                     start={{ x: 0, y: 0 }}
@@ -202,12 +260,17 @@ const SignUpScreen = () => {
               </View>
 
               <View style={styles.footer}>
-                <Text style={{ color: COLORS.gray }}>Already have an account? </Text>
-                <TouchableOpacity onPress={() => router.push("/(auth)/sign-in")}>
-                  <Text style={{ color: COLORS.primary, fontWeight: "800" }}>Login</Text>
+                <Text style={{ color: COLORS.gray }}>
+                  Already have an account?{" "}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => router.push("/(auth)/sign-in")}
+                >
+                  <Text style={{ color: COLORS.primary, fontWeight: "800" }}>
+                    Login
+                  </Text>
                 </TouchableOpacity>
               </View>
-
             </View>
           </ScrollView>
         </KeyboardAvoidingView>
@@ -219,11 +282,11 @@ const SignUpScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.white
+    backgroundColor: COLORS.white,
   },
 
   logoContainer: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   logo: {
     width: 100,
@@ -239,32 +302,32 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: COLORS.dark,
     letterSpacing: 0.5,
-    textAlign: "left"
+    textAlign: "left",
   },
   subtitle: {
     fontSize: 16,
     color: COLORS.gray,
     marginTop: 8,
     fontWeight: "500",
-    textAlign: "left"
+    textAlign: "left",
   },
 
   formContainer: {
-    paddingHorizontal: 24
+    paddingHorizontal: 24,
   },
   inputGroup: {
-    marginBottom: 20
+    marginBottom: 20,
   },
   label: {
     fontSize: 14,
     fontWeight: "700",
     color: COLORS.dark,
     marginBottom: 8,
-    marginLeft: 4
+    marginLeft: 4,
   },
   inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: COLORS.lightInput,
     borderRadius: 16,
     paddingHorizontal: 16,
@@ -274,11 +337,11 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    height: '100%',
+    height: "100%",
     marginLeft: 12,
     fontSize: 16,
     color: COLORS.dark,
-    fontWeight: "600"
+    fontWeight: "600",
   },
 
   shadowBtn: {
@@ -287,41 +350,41 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.3,
     shadowRadius: 15,
-    elevation: 10
+    elevation: 10,
   },
   primaryBtn: {
     height: 60,
     borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center'
+    alignItems: "center",
+    justifyContent: "center",
   },
   btnText: {
     color: "white",
     fontSize: 18,
-    fontWeight: "bold"
+    fontWeight: "bold",
   },
 
   dividerBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 30
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 30,
   },
   line: {
     flex: 1,
     height: 1,
-    backgroundColor: COLORS.border
+    backgroundColor: COLORS.border,
   },
   orText: {
     marginHorizontal: 12,
-    color: COLORS.gray
-    , fontSize: 14,
-    fontWeight: "500"
+    color: COLORS.gray,
+    fontSize: 14,
+    fontWeight: "500",
   },
 
   googleBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     height: 58,
     backgroundColor: "white",
     borderRadius: 18,
@@ -331,22 +394,22 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 5,
-    elevation: 2
+    elevation: 2,
   },
   googleText: {
     marginLeft: 10,
     fontSize: 16,
     fontWeight: "700",
-    color: COLORS.dark
+    color: COLORS.dark,
   },
 
   footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 'auto',
-    paddingVertical: 30
-  }
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: "auto",
+    paddingVertical: 30,
+  },
 });
 
 export default SignUpScreen;
