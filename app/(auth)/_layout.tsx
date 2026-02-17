@@ -1,9 +1,7 @@
-
 import { Stack } from "expo-router";
 import React from "react";
 
 export default function AuthLayout() {
-
   return (
     <React.Fragment>
       <Stack>
@@ -20,4 +18,3 @@ export default function AuthLayout() {
     </React.Fragment>
   );
 }
-

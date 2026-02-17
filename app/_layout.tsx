@@ -4,10 +4,12 @@ import { StatusBar } from "expo-status-bar";
 import "react-native-gesture-handler";
 import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { QueryClientProvider } from "@tanstack/react-query";
 import "../global.css";
 
-import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
-
+import Toast from "react-native-toast-message";
+import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
+import queryHelper from "@/structure/utils/queryHelper";
 
 export default function RootLayout() {
   const [loaded] = useFonts({
@@ -26,8 +28,9 @@ export default function RootLayout() {
   }
 
   return (
-    <GluestackUIProvider mode="dark">
-      <SafeAreaProvider>
+    <QueryClientProvider client={queryHelper}>
+      <GluestackUIProvider mode="dark">
+        <SafeAreaProvider>
         <StatusBar style="light" />
         <Stack
           screenOptions={{
@@ -39,8 +42,9 @@ export default function RootLayout() {
           <Stack.Screen name="(app)" />
 
         </Stack>
-      </SafeAreaProvider>
-    </GluestackUIProvider>
-
+        </SafeAreaProvider>
+      </GluestackUIProvider>
+      <Toast position="bottom" />
+    </QueryClientProvider>
   );
 }

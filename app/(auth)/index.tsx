@@ -1,7 +1,8 @@
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useAuth } from "@/structure/hooks/useAuth";
 import {
   ActivityIndicator,
   Animated,
@@ -16,7 +17,8 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
 
@@ -37,17 +39,14 @@ const COLORS = {
 
 const SignUpScreen = () => {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
+  const { registerMutation } = useAuth();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const fadeAnim = useState(new Animated.Value(0))[0];
-  const toastAnim = useRef(new Animated.Value(-150)).current;
-  const [toastConfig, setToastConfig] = useState({ message: "", type: "error" });
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -57,75 +56,47 @@ const SignUpScreen = () => {
     }).start();
   }, [fadeAnim]);
 
-  const showToast = (message: string, type: "error" | "success") => {
-    setToastConfig({ message, type: type as "error" | "success" });
-    Animated.sequence([
-      Animated.timing(toastAnim, {
-        toValue: insets.top + 10,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-      Animated.delay(2000),
-      Animated.timing(toastAnim, {
-        toValue: -150,
-        duration: 300,
-        useNativeDriver: true,
-      })
-    ]).start();
-  };
-
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     if (!name.trim()) {
-      showToast("Please enter your Full Name!", "error");
+      Toast.show({ type: "error", text1: "Error", text2: "Please enter your Full Name!" });
       return;
     }
     if (!email.trim()) {
-      showToast("Email address is required!", "error");
+      Toast.show({ type: "error", text1: "Error", text2: "Email address is required!" });
       return;
     }
     const emailRegex = /\S+@\S+\.\S+/;
     if (!emailRegex.test(email)) {
-      showToast("Please enter a valid email address!", "error");
+      Toast.show({ type: "error", text1: "Error", text2: "Please enter a valid email address!" });
       return;
     }
     if (!password.trim()) {
-      showToast("Password is required!", "error");
+      Toast.show({ type: "error", text1: "Error", text2: "Password is required!" });
       return;
     }
     if (password.length < 6) {
-      showToast("Password must be at least 6 characters!", "error");
+      Toast.show({ type: "error", text1: "Error", text2: "Password must be at least 6 characters!" });
       return;
     }
 
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      showToast("Account Created Successfully!", "success");
+    try {
+      await registerMutation.mutateAsync({
+        username: name.trim(),
+        email: email.trim(),
+        password,
+      });
+      Toast.show({ type: "success", text1: "Success", text2: "Account Created Successfully!" });
       setTimeout(() => router.replace("/(app)/(bottom-tab)/home"), 100);
-    }, 1500);
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } }; message?: string };
+      const message =
+        err.response?.data?.message ?? err.message ?? "Registration failed. Please try again.";
+      Toast.show({ type: "error", text1: "Error", text2: message });
+    }
   };
 
   return (
     <View style={styles.container}>
-      <Animated.View
-        style={[
-          styles.toastContainer,
-          {
-            transform: [{ translateY: toastAnim }],
-            backgroundColor: toastConfig.type === "success" ? COLORS.success : COLORS.darkRed,
-            marginTop: Platform.OS === 'android' ? 30 : 0,
-            alignSelf: 'center',
-            width: isTablet ? 400 : width - 40,
-          }
-        ]}
-      >
-        <Ionicons name={toastConfig.type === "success" ? "checkmark-circle" : "warning"} size={28} color="white" />
-        <View style={{ marginLeft: 12, flex: 1 }}>
-          <Text style={styles.toastTitle}>{toastConfig.type === "success" ? "Success" : "Action Required"}</Text>
-          <Text style={styles.toastText}>{toastConfig.message}</Text>
-        </View>
-      </Animated.View>
-
       <SafeAreaView style={{ flex: 1 }}>
         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
           <ScrollView
@@ -210,7 +181,7 @@ const SignUpScreen = () => {
                     end={{ x: 1, y: 0 }}
                     style={styles.primaryBtn}
                   >
-                    {isLoading ? (
+                    {registerMutation.isPending ? (
                       <ActivityIndicator color="white" />
                     ) : (
                       <Text style={styles.btnText}>Sign Up</Text>
@@ -249,33 +220,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.white
-  },
-
-  toastContainer: {
-    position: "absolute",
-    top: 0,
-    zIndex: 9999,
-    borderRadius: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    elevation: 20,
-  },
-  toastTitle: {
-    color: "white",
-    fontWeight: "800",
-    fontSize: 14,
-    marginBottom: 2
-  },
-  toastText: {
-    color: "rgba(255,255,255,0.95)",
-    fontWeight: "500",
-    fontSize: 13
   },
 
   logoContainer: {
