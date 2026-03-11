@@ -6,6 +6,8 @@ import React from "react";
 import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { useWalletStore } from "@/store/useWalletStore";
+// 🔥 Translation Hook
+import useTranslation from '@/structure/hooks/useTranslation'; // လမ်းကြောင်းမှန်ကန်မှုရှိမရှိ စစ်ဆေးပါ (ဥပမာ - "@/structure/hooks/useTranslation")
 
 const { height } = Dimensions.get('window');
 
@@ -24,6 +26,7 @@ const COLORS = {
 
 const Deposit = () => {
     const router = useRouter();
+    const { t } = useTranslation(); // 🔥 Translation ယူသုံးထားပါသည်
 
     const { transactions } = useWalletStore();
 
@@ -39,6 +42,17 @@ const Deposit = () => {
         }
     };
 
+    // 🔥 Status ကို ဘာသာစကားအလိုက် ပြောင်းပေးမည့် Function
+    const getTranslatedStatus = (status: string) => {
+        const s = status ? status.toLowerCase() : "pending";
+        switch (s) {
+            case "success": return t.statusSuccess || "Success";
+            case "pending": return t.statusPending || "Pending";
+            case "failed": return t.statusFailed || "Failed";
+            default: return t.statusPending || "Pending";
+        }
+    };
+
     const getImageForMethod = (title: string) => {
         if (title.includes("KBZ")) return require('@/assets/game_image/wave.png');
         if (title.includes("Wave")) return require('@/assets/game_image/wave.png');
@@ -50,22 +64,23 @@ const Deposit = () => {
             <View style={styles.emptyIconCircle}>
                 <Ionicons name="wallet-outline" size={48} color={COLORS.primary} />
             </View>
-            <Text style={styles.emptyTitle}>No Deposits Yet</Text>
-            <Text style={styles.emptySub}>Top up your wallet to get started!</Text>
+            <Text style={styles.emptyTitle}>{t.noDepositsYet || "No Deposits Yet"}</Text>
+            <Text style={styles.emptySub}>{t.topupWalletToStart || "Top up your wallet to get started!"}</Text>
 
             <TouchableOpacity style={styles.actionBtn} onPress={() => router.navigate("/home/balance/topup")}>
-                <Text style={styles.actionBtnText}>Top Up Now</Text>
+                <Text style={styles.actionBtnText}>{t.topUpNow || "Top Up Now"}</Text>
             </TouchableOpacity>
         </View>
     );
 
     const renderItem = ({ item }: { item: any }) => {
         const statusStyle = getStatusColor(item.status);
+        const translatedStatus = getTranslatedStatus(item.status);
         const isFailed = item.status === 'failed';
 
         const displayImage = item.image ? item.image : getImageForMethod(item.title);
         const displayAmount = item.amount ? `+${item.amount.toLocaleString()} ${item.currency}` : "+0 Ks";
-        const displayTitle = item.title || "Topup";
+        const displayTitle = item.title || (t.topupTitle || "Topup");
         const txnId = item.id ? `TXN-${item.id.slice(-6)}` : "TXN-000";
 
         return (
@@ -87,7 +102,7 @@ const Deposit = () => {
                             style={{ marginRight: 4 }}
                         />
                         <Text style={[styles.statusText, { color: statusStyle.text }]}>
-                            {item.status ? (item.status.charAt(0).toUpperCase() + item.status.slice(1)) : "Pending"}
+                            {translatedStatus}
                         </Text>
                     </View>
                 </View>
@@ -95,12 +110,12 @@ const Deposit = () => {
                 <View style={styles.divider} />
 
                 <View style={styles.cardBottom}>
-                    <Text style={styles.dateText}>{item.date || "Just now"}</Text>
+                    <Text style={styles.dateText}>{item.date || (t.justNow || "Just now")}</Text>
 
                     <Text style={[
                         styles.amountText,
                         isFailed && { color: COLORS.textGray, textDecorationLine: 'line-through' },
-                        item.status === 'pending' && { color: COLORS.pending } // Optional: Make pending amount orange
+                        item.status === 'pending' && { color: COLORS.pending }
                     ]}>
                         {displayAmount}
                     </Text>
@@ -117,7 +132,7 @@ const Deposit = () => {
                     <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
                         <Ionicons name="chevron-back" size={24} color={COLORS.textDark} />
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Deposit History</Text>
+                    <Text style={styles.headerTitle}>{t.depositHistoryTitle || "Deposit History"}</Text>
                     <View style={{ width: 40 }} />
                 </View>
 

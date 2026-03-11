@@ -13,12 +13,18 @@ import { VStack } from '@/components/ui/vstack';
 
 import HomeHeader from '@/components/deail-logic/HomeHeader';
 
+// 🔥 Translation Hook ကို Import လုပ်ထားပါသည်
+import useTranslation from "@/structure/hooks/useTranslation"; // လမ်းကြောင်း မှန်ကန်မှုရှိ/မရှိ စစ်ဆေးပါ
+
 const Popular = () => {
+  // 🔥 Translation ကို ခေါ်ယူထားပါသည်
+  const { t } = useTranslation();
+
   return (
     <ScreenWrapper headerShown={false} isSafeArea={false}>
 
-
-      <HomeHeader title='Popular' />
+      {/* 🔥 "Popular" စာသားကို translation ပြောင်းထားပါသည် */}
+      <HomeHeader title={t.popular || 'Popular'} />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -35,8 +41,9 @@ const Popular = () => {
           </View>
 
           <HStack className='px-4 mt-2 mb-2'>
+            {/* 🔥 စာသားကို translation ပြောင်းထားပါသည် */}
             <DynamicText fontWeight='bold' style={styles.sectionTitle}>
-              Special promo for new user
+              {t.specialPromoNewUser || "Special promo for new user"}
             </DynamicText>
           </HStack>
 
@@ -45,8 +52,9 @@ const Popular = () => {
           </View>
 
           <View style={{ paddingHorizontal: 16, marginTop: 15, marginBottom: 10 }}>
+            {/* 🔥 စာသားကို translation ပြောင်းထားပါသည် */}
             <DynamicText fontWeight='bold' style={styles.sectionTitle}>
-              Mobile game promo
+              {t.mobileGamePromo || "Mobile game promo"}
             </DynamicText>
           </View>
 

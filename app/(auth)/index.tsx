@@ -254,7 +254,7 @@ const SignUpScreen = () => {
                 </View>
 
                 <TouchableOpacity style={styles.googleBtn} activeOpacity={0.8}>
-                  <AntDesign name="google" size={22} color="black" />
+                  <AntDesign name="google" size={22} color="black" style={{ left: 50 }} />
                   <Text style={styles.googleText}>Continue with Google</Text>
                 </TouchableOpacity>
               </View>
@@ -362,6 +362,8 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 18,
     fontWeight: "bold",
+    flex: 1,
+    marginTop: 15
   },
 
   dividerBox: {
@@ -397,10 +399,12 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   googleText: {
-    marginLeft: 10,
+    marginLeft: 70,
     fontSize: 16,
     fontWeight: "700",
     color: COLORS.dark,
+    flex: 1,
+
   },
 
   footer: {

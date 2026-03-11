@@ -12,16 +12,19 @@ import {
 } from 'lucide-react-native';
 import React from 'react';
 import {
+    Dimensions,
     Linking,
     Platform,
     ScrollView,
     StatusBar,
     StyleSheet,
+    Text,
     TouchableOpacity,
-    View,
-    Dimensions,
-    Text
+    View
 } from 'react-native';
+
+// 🔥 Translation Hook
+import useTranslation from "@/structure/hooks/useTranslation"; // လမ်းကြောင်းမှန်ကန်မှုရှိ/မရှိ စစ်ဆေးပါ
 
 const { width } = Dimensions.get("window");
 const isTablet = width > 600;
@@ -38,9 +41,11 @@ const COLORS = {
 
 const SupportScreen = () => {
     const router = useRouter();
+    // 🔥 Translation
+    const { t } = useTranslation();
 
     const openLink = (url: string) => {
-        Linking.openURL(url).catch(() => alert("Cannot open link"));
+        Linking.openURL(url).catch(() => alert(t.cannotOpenLink || "Cannot open link"));
     };
 
     return (
@@ -56,7 +61,9 @@ const SupportScreen = () => {
                     <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, isTablet && { width: 50, height: 50, borderRadius: 16 }]}>
                         <ArrowLeft size={isTablet ? 28 : 24} color="#dc2626" />
                     </TouchableOpacity>
-                    <Text className='font-bold' style={[styles.headerTitle, isTablet && { fontSize: 24 }]}>Help Center</Text>
+                    <Text className='font-bold' style={[styles.headerTitle, isTablet && { fontSize: 24 }]}>
+                        {t.helpCenter || "Help Center"}
+                    </Text>
                     <View style={{ width: isTablet ? 50 : 42 }} />
                 </View>
 
@@ -64,9 +71,11 @@ const SupportScreen = () => {
                     <View style={[styles.iconCircle, isTablet && { width: 100, height: 100, borderRadius: 50 }]}>
                         <Headset size={isTablet ? 50 : 40} color={COLORS.primary} />
                     </View>
-                    <Text className='font-bold' style={[styles.heroTitle, isTablet && { fontSize: 28 }]}>How can we help you?</Text>
+                    <Text className='font-bold' style={[styles.heroTitle, isTablet && { fontSize: 28 }]}>
+                        {t.howCanWeHelp || "How can we help you?"}
+                    </Text>
                     <Text style={[styles.heroSub, isTablet && { fontSize: 16, lineHeight: 24 }]}>
-                        ငွေဖြည့်မရောက်ခြင်း နှင့် အခြားပြဿနာများအတွက်{"\n"}ကျွန်ုပ်တို့ကို ဆက်သွယ်ပါ
+                        {t.supportDesc || "ငွေဖြည့်မရောက်ခြင်း နှင့် အခြားပြဿနာများအတွက်\nကျွန်ုပ်တို့ကို ဆက်သွယ်ပါ"}
                     </Text>
                 </View>
             </LinearGradient>
@@ -81,39 +90,45 @@ const SupportScreen = () => {
                         <View style={styles.row}>
                             <Clock size={isTablet ? 24 : 20} color={COLORS.textGray} />
                             <View style={{ marginLeft: 12 }}>
-                                <Text className='font-bold' style={[styles.cardTitle, isTablet && { fontSize: 18 }]}>Working Hours</Text>
-                                <Text style={[styles.cardSub, isTablet && { fontSize: 15 }]}>9:00 AM - 11:00 PM (Daily)</Text>
+                                <Text className='font-bold' style={[styles.cardTitle, isTablet && { fontSize: 18 }]}>
+                                    {t.workingHours || "Working Hours"}
+                                </Text>
+                                <Text style={[styles.cardSub, isTablet && { fontSize: 15 }]}>
+                                    {t.workingHoursTime || "9:00 AM - 11:00 PM (Daily)"}
+                                </Text>
                             </View>
                         </View>
                     </View>
 
-                    <Text className='font-bold' style={[styles.sectionTitle, isTablet && { fontSize: 22, marginBottom: 20 }]}>Contact Us Directly</Text>
+                    <Text className='font-bold' style={[styles.sectionTitle, isTablet && { fontSize: 22, marginBottom: 20 }]}>
+                        {t.contactUsDirectly || "Contact Us Directly"}
+                    </Text>
 
                     <View style={isTablet && { gap: 10 }}>
                         <ContactItem
-                            title="Telegram Support"
-                            subTitle="အမြန်ဆုံး ပြန်လည်ဖြေကြားပေးပါမည်"
+                            title={t.telegramSupport || "Telegram Support"}
+                            subTitle={t.telegramDesc || "အမြန်ဆုံး ပြန်လည်ဖြေကြားပေးပါမည်"}
                             icon={Send}
                             color={COLORS.telegram}
-                            actionLabel="Chat"
+                            actionLabel={t.chatBtn || "Chat"}
                             onPress={() => openLink("https://t.me/your_telegram_username")}
                         />
 
                         <ContactItem
-                            title="Viber Support"
-                            subTitle="ငွေလွှဲပြေစာ ပေးပို့ရန်"
+                            title={t.viberSupport || "Viber Support"}
+                            subTitle={t.viberDesc || "ငွေလွှဲပြေစာ ပေးပို့ရန်"}
                             icon={MessageCircle}
                             color={COLORS.viber}
-                            actionLabel="Chat"
+                            actionLabel={t.chatBtn || "Chat"}
                             onPress={() => openLink("viber://chat?number=959xxxxxxxxx")}
                         />
 
                         <ContactItem
-                            title="Hotline"
-                            subTitle="09-123456789"
+                            title={t.hotline || "Hotline"}
+                            subTitle="09-123456789" // ဖုန်းနံပါတ်မို့လို့ မပြောင်းလဲပါ
                             icon={Phone}
                             color={COLORS.primary}
-                            actionLabel="Call"
+                            actionLabel={t.callBtn || "Call"}
                             onPress={() => openLink("tel:09123456789")}
                         />
                     </View>

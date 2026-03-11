@@ -5,17 +5,19 @@ import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
+    ActivityIndicator,
     Animated,
     Image,
+    Modal,
     ScrollView,
     StyleSheet,
     TouchableOpacity,
-    View,
-    Modal,
-    ActivityIndicator
+    View
 } from "react-native";
 
 import { useWalletStore } from "@/store/useWalletStore";
+// 🔥 Translation Hook
+import useTranslation from "@/structure/hooks/useTranslation"; // လမ်းကြောင်းလိုအပ်ပါက ပြင်ပါ
 
 const COLORS = {
     primary: "#E11D48",
@@ -50,6 +52,9 @@ export default function PaymentDetailScreen() {
     const params = useLocalSearchParams();
     const { amount, currency, methodName, methodId } = params;
 
+    // 🔥 Translation
+    const { t } = useTranslation();
+
     const { requestTopUp } = useWalletStore();
 
     const [receiptImage, setReceiptImage] = useState<string | null>(null);
@@ -58,7 +63,6 @@ export default function PaymentDetailScreen() {
     const [isLoading, setIsLoading] = useState(false);
 
     const fadeAnim = useRef(new Animated.Value(0)).current;
-
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -92,12 +96,16 @@ export default function PaymentDetailScreen() {
                             <FontAwesome5 name="check" size={50} color={COLORS.white} />
                         </View>
 
-                        <DynamicText style={styles.resultTitle} fontWeight="bold">Payment Submitted!</DynamicText>
+                        <DynamicText style={styles.resultTitle} fontWeight="bold">
+                            {t.paymentSubmitted || "Payment Submitted!"}
+                        </DynamicText>
                         <DynamicText style={styles.resultDesc}>
-                            Your deposit request has been received. We will verify and top-up your account shortly.
+                            {t.depositReceivedDesc || "Your deposit request has been received. We will verify and top-up your account shortly."}
                         </DynamicText>
                         <TouchableOpacity style={styles.primaryBtn} onPress={() => router.navigate("/(app)/(bottom-tab)/history")}>
-                            <DynamicText style={styles.btnText} fontWeight="bold">Back to History</DynamicText>
+                            <DynamicText style={styles.btnText} fontWeight="bold">
+                                {t.backToHistory || "Back to History"}
+                            </DynamicText>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -117,8 +125,12 @@ export default function PaymentDetailScreen() {
                 <View style={styles.modalOverlay}>
                     <View style={styles.loadingBox}>
                         <ActivityIndicator size="large" color={COLORS.primary} />
-                        <DynamicText style={styles.loadingTitle} fontWeight="bold">Processing Payment</DynamicText>
-                        <DynamicText style={styles.loadingDesc}>Verifying your slip, please wait...</DynamicText>
+                        <DynamicText style={styles.loadingTitle} fontWeight="bold">
+                            {t.processingPayment || "Processing Payment"}
+                        </DynamicText>
+                        <DynamicText style={styles.loadingDesc}>
+                            {t.verifyingSlip || "Verifying your slip, please wait..."}
+                        </DynamicText>
                     </View>
                 </View>
             </Modal>
@@ -127,7 +139,9 @@ export default function PaymentDetailScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
                     <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
                 </TouchableOpacity>
-                <DynamicText style={styles.headerTitle} fontWeight="bold">Payment Details</DynamicText>
+                <DynamicText style={styles.headerTitle} fontWeight="bold">
+                    {t.paymentDetails || "Payment Details"}
+                </DynamicText>
                 <View style={{ width: 40 }} />
             </View>
 
@@ -137,20 +151,24 @@ export default function PaymentDetailScreen() {
                     <View style={styles.iconContainer}>
                         <FontAwesome5 name="clock" size={40} color={COLORS.primary} />
                     </View>
-                    <DynamicText style={styles.statusText} fontWeight="bold">Pending Payment</DynamicText>
-                    <DynamicText style={styles.descText}>Please complete the transfer below</DynamicText>
+                    <DynamicText style={styles.statusText} fontWeight="bold">
+                        {t.pendingPayment || "Pending Payment"}
+                    </DynamicText>
+                    <DynamicText style={styles.descText}>
+                        {t.completeTransferBelow || "Please complete the transfer below"}
+                    </DynamicText>
 
                     <View style={styles.divider} />
 
                     <View style={styles.row}>
-                        <DynamicText style={styles.label}>Total Amount</DynamicText>
+                        <DynamicText style={styles.label}>{t.totalAmount || "Total Amount"}</DynamicText>
                         <DynamicText style={styles.valueLarge} fontWeight="bold">
                             {Number(amount).toLocaleString()} <DynamicText style={{ fontSize: 14 }}>{currency}</DynamicText>
                         </DynamicText>
                     </View>
 
                     <View style={styles.row}>
-                        <DynamicText style={styles.label}>Payment Method</DynamicText>
+                        <DynamicText style={styles.label}>{t.paymentMethod || "Payment Method"}</DynamicText>
                         <View style={styles.methodBadge}>
                             <Image
                                 source={getMethodIcon(methodId as string)}
@@ -164,23 +182,27 @@ export default function PaymentDetailScreen() {
 
                 <View style={styles.reminderBox}>
                     <View style={{ flex: 1, alignItems: 'center' }}>
-                        <DynamicText style={styles.reminderTitle} fontWeight="bold">သတိပြုရန်</DynamicText>
+                        <DynamicText style={styles.reminderTitle} fontWeight="bold">
+                            {t.attention || "သတိပြုရန်"}
+                        </DynamicText>
                         <DynamicText style={styles.reminderText}>
-                            မိတ်ဆွေ {methodName} ကို ငွေလွှဲပြီးရင် ငွေလွှဲစလစ်လေးကို Save ထားဖို့ မမေ့ပါနဲ့နော်။ အောက်ဆုံးမှာ ငွေလွှဲစလစ်ဖြည့်ပေးရပါမည်။
+                            {t.saveSlipReminder
+                                ? t.saveSlipReminder.replace("{methodName}", methodName as string || "")
+                                : `မိတ်ဆွေ ${methodName} ကို ငွေလွှဲပြီးရင် ငွေလွှဲစလစ်လေးကို Save ထားဖို့ မမေ့ပါနဲ့နော်။ အောက်ဆုံးမှာ ငွေလွှဲစလစ်ဖြည့်ပေးရပါမည်။`}
                         </DynamicText>
                     </View>
                 </View>
 
-                {/* 🔥 Scan to Pay Section with Dynamic QR */}
                 <View style={styles.accountCard}>
                     <View style={styles.scanHeader}>
                         <MaterialCommunityIcons name="qrcode-scan" size={22} color={COLORS.primary} />
-                        <DynamicText style={styles.sectionTitle} fontWeight="bold">Scan to Pay</DynamicText>
+                        <DynamicText style={styles.sectionTitle} fontWeight="bold">
+                            {t.scanToPay || "Scan to Pay"}
+                        </DynamicText>
                     </View>
 
                     <View style={styles.qrContainer}>
                         <Image
-                            // 🔥 Dynamic QR Image Loading Logic
                             source={getQrImage(methodId as string)}
                             style={styles.qrImage}
                             resizeMode="contain"
@@ -189,7 +211,9 @@ export default function PaymentDetailScreen() {
                 </View>
 
                 <View style={styles.uploadSection}>
-                    <DynamicText style={styles.sectionTitle} fontWeight="bold">Upload Screenshot</DynamicText>
+                    <DynamicText style={styles.sectionTitle} fontWeight="bold">
+                        {t.uploadScreenshot || "Upload Screenshot"}
+                    </DynamicText>
                     <TouchableOpacity style={styles.uploadBox} onPress={pickImage}>
                         {receiptImage ? (
                             <Image
@@ -202,7 +226,9 @@ export default function PaymentDetailScreen() {
                                 <View style={styles.uploadIconCircle}>
                                     <Ionicons name="cloud-upload-outline" size={30} color={COLORS.primary} />
                                 </View>
-                                <DynamicText style={styles.uploadText}>Tap to upload payment slip</DynamicText>
+                                <DynamicText style={styles.uploadText}>
+                                    {t.tapToUploadSlip || "Tap to upload payment slip"}
+                                </DynamicText>
                             </>
                         )}
                     </TouchableOpacity>
@@ -220,7 +246,7 @@ export default function PaymentDetailScreen() {
                     onPress={handleConfirm}
                 >
                     <DynamicText fontWeight="bold" style={styles.btnText}>
-                        {isLoading ? "Processing..." : "Confirm Payment"}
+                        {isLoading ? (t.processing || "Processing...") : (t.confirmPayment || "Confirm Payment")}
                     </DynamicText>
                 </TouchableOpacity>
             </View>
@@ -236,7 +262,9 @@ export default function PaymentDetailScreen() {
             >
                 <View style={styles.toastBox}>
                     <Ionicons name="checkmark-circle" size={20} color="#4ADE80" />
-                    <DynamicText style={styles.toastText} fontWeight="semibold">Account Number Copied!</DynamicText>
+                    <DynamicText style={styles.toastText} fontWeight="semibold">
+                        {t.accountCopied || "Account Number Copied!"}
+                    </DynamicText>
                 </View>
             </Animated.View>
 
@@ -388,7 +416,6 @@ const styles = StyleSheet.create({
     methodBadge: {
         flexDirection: "row",
         alignItems: "center",
-
         paddingHorizontal: 10,
         paddingVertical: 5,
         borderRadius: 10

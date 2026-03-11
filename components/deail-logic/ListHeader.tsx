@@ -1,7 +1,6 @@
 import React from "react";
-import { StyleSheet, TextInput, View, Dimensions, Platform, Text } from "react-native";
+import { Dimensions, StyleSheet, Text, TextInput, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import DynamicText from "../ui/dynamic-text/dynamic-text";
 
 // 🔥 Screen Width ယူပြီး Tablet လား စစ်မယ်
 const { width } = Dimensions.get("window");

@@ -7,18 +7,21 @@ import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
     Alert,
+    Dimensions,
     Image,
     Keyboard,
     Modal,
     Platform,
     StyleSheet,
+    Text,
     TextInput,
     TouchableOpacity,
     TouchableWithoutFeedback,
-    Text,
-    View,
-    Dimensions
+    View
 } from "react-native";
+
+// 🔥 Translation Hook
+import useTranslation from "@/structure/hooks/useTranslation";
 
 const { width } = Dimensions.get("window");
 const isTablet = width > 600;
@@ -38,39 +41,41 @@ const COLORS = {
     infoText: "#0369A1"
 };
 
-const CONFIG = {
-    MM: {
-        flag: "🇲🇲", label: "Myanmar", currency: "MMK", symbol: "Ks",
-        presets: [5000, 10000, 20000, 50000, 100000],
-        methods: [
-            {
-                id: "mmqr",
-                name: "MMQR Pay",
-                logo: require("@/assets/game_image/pc-image/mmqr.png"),
-                desc: "Kpay | Wave Pay | Banking နဲ့ပတ်သတ်တာ အကုန် Support လုပ်ထားတဲ့အတွက် ကြောင့် မိမိကြိုက်နှစ်သက်ရာ ဖြစ် MM QR Pay QR. ကိုးယူပြီး ကြိုက်နှစ်သက်ရာ တစ်ခု ဖြစ် ငွေလွှဲနိုင်ပါသည်။ နောက်တစ်ဆင့်မှာ ငွေစလွှဲရပါမည်"
-            },
-        ],
-    },
-    TH: {
-        flag: "🇹🇭", label: "Thailand", currency: "THB", symbol: "฿",
-        presets: [100, 500, 1000, 2000, 5000, 10000],
-        methods: [
-            {
-                id: "truemoney",
-                name: "TrueMoney Wallet",
-                logo: require("@/assets/game_image/truemoney.png"),
-                desc: "KBank | SCB Bank | TTB Bank | KTB Bank | True Money စသဖြစ် အကုန်လုံး Support လုပ်ထားတဲ့အတွက်ကြောင့် လူကြီးမင်းအနေနဲ့ ငွေလွဲမည်ဆိုပါက True Money QR. မှတစ်ဆင့် မိမိတို့ ကြိုက်နှစ်သက်ရာ Banking App မှာ တစ်ဆင့် ငွေလွဲနိုင်ပါသည်။ နောက်တစ်ဆင့်မှာ ငွေစလွှဲရပါမည်"
-            },
-        ],
-    },
-};
-
 export default function DepositScreen() {
     const router = useRouter();
+    const { t } = useTranslation();
+
     const [country, setCountry] = useState<"MM" | "TH">("MM");
     const [amount, setAmount] = useState("");
     const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
     const [showHelp, setShowHelp] = useState(false);
+
+    const CONFIG = {
+        MM: {
+            flag: "🇲🇲", label: "Myanmar", currency: "MMK", symbol: "Ks",
+            presets: [5000, 10000, 20000, 50000, 100000],
+            methods: [
+                {
+                    id: "mmqr",
+                    name: "MMQR Pay",
+                    logo: require("@/assets/game_image/pc-image/mmqr.png"),
+                    desc: t.mmqrDesc || "Kpay | Wave Pay | Banking နဲ့ပတ်သတ်တာ အကုန် Support လုပ်ထားတဲ့အတွက် ကြောင့် မိမိကြိုက်နှစ်သက်ရာ ဖြစ် MM QR Pay QR. ကိုးယူပြီး ကြိုက်နှစ်သက်ရာ တစ်ခု ဖြစ် ငွေလွှဲနိုင်ပါသည်။ နောက်တစ်ဆင့်မှာ ငွေစလွှဲရပါမည်"
+                },
+            ],
+        },
+        TH: {
+            flag: "🇹🇭", label: "Thailand", currency: "THB", symbol: "฿",
+            presets: [100, 500, 1000, 2000, 5000, 10000],
+            methods: [
+                {
+                    id: "truemoney",
+                    name: "TrueMoney Wallet",
+                    logo: require("@/assets/game_image/truemoney.png"),
+                    desc: t.trueMoneyDesc || "KBank | SCB Bank | TTB Bank | KTB Bank | True Money စသဖြစ် အကုန်လုံး Support လုပ်ထားတဲ့အတွက်ကြောင့် လူကြီးမင်းအနေနဲ့ ငွေလွဲမည်ဆိုပါက True Money QR. မှတစ်ဆင့် မိမိတို့ ကြိုက်နှစ်သက်ရာ Banking App မှာ တစ်ဆင့် ငွေလွဲနိုင်ပါသည်။ နောက်တစ်ဆင့်မှာ ငွေစလွှဲရပါမည်"
+                },
+            ],
+        },
+    };
 
     const current = CONFIG[country];
     const MIN_LIMIT = country === "MM" ? 2000 : 20;
@@ -82,7 +87,7 @@ export default function DepositScreen() {
 
     const handleDeposit = () => {
         if (!selectedMethod || numAmount < MIN_LIMIT) {
-            Alert.alert("Invalid Amount", `Minimum deposit is ${MIN_LIMIT} ${current.symbol}`);
+            Alert.alert(t.invalidAmount || "Invalid Amount", `${t.minDepositIs || "Minimum deposit is"} ${MIN_LIMIT} ${current.symbol}`);
             return;
         }
         const methodDetails = current.methods.find(m => m.id === selectedMethod);
@@ -113,7 +118,7 @@ export default function DepositScreen() {
                             </View>
                             <View>
                                 <DynamicText fontWeight="bold" style={styles.methodName}>{item.name}</DynamicText>
-                                <DynamicText style={styles.methodSub}>Automatic Verification</DynamicText>
+                                <DynamicText style={styles.methodSub}>{t.automaticVerification || "Automatic Verification"}</DynamicText>
                             </View>
                         </View>
                         <View style={StyleSheet.flatten([styles.radio, isActive && styles.radioActive])}>
@@ -126,7 +131,7 @@ export default function DepositScreen() {
                             <View style={styles.instructionHeader}>
                                 <Ionicons name="information-circle" size={18} color={COLORS.primary} />
                                 <DynamicText fontWeight="bold" style={styles.instructionTitle}>
-                                    အသုံးပြုပုံ
+                                    {t.instructions || "အသုံးပြုပုံ"}
                                 </DynamicText>
                             </View>
                             <DynamicText style={styles.instructionText}>
@@ -167,7 +172,7 @@ export default function DepositScreen() {
                 style={styles.amountCard}
             >
                 <View style={styles.cardHeader}>
-                    <DynamicText style={styles.inputLabel} fontWeight="semibold">Deposit Amount</DynamicText>
+                    <DynamicText style={styles.inputLabel} fontWeight="semibold">{t.depositAmount || "Deposit Amount"}</DynamicText>
                     <View style={styles.currencyBadge}>
                         <DynamicText style={styles.currencyText} fontWeight="bold">{current.currency}</DynamicText>
                     </View>
@@ -190,7 +195,7 @@ export default function DepositScreen() {
                     <View style={styles.warningContainer}>
                         <Ionicons name="alert-circle" size={14} color={COLORS.warning} />
                         <DynamicText style={styles.warningText} fontWeight="medium">
-                            Minimum deposit is {MIN_LIMIT.toLocaleString()} {current.currency}
+                            {t.minDepositIs || "Minimum deposit is"} {MIN_LIMIT.toLocaleString()} {current.currency}
                         </DynamicText>
                     </View>
                 )}
@@ -198,7 +203,7 @@ export default function DepositScreen() {
 
             <View style={styles.sectionRow}>
                 <FontAwesome5 name="wallet" size={14} color={COLORS.primary} />
-                <DynamicText style={styles.sectionTitle} fontWeight="bold">Quick Select</DynamicText>
+                <DynamicText style={styles.sectionTitle} fontWeight="bold">{t.quickSelect || "Quick Select"}</DynamicText>
             </View>
 
             <View style={styles.grid}>
@@ -231,7 +236,7 @@ export default function DepositScreen() {
 
             <View style={styles.sectionRow}>
                 <FontAwesome5 name="shield-alt" size={14} color={COLORS.success} />
-                <DynamicText style={styles.sectionTitle} fontWeight="bold">Payment Method</DynamicText>
+                <DynamicText style={styles.sectionTitle} fontWeight="bold">{t.paymentMethod || "Payment Method"}</DynamicText>
             </View>
         </View>
     );
@@ -246,7 +251,7 @@ export default function DepositScreen() {
                         <TouchableOpacity onPress={() => router.back()} style={styles.backCircle}>
                             <Ionicons name="arrow-back" size={22} color={COLORS.primary} />
                         </TouchableOpacity>
-                        <DynamicText style={styles.headerTitle} fontWeight="bold">Deposit</DynamicText>
+                        <DynamicText style={styles.headerTitle} fontWeight="bold">{t.deposit || "Deposit"}</DynamicText>
                         <TouchableOpacity style={styles.helpBtn} activeOpacity={0.7} onPress={() => setShowHelp(true)}>
                             <Ionicons name="help-circle-outline" size={26} color={COLORS.primary} />
                         </TouchableOpacity>
@@ -270,7 +275,7 @@ export default function DepositScreen() {
                             style={StyleSheet.flatten([styles.payBtn, !isReadyToPay && styles.disabledBtn])}
                             onPress={handleDeposit}
                         >
-                            <DynamicText fontWeight="bold" style={styles.payBtnText}>Confirm Deposit</DynamicText>
+                            <DynamicText fontWeight="bold" style={styles.payBtnText}>{t.confirmDeposit || "Confirm Deposit"}</DynamicText>
                         </TouchableOpacity>
                     </View>
 
@@ -288,26 +293,26 @@ export default function DepositScreen() {
                                 <View style={styles.modalIconBox}>
                                     <Ionicons name="information" size={24} color="#FFF" />
                                 </View>
-                                <DynamicText style={styles.modalTitle} fontWeight="bold">How to Deposit?</DynamicText>
+                                <DynamicText style={styles.modalTitle} fontWeight="bold">{t.howToDeposit || "How to Deposit?"}</DynamicText>
                             </View>
                             <View style={styles.modalBody}>
                                 <View style={styles.stepRow}>
                                     <View style={styles.stepCircle}><DynamicText style={styles.stepNum}>1</DynamicText></View>
-                                    <DynamicText style={styles.stepText}>Select your country.</DynamicText>
+                                    <DynamicText style={styles.stepText}>{t.step1 || "Select your country."}</DynamicText>
                                 </View>
                                 <View style={styles.stepLine} />
                                 <View style={styles.stepRow}>
                                     <View style={styles.stepCircle}><DynamicText style={styles.stepNum}>2</DynamicText></View>
-                                    <DynamicText style={styles.stepText}>Enter amount or choose package.</DynamicText>
+                                    <DynamicText style={styles.stepText}>{t.step2 || "Enter amount or choose package."}</DynamicText>
                                 </View>
                                 <View style={styles.stepLine} />
                                 <View style={styles.stepRow}>
                                     <View style={styles.stepCircle}><DynamicText style={styles.stepNum}>3</DynamicText></View>
-                                    <DynamicText style={styles.stepText}>Select payment & confirm.</DynamicText>
+                                    <DynamicText style={styles.stepText}>{t.step3 || "Select payment & confirm."}</DynamicText>
                                 </View>
                             </View>
                             <TouchableOpacity style={styles.modalCloseBtn} activeOpacity={0.8} onPress={() => setShowHelp(false)}>
-                                <DynamicText style={styles.modalCloseText} fontWeight="bold">Understood</DynamicText>
+                                <DynamicText style={styles.modalCloseText} fontWeight="bold">{t.understood || "Understood"}</DynamicText>
                             </TouchableOpacity>
                         </View>
                     </View>

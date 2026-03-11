@@ -1,31 +1,31 @@
-import DynamicText from '@/components/ui/dynamic-text/dynamic-text';
 import ScreenWrapper from '@/components/ui/layout/screen-wrapper';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import {
+    Dimensions,
     Image,
     Linking,
     Platform,
     ScrollView,
     StatusBar,
     StyleSheet,
+    Text,
     TouchableOpacity,
-    View,
-    Dimensions,
-    Text
+    View
 } from 'react-native';
 
-// 🔥 Screen Width ယူပြီး Tablet လား စစ်မယ်
+import useTranslation from "@/structure/hooks/useTranslation";
+
 const { width } = Dimensions.get("window");
 const isTablet = width > 600;
 
-// 🔥 Tablet Max Content Width
 const CONTENT_MAX_WIDTH = 600;
 
 export default function About() {
     const router = useRouter();
+    const { t } = useTranslation(); // 🔥
 
     const openLink = (url: string) => {
         Linking.openURL(url).catch(() => console.log("Cannot open link"));
@@ -38,7 +38,7 @@ export default function About() {
 
             <LinearGradient
                 colors={["#991b1b", "#dc2626", "#ef4444"]}
-                style={[styles.header, isTablet && { paddingBottom: 60, alignItems: 'center' }]} // Tablet Header Padding & Center
+                style={[styles.header, isTablet && { paddingBottom: 60, alignItems: 'center' }]}
             >
                 <View style={{ height: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }} />
 
@@ -46,7 +46,9 @@ export default function About() {
                     <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, isTablet && { width: 50, height: 50, borderRadius: 16 }]}>
                         <Ionicons name="arrow-back" size={isTablet ? 28 : 24} color="#dc2626" />
                     </TouchableOpacity>
-                    <Text className='font-bold' style={[styles.headerTitle, isTablet && { fontSize: 26 }]}>About Us</Text>
+                    <Text className='font-bold' style={[styles.headerTitle, isTablet && { fontSize: 26 }]}>
+                        {t.aboutUs || "About Us"}
+                    </Text>
                     <View style={{ width: isTablet ? 50 : 40 }} />
                 </View>
             </LinearGradient>
@@ -66,34 +68,48 @@ export default function About() {
                         </View>
                         <Text className='font-bold' style={[styles.appName, isTablet && { fontSize: 32, marginBottom: 10 }]}>GameShop</Text>
                         <View style={[styles.versionBadge, isTablet && { paddingHorizontal: 15, paddingVertical: 6, borderRadius: 16 }]}>
-                            <Text style={[styles.versionText, isTablet && { fontSize: 16 }]}>Version 1.0.0</Text>
+                            <Text style={[styles.versionText, isTablet && { fontSize: 16 }]}>
+                                {t.version || "Version 1.0.0"}
+                            </Text>
                         </View>
                     </View>
 
                     <View style={[styles.card, isTablet && { padding: 30, borderRadius: 25, marginBottom: 25 }]}>
-                        <Text className='font-bold' style={[styles.cardTitle, isTablet && { fontSize: 20, marginBottom: 15 }]}>Our Mission</Text>
+                        <Text className='font-bold' style={[styles.cardTitle, isTablet && { fontSize: 20, marginBottom: 15 }]}>
+                            {t.ourMission || "Our Mission"}
+                        </Text>
                         <Text style={[styles.cardContent, isTablet && { fontSize: 16, lineHeight: 28 }]}>
-                            We provide the fastest and most secure game top-up services for gamers in Myanmar. Enjoy seamless transactions and 24/7 support.
+                            {t.missionDesc || "We provide the fastest and most secure game top-up services for gamers in Myanmar. Enjoy seamless transactions and 24/7 support."}
                         </Text>
                     </View>
 
                     <View style={[styles.card, isTablet && { padding: 30, borderRadius: 25, marginBottom: 25 }]}>
-                        <Text className='font-bold' style={[styles.cardTitle, isTablet && { fontSize: 20, marginBottom: 15 }]}>Why Choose Us?</Text>
+                        <Text className='font-bold' style={[styles.cardTitle, isTablet && { fontSize: 20, marginBottom: 15 }]}>
+                            {t.whyChooseUs || "Why Choose Us?"}
+                        </Text>
                         <View style={[styles.featureRow, isTablet && { marginBottom: 15 }]}>
                             <Ionicons name="flash" size={isTablet ? 24 : 16} color="#E11D48" />
-                            <Text style={[styles.featureText, isTablet && { fontSize: 16, marginLeft: 15 }]}>Instant Delivery</Text>
+                            <Text style={[styles.featureText, isTablet && { fontSize: 16, marginLeft: 15 }]}>
+                                {t.instantDelivery || "Instant Delivery"}
+                            </Text>
                         </View>
                         <View style={[styles.featureRow, isTablet && { marginBottom: 15 }]}>
                             <Ionicons name="shield-checkmark" size={isTablet ? 24 : 16} color="#E11D48" />
-                            <Text style={[styles.featureText, isTablet && { fontSize: 16, marginLeft: 15 }]}>100% Secure Payment</Text>
+                            <Text style={[styles.featureText, isTablet && { fontSize: 16, marginLeft: 15 }]}>
+                                {t.securePayment || "100% Secure Payment"}
+                            </Text>
                         </View>
                         <View style={[styles.featureRow, isTablet && { marginBottom: 15 }]}>
                             <Ionicons name="headset" size={isTablet ? 24 : 16} color="#E11D48" />
-                            <Text style={[styles.featureText, isTablet && { fontSize: 16, marginLeft: 15 }]}>24/7 Customer Support</Text>
+                            <Text style={[styles.featureText, isTablet && { fontSize: 16, marginLeft: 15 }]}>
+                                {t.customerSupport || "24/7 Customer Support"}
+                            </Text>
                         </View>
                     </View>
 
-                    <Text className='font-bold' style={[styles.socialHeader, isTablet && { fontSize: 20, marginTop: 20 }]}>Follow Us</Text>
+                    <Text className='font-bold' style={[styles.socialHeader, isTablet && { fontSize: 20, marginTop: 20 }]}>
+                        {t.followUs || "Follow Us"}
+                    </Text>
 
                     <View style={[styles.socialRow, isTablet && { gap: 25, marginBottom: 40 }]}>
                         <TouchableOpacity
@@ -126,7 +142,7 @@ export default function About() {
                     </View>
 
                     <Text style={[styles.copyright, isTablet && { fontSize: 14 }]}>
-                        © 2026 GameShop. All rights reserved.
+                        {t.copyright || "© 2026 GameShop. All rights reserved."}
                     </Text>
 
                 </ScrollView>
@@ -170,16 +186,12 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
     },
-
     body: {
         flex: 1,
-        // backgroundColor: "#F8FAFC", (Moved to parent View)
         marginTop: -30,
         paddingHorizontal: 20,
         width: '100%'
     },
-
-    // Logo Section
     logoSection: {
         alignItems: "center",
         marginBottom: 25,
@@ -219,7 +231,6 @@ const styles = StyleSheet.create({
         color: "#64748b",
         fontWeight: "600"
     },
-
     card: {
         backgroundColor: "white",
         borderRadius: 20,
@@ -251,7 +262,6 @@ const styles = StyleSheet.create({
         color: "#475569",
         marginLeft: 10
     },
-
     socialHeader: {
         fontSize: 16,
         color: "#0f172a",
@@ -276,7 +286,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowOffset: { width: 0, height: 2 }
     },
-
     copyright: {
         textAlign: "center",
         fontSize: 12,

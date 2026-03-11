@@ -4,6 +4,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
+  Dimensions,
   FlatList,
   Image,
   Keyboard,
@@ -14,14 +15,15 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  View,
-  Dimensions
+  View
 } from "react-native";
 import Animated, { useAnimatedStyle, withSpring, ZoomIn } from "react-native-reanimated";
 
+
+import useTranslation from "@/structure/hooks/useTranslation";
+
 type Country = "TH" | "MM";
 
-// 🔥 Screen Width ယူပြီး Tablet လား စစ်မယ်
 const { width } = Dimensions.get("window");
 const isTablet = width > 600;
 
@@ -55,6 +57,8 @@ const ActionSheet = ({ visible, item, country, onClose, onConfirm }: any) => {
   const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
 
+  const { t } = useTranslation();
+
   useEffect(() => {
     if (!visible) {
       setPhone("");
@@ -72,13 +76,13 @@ const ActionSheet = ({ visible, item, country, onClose, onConfirm }: any) => {
 
     if (country === "TH") {
       if (cleanPhone.length !== 10) {
-        setError("Thai number must be 10 digits");
+        setError(t.thaiNumberError || "Thai number must be 10 digits");
         return;
       }
     }
     else if (country === "MM") {
       if (cleanPhone.length !== 11) {
-        setError("Myanmar number must be 11 digits");
+        setError(t.mmNumberError || "Myanmar number must be 11 digits");
         return;
       }
     }
@@ -94,14 +98,16 @@ const ActionSheet = ({ visible, item, country, onClose, onConfirm }: any) => {
       <Pressable style={styles.overlay} onPress={onClose}>
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={{ width: '100%', alignItems: 'center' }} // Center for tablet
+          style={{ width: '100%', alignItems: 'center' }}
         >
           <Pressable style={[styles.sheetContainer, isTablet && { width: 500, borderTopLeftRadius: 20, borderTopRightRadius: 20, marginBottom: 20, borderRadius: 20 }]} onPress={Keyboard.dismiss}>
 
             <View style={styles.handleBar} />
 
             <View style={styles.header}>
-              <DynamicText fontWeight="bold" fontSize="xl" style={{ color: "#1e293b" }}>Top Up Request</DynamicText>
+              <DynamicText fontWeight="bold" fontSize="xl" style={{ color: "#1e293b" }}>
+                {t.topUpRequest || "Top Up Request"}
+              </DynamicText>
               <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
                 <Ionicons name="close" size={22} color="#64748b" />
               </TouchableOpacity>
@@ -110,7 +116,9 @@ const ActionSheet = ({ visible, item, country, onClose, onConfirm }: any) => {
             <View style={styles.summaryCard}>
               <Image source={item.image} style={styles.summaryImage} resizeMode="contain" />
               <View style={{ flex: 1, marginLeft: 15 }}>
-                <DynamicText style={{ color: "#64748b", fontSize: 12 }}>Selected Package</DynamicText>
+                <DynamicText style={{ color: "#64748b", fontSize: 12 }}>
+                  {t.selectedPackage || "Selected Package"}
+                </DynamicText>
                 <DynamicText fontWeight="bold" fontSize="lg" style={{ color: "#1e293b" }}>{item.title}</DynamicText>
               </View>
               <View style={styles.priceTag}>
@@ -119,7 +127,9 @@ const ActionSheet = ({ visible, item, country, onClose, onConfirm }: any) => {
             </View>
 
             <View style={{ width: '100%', marginBottom: 25 }}>
-              <DynamicText style={styles.inputLabel}>Phone Number</DynamicText>
+              <DynamicText style={styles.inputLabel}>
+                {t.phoneNumber || "Phone Number"}
+              </DynamicText>
               <View style={[styles.inputContainer, error ? { borderColor: "#ef4444", borderWidth: 1.5 } : {}]}>
                 <View style={styles.prefixContainer}>
                   <DynamicText fontSize="lg">{prefixIcon}</DynamicText>
@@ -162,7 +172,7 @@ const ActionSheet = ({ visible, item, country, onClose, onConfirm }: any) => {
                 style={styles.gradientBtn}
               >
                 <DynamicText fontWeight="bold" style={{ color: isPhoneValid ? "white" : "#64748b", fontSize: 16 }}>
-                  Confirm Top Up
+                  {t.confirmTopUp || "Confirm Top Up"}
                 </DynamicText>
                 <MaterialCommunityIcons
                   name="cellphone-text"
@@ -180,54 +190,54 @@ const ActionSheet = ({ visible, item, country, onClose, onConfirm }: any) => {
   );
 };
 
-// 🔥 Product Card Component (Responsive Design)
-const ProductCard = ({ item, index, onPress }: { item: any, index: number, onPress: (item: any) => void }) => (
-  <Animated.View
-    entering={ZoomIn.delay(index * 20).springify()}
-    style={{ width: "31%" }} // 3 Columns
-  >
-    <Pressable
-      onPress={() => onPress(item)}
-      // 🔥 Tablet ဆိုရင် Height (h-60) နဲ့ Padding ကိုပိုကြီးပေးထားတယ်, Phone ဆိုရင် h-40 (Original)
-      className={`bg-white rounded-xl border border-slate-100 shadow-sm items-center justify-center w-full 
-        ${isTablet ? 'h-60 p-4' : 'h-40 p-2'}`}
+const ProductCard = ({ item, index, onPress }: { item: any, index: number, onPress: (item: any) => void }) => {
+  return (
+    <Animated.View
+      entering={ZoomIn.delay(index * 20).springify()}
+      style={{ width: "31%" }}
     >
-      <Image
-        source={item.image}
-        // 🔥 Tablet ဆိုရင် Image Size ကြီးပေးတယ်
-        style={{
-          width: isTablet ? 80 : 48,
-          height: isTablet ? 80 : 48,
-          borderRadius: isTablet ? 20 : 999,
-          marginBottom: isTablet ? 12 : 8
-        }}
-        resizeMode="contain"
-      />
-
-      {/* 🔥 Tablet Text Size Adjustment */}
-      <DynamicText
-        fontWeight="bold"
-        fontSize={isTablet ? "lg" : "xs"} // Tablet: Large, Phone: XS
-        numberOfLines={1}
-        style={{ color: "#334155", textAlign: 'center', marginBottom: 6 }}
+      <Pressable
+        onPress={() => onPress(item)}
+        className={`bg-white rounded-xl border border-slate-100 shadow-sm items-center justify-center w-full 
+            ${isTablet ? 'h-60 p-4' : 'h-40 p-2'}`}
       >
-        {item.title}
-      </DynamicText>
+        <Image
+          source={item.image}
+          style={{
+            width: isTablet ? 80 : 48,
+            height: isTablet ? 80 : 48,
+            borderRadius: isTablet ? 20 : 999,
+            marginBottom: isTablet ? 12 : 8
+          }}
+          resizeMode="contain"
+        />
 
-      <View className={`bg-rose-50 rounded-md w-full items-center ${isTablet ? 'px-4 py-2' : 'px-2 py-1'}`}>
         <DynamicText
           fontWeight="bold"
-          style={{ fontSize: isTablet ? 16 : 11, color: "#E11D48" }} // Tablet Price Font Bigger
+          fontSize={isTablet ? "lg" : "xs"}
+          numberOfLines={1}
+          style={{ color: "#334155", textAlign: 'center', marginBottom: 6 }}
         >
-          {item.price}
+          {item.title}
         </DynamicText>
-      </View>
-    </Pressable>
-  </Animated.View>
-);
+
+        <View className={`bg-rose-50 rounded-md w-full items-center ${isTablet ? 'px-4 py-2' : 'px-2 py-1'}`}>
+          <DynamicText
+            fontWeight="bold"
+            style={{ fontSize: isTablet ? 16 : 11, color: "#E11D48" }}
+          >
+            {item.price}
+          </DynamicText>
+        </View>
+      </Pressable>
+    </Animated.View>
+  )
+};
 
 export default function PhoneBillProducts() {
   const router = useRouter();
+  const { t } = useTranslation();
+
   const [country, setCountry] = useState<Country>("TH");
   const [containerWidth, setContainerWidth] = useState(0);
   const [selectedItem, setSelectedItem] = useState<any>(null);
@@ -262,11 +272,10 @@ export default function PhoneBillProducts() {
 
   return (
     <View className="flex-1 bg-white p-4" style={isTablet && { paddingHorizontal: 40 }}>
-      {/* Switcher */}
       <View
         className="h-12 bg-slate-100 rounded-full flex-row items-center relative mb-4 p-1 border border-slate-200"
         onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width - 8)}
-        style={isTablet && { height: 60, marginBottom: 20 }} // Tablet Switcher Height
+        style={isTablet && { height: 60, marginBottom: 20 }}
       >
         <Animated.View
           style={[
@@ -279,10 +288,14 @@ export default function PhoneBillProducts() {
           ]}
         />
         <Pressable onPress={() => setCountry("TH")} className="flex-1 h-full justify-center items-center z-10">
-          <DynamicText fontWeight="bold" fontSize={isTablet ? "lg" : "sm"} style={{ color: country === "TH" ? "#1e293b" : "#94a3b8" }}>🇹🇭 Thailand</DynamicText>
+          <DynamicText fontWeight="bold" fontSize={isTablet ? "lg" : "sm"} style={{ color: country === "TH" ? "#1e293b" : "#94a3b8" }}>
+            🇹🇭 {t.thailand || "Thailand"}
+          </DynamicText>
         </Pressable>
         <Pressable onPress={() => setCountry("MM")} className="flex-1 h-full justify-center items-center z-10">
-          <DynamicText fontWeight="bold" fontSize={isTablet ? "lg" : "sm"} style={{ color: country === "MM" ? "#1e293b" : "#94a3b8" }}>🇲🇲 Myanmar</DynamicText>
+          <DynamicText fontWeight="bold" fontSize={isTablet ? "lg" : "sm"} style={{ color: country === "MM" ? "#1e293b" : "#94a3b8" }}>
+            🇲🇲 {t.myanmarr || "Myanmar"}
+          </DynamicText>
         </Pressable>
       </View>
 

@@ -1,3 +1,4 @@
+import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import {
   FileText,
@@ -8,9 +9,8 @@ import {
   Smartphone,
   Ticket
 } from "lucide-react-native";
-import { MaterialIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
-import { Pressable, ScrollView, View, Dimensions } from "react-native";
+import { Dimensions, Pressable, ScrollView, View } from "react-native";
 
 import SearchModal from "@/components/common/search/SearchModal";
 import FlashSaleList from "@/components/pager/Category";
@@ -22,20 +22,11 @@ import DynamicText from "@/components/ui/dynamic-text/dynamic-text";
 import GameShopHeader from "@/components/ui/header/home-header";
 import ScreenWrapper from "@/components/ui/layout/screen-wrapper";
 
+import useTranslation from "@/structure/hooks/useTranslation";
+
 const AdminSupportIcon = ({ size, color }: { size: number, color: string }) => (
   <MaterialIcons name="support-agent" size={size} color={color} />
 );
-
-const icons = [
-  { id: 1, title: "Popular", icon: Flame, route: "/home/popular" },
-  { id: 2, title: "Bill", icon: Smartphone, route: "/home/top-up" },
-  { id: 3, title: "PC Game", icon: Monitor, route: "/home/pc-game" },
-  { id: 4, title: "Voucher", icon: Ticket, route: "/home/voucher" },
-  { id: "5", title: "Promo", icon: Megaphone, route: "/home/promo" },
-  { id: 6, title: "Transaction", icon: FileText, route: "/home/transaction" },
-  { id: '7', title: 'Admin', icon: AdminSupportIcon, route: '/home/service', color: '#10b981' },
-  { id: 8, title: "All features", icon: MoreHorizontal, route: "/home/all-features" },
-];
 
 const { width } = Dimensions.get("window");
 const ITEM_WIDTH = (width - 32) / 4;
@@ -61,6 +52,19 @@ const IconItemComponent = ({ item }: { item: any }) => {
 
 const HomeScreen = () => {
   const [isSearchVisible, setIsSearchVisible] = useState(false);
+
+  const { t } = useTranslation();
+
+  const icons = [
+    { id: 1, title: t.popular || "Popular", icon: Flame, route: "/home/popular" },
+    { id: 2, title: t.bill || "Bill", icon: Smartphone, route: "/home/top-up" },
+    { id: 3, title: t.pcGame || "PC Game", icon: Monitor, route: "/home/pc-game" },
+    { id: 4, title: t.voucher || "Voucher", icon: Ticket, route: "/home/voucher" },
+    { id: "5", title: t.promo || "Promo", icon: Megaphone, route: "/home/promo" },
+    { id: 6, title: t.transaction || "Transaction", icon: FileText, route: "/home/transaction" },
+    { id: '7', title: t.admin || "Admin", icon: AdminSupportIcon, route: '/home/service', color: '#10b981' },
+    { id: 8, title: t.allFeatures || "All features", icon: MoreHorizontal, route: "/home/all-features" },
+  ];
 
   return (
     <ScreenWrapper headerShown={false} isSafeArea={false}>

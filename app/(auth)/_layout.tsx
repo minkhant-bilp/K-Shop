@@ -1,6 +1,6 @@
+import useAuthStore from "@/structure/stores/useAuthStore";
 import { Redirect, Stack } from "expo-router";
 import React from "react";
-import useAuthStore from "@/structure/stores/useAuthStore";
 
 export default function AuthLayout() {
   const isLoggedIn = useAuthStore((s) => s.isLoggedIn());

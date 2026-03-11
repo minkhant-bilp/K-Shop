@@ -1,15 +1,19 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { TouchableOpacity, Dimensions } from 'react-native';
+import { Dimensions, TouchableOpacity } from 'react-native';
 import DynamicText from '../ui/dynamic-text/dynamic-text';
 import { HStack } from '../ui/hstack';
+
+import useTranslation from '@/structure/hooks/useTranslation';
 
 const { width } = Dimensions.get("window");
 const isTablet = width > 600;
 
 const SeeMore = () => {
     const router = useRouter();
+
+    const { t } = useTranslation();
 
     const handlePress = () => {
         router.navigate("/(app)/home/popular");
@@ -21,7 +25,7 @@ const SeeMore = () => {
                 fontSize={isTablet ? "2xl" : "lg"}
                 fontWeight='bold'
             >
-                Flash Sale
+                {t.flashSale || "Flash Sale"}
             </DynamicText>
 
             <TouchableOpacity onPress={handlePress} activeOpacity={0.7}>
@@ -30,7 +34,7 @@ const SeeMore = () => {
                         fontSize={isTablet ? "xl" : "lg"}
                         style={{ color: "#E11D48" }}
                     >
-                        See More
+                        {t.seeMore || "See More"}
                     </DynamicText>
 
                     <Ionicons

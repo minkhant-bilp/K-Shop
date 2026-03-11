@@ -1,12 +1,14 @@
 import ScreenWrapper from '@/components/ui/layout/screen-wrapper';
 import { Ionicons } from "@expo/vector-icons";
 import { FlashList } from "@shopify/flash-list";
+import * as Clipboard from 'expo-clipboard';
 import { useRouter } from "expo-router";
 import React from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View, ToastAndroid, Platform, Alert, Dimensions } from "react-native";
-import * as Clipboard from 'expo-clipboard';
+import { Alert, Dimensions, Image, Platform, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from "react-native";
 
 import { useWalletStore } from "@/store/useWalletStore";
+// 🔥 Translation Hook ကို Import လုပ်ထားပါသည်
+import useTranslation from "@/structure/hooks/useTranslation"; // လမ်းကြောင်းမှန်ကန်မှုရှိမရှိ စစ်ဆေးပါ
 
 const { width } = Dimensions.get("window");
 const isTablet = width > 600;
@@ -29,6 +31,8 @@ const COLORS = {
 
 const Order = () => {
     const router = useRouter();
+    const { t } = useTranslation(); // 🔥 Translation ခေါ်ယူထားပါသည်
+
     const transactions = useWalletStore((state) => state.transactions);
     const orderList = transactions.filter((t) => t.type === 'purchase');
 
@@ -37,9 +41,9 @@ const Order = () => {
     const handleCopyID = async (id: string) => {
         await Clipboard.setStringAsync(id);
         if (Platform.OS === 'android') {
-            ToastAndroid.show("Transaction ID Copied!", ToastAndroid.SHORT);
+            ToastAndroid.show(t.transactionIdCopied || "Transaction ID Copied!", ToastAndroid.SHORT);
         } else {
-            Alert.alert("Copied", "Transaction ID copied to clipboard.");
+            Alert.alert(t.copied || "Copied", t.transactionIdCopiedDesc || "Transaction ID copied to clipboard.");
         }
     };
 
@@ -52,26 +56,37 @@ const Order = () => {
         }
     };
 
+    const getTranslatedStatus = (status: string) => {
+        const s = status ? status.toLowerCase() : "pending";
+        switch (s) {
+            case "success": return t.statusSuccesss || "Success";
+            case "pending": return t.statusPendings || "Pending";
+            case "failed": return t.statusFaileds || "Failed";
+            default: return t.statusPending || "Pending";
+        }
+    };
+
     const EmptyState = () => (
         <View style={styles.emptyWrapper}>
             <View style={[styles.emptyIconCircle, isTablet && { width: 120, height: 120, borderRadius: 60 }]}>
                 <Ionicons name="receipt-outline" size={isTablet ? 60 : 40} color={COLORS.primary} />
             </View>
-            <Text style={[styles.emptyTitle, isTablet && { fontSize: 24 }]}>No Orders Yet</Text>
-            <Text style={[styles.emptySub, isTablet && { fontSize: 18 }]}>You haven t made any purchases yet.</Text>
+            <Text style={[styles.emptyTitle, isTablet && { fontSize: 24 }]}>{t.noOrdersYet || "No Orders Yet"}</Text>
+            <Text style={[styles.emptySub, isTablet && { fontSize: 18 }]}>{t.noPurchasesYet || "You haven't made any purchases yet."}</Text>
 
             <TouchableOpacity
                 style={[styles.actionBtn, isTablet && { paddingVertical: 16, paddingHorizontal: 32, borderRadius: 20 }]}
                 activeOpacity={0.8}
                 onPress={() => router.navigate("/(app)/home/popular")}
             >
-                <Text style={[styles.actionBtnText, isTablet && { fontSize: 18 }]}>Start Shopping</Text>
+                <Text style={[styles.actionBtnText, isTablet && { fontSize: 18 }]}>{t.startShopping || "Start Shopping"}</Text>
             </TouchableOpacity>
         </View>
     );
 
     const renderItem = ({ item, index }: { item: any, index: number }) => {
         const statusStyle = getStatusStyles(item.status);
+        const translatedStatus = getTranslatedStatus(item.status);
         const priceDisplay = `${item.amount.toLocaleString()} ${item.currency}`;
         const imageSource = item.image ? item.image : null;
 
@@ -110,7 +125,7 @@ const Order = () => {
                     <View style={[styles.statusBadge, { backgroundColor: statusStyle.bg }, isTablet && { paddingHorizontal: 14, paddingVertical: 8 }]}>
                         <Ionicons name={statusStyle.icon as any} size={isTablet ? 16 : 12} color={statusStyle.text} style={{ marginRight: 4 }} />
                         <Text style={[styles.statusText, { color: statusStyle.text }, isTablet && { fontSize: 13 }]}>
-                            {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                            {translatedStatus}
                         </Text>
                     </View>
                 </View>
@@ -140,7 +155,7 @@ const Order = () => {
                     >
                         <Ionicons name="chevron-back" size={isTablet ? 28 : 24} color={COLORS.textDark} />
                     </TouchableOpacity>
-                    <Text style={[styles.headerTitle, isTablet && { fontSize: 26 }]}>My Orders</Text>
+                    <Text style={[styles.headerTitle, isTablet && { fontSize: 26 }]}>{t.myOrders || "My Orders"}</Text>
                     <View style={[styles.placeholderIcon, isTablet && { width: 50 }]} />
                 </View>
 
@@ -152,7 +167,6 @@ const Order = () => {
                         key={isTablet ? 'tablet-2-cols' : 'mobile-1-col'}
                         estimatedItemSize={140}
                         keyExtractor={(item) => item.id}
-                        // 🔥🔥🔥 Fixed: Separate logic for style
                         contentContainerStyle={isTablet ? styles.listContentTablet : styles.listContent}
                         showsVerticalScrollIndicator={false}
                         ListEmptyComponent={EmptyState}
@@ -245,12 +259,12 @@ const styles = StyleSheet.create({
     listContainer: {
         flex: 1
     },
-    // 🔥 Normal Content Style
+    // 櫨 Normal Content Style
     listContent: {
         paddingHorizontal: 20,
         paddingBottom: 40
     },
-    // 🔥 Tablet Content Style (Removed paddingHorizontal)
+    // 櫨 Tablet Content Style (Removed paddingHorizontal)
     listContentTablet: {
         paddingBottom: 40,
         paddingHorizontal: 0

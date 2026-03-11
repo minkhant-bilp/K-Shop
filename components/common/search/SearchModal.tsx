@@ -16,6 +16,9 @@ import {
   View
 } from "react-native";
 
+// 🔥 Translation Hook
+import useTranslation from "@/structure/hooks/useTranslation"; // လမ်းကြောင်းမှန်ကန်အောင် စစ်ဆေးပါ
+
 const { width } = Dimensions.get("window");
 const isTablet = width > 600;
 
@@ -36,6 +39,8 @@ const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose }) => {
   const [searchText, setSearchText] = useState("");
   const inputRef = useRef<TextInput>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  const { t } = useTranslation(); // 🔥 Translation ခေါ်ယူထားပါသည်
 
   useEffect(() => {
     if (visible) {
@@ -96,7 +101,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose }) => {
                 <View style={styles.titleContainer}>
                   <View style={styles.decorativeBar} />
                   <DynamicText fontWeight="bold" style={{ fontSize: 18, color: '#1e293b' }}>
-                    Fast <DynamicText style={{ color: BRAND_COLOR }}>Search</DynamicText>
+                    {t.fastSearch || "Fast"} <DynamicText style={{ color: BRAND_COLOR }}>{t.searchKeyword || "Search"}</DynamicText>
                   </DynamicText>
                 </View>
                 <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
@@ -111,7 +116,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose }) => {
                 <TextInput
                   ref={inputRef}
                   style={styles.input}
-                  placeholder="Search games & cards..."
+                  placeholder={t.searchPlaceholder || "Search games & cards..."}
                   placeholderTextColor="#94a3b8"
                   value={searchText}
                   onChangeText={setSearchText}
@@ -125,7 +130,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose }) => {
                   <View style={styles.emptyState}>
                     <Ionicons name="flash-outline" size={30} color={BRAND_COLOR} style={{ opacity: 0.5 }} />
                     <DynamicText style={{ color: '#94a3b8', fontSize: 12, marginTop: 8 }}>
-                      Type to find instant results
+                      {t.typeToFind || "Type to find instant results"}
                     </DynamicText>
                   </View>
                 ) : (
@@ -146,7 +151,9 @@ const SearchModal: React.FC<SearchModalProps> = ({ visible, onClose }) => {
                     )}
                     ListEmptyComponent={
                       <View style={styles.emptyState}>
-                        <DynamicText style={{ color: '#ef4444' }}>No results found</DynamicText>
+                        <DynamicText style={{ color: '#ef4444' }}>
+                          {t.noResultsFound || "No results found"}
+                        </DynamicText>
                       </View>
                     }
                   />

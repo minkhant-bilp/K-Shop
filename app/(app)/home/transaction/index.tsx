@@ -3,32 +3,33 @@ import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
+  Dimensions,
+  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
-  Image,
-  Dimensions
+  View
 } from 'react-native';
 
 import ScreenWrapper from '@/components/ui/layout/screen-wrapper';
-import { useWalletStore, TransactionData } from '@/store/useWalletStore';
+import { TransactionData, useWalletStore } from '@/store/useWalletStore';
+
+import useTranslation from "@/structure/hooks/useTranslation";
 
 const { width } = Dimensions.get("window");
 const isTablet = width > 600;
 
-const TABS = ['All', 'Income', 'Expense'] as const;
-
 const TransactionItem = ({ item }: { item: TransactionData }) => {
+  const { t } = useTranslation();
 
   const getStatusConfig = (status: string) => {
     switch (status) {
       case 'success':
-        return { color: '#10B981', icon: 'checkmark-circle', bg: '#ECFDF5', text: 'Success' };
+        return { color: '#10B981', icon: 'checkmark-circle', bg: '#ECFDF5', text: t.statusSuccesse || 'Success' };
       case 'failed':
-        return { color: '#EF4444', icon: 'close-circle', bg: '#FEF2F2', text: 'Failed' };
+        return { color: '#EF4444', icon: 'close-circle', bg: '#FEF2F2', text: t.statusFailede || 'Failed' };
       default:
-        return { color: '#F59E0B', icon: 'time', bg: '#FFFBEB', text: 'Pending' };
+        return { color: '#F59E0B', icon: 'time', bg: '#FFFBEB', text: t.statusPendinge || 'Pending' };
     }
   };
 
@@ -37,7 +38,6 @@ const TransactionItem = ({ item }: { item: TransactionData }) => {
 
   return (
     <View style={[styles.card, isTablet && styles.tabletCard]}>
-
       <View style={[styles.iconBox, isTablet && styles.tabletIconBox]}>
         {item.image ? (
           <Image source={item.image} style={styles.image} resizeMode="contain" />
@@ -57,7 +57,7 @@ const TransactionItem = ({ item }: { item: TransactionData }) => {
           styles.amount,
           { color: isIncome ? '#10B981' : '#0f172a' },
           item.status === 'failed' && { color: '#94a3b8', textDecorationLine: 'line-through' },
-          isTablet && styles.tabletAmount // Tablet Amount Size
+          isTablet && styles.tabletAmount
         ]}>
           {isIncome ? '+' : '-'}{item.amount.toLocaleString()} {item.currency}
         </Text>
@@ -78,9 +78,16 @@ const TransactionItem = ({ item }: { item: TransactionData }) => {
 };
 
 const Transaction = () => {
-  const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>('All');
   const router = useRouter();
+  const { t } = useTranslation();
 
+  const TABS = [
+    { key: 'All', label: t.all || 'All' },
+    { key: 'Income', label: t.income || 'Income' },
+    { key: 'Expense', label: t.expense || 'Expense' }
+  ] as const;
+
+  const [activeTab, setActiveTab] = useState<string>('All');
   const transactions = useWalletStore((state) => state.transactions);
 
   const getFilteredData = () => {
@@ -93,14 +100,13 @@ const Transaction = () => {
 
   return (
     <ScreenWrapper headerShown={false} isSafeArea={true}>
-
       <View style={styles.container}>
         <View style={[styles.header, isTablet && { paddingVertical: 25, paddingHorizontal: 30 }]}>
           <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, isTablet && styles.tabletBtn]} activeOpacity={0.7}>
             <Ionicons name="chevron-back" size={isTablet ? 28 : 24} color="#0f172a" />
           </TouchableOpacity>
 
-          <Text style={[styles.headerTitle, isTablet && { fontSize: 24 }]}>History</Text>
+          <Text style={[styles.headerTitle, isTablet && { fontSize: 24 }]}>{t.history || "History"}</Text>
 
           <TouchableOpacity style={[styles.iconBtn, isTablet && styles.tabletBtn]} activeOpacity={0.7} onPress={() => router.navigate("/(app)/(bottom-tab)/notification")}>
             <Ionicons name="notifications" size={isTablet ? 26 : 22} color="#E11D48" />
@@ -111,16 +117,16 @@ const Transaction = () => {
         <View style={[styles.tabWrapper, isTablet && { paddingHorizontal: 30, marginBottom: 20 }]}>
           <View style={[styles.tabContainer, isTablet && { padding: 8 }]}>
             {TABS.map(tab => {
-              const isActive = activeTab === tab;
+              const isActive = activeTab === tab.key;
               return (
                 <TouchableOpacity
-                  key={tab}
-                  onPress={() => setActiveTab(tab)}
+                  key={tab.key}
+                  onPress={() => setActiveTab(tab.key)}
                   activeOpacity={0.8}
                   style={[styles.tabBtn, isActive && styles.activeTabBtn, isTablet && { paddingVertical: 16 }]}
                 >
                   <Text style={[styles.tabText, isActive && styles.activeTabText, isTablet && { fontSize: 16 }]}>
-                    {tab}
+                    {tab.label}
                   </Text>
                 </TouchableOpacity>
               );
@@ -133,7 +139,6 @@ const Transaction = () => {
             data={filteredData}
             numColumns={isTablet ? 3 : 1}
             key={isTablet ? 'tablet-grid' : 'mobile-list'}
-
             estimatedItemSize={85}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
@@ -141,20 +146,18 @@ const Transaction = () => {
                 <TransactionItem item={item} />
               </View>
             )}
-
             contentContainerStyle={{
               ...styles.listContent,
               ...(isTablet ? { paddingHorizontal: 22 } : {})
             }}
-
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
               <View style={styles.emptyState}>
                 <View style={[styles.emptyIconCircle, isTablet && { width: 100, height: 100, borderRadius: 50 }]}>
                   <Ionicons name="receipt-outline" size={isTablet ? 50 : 40} color="#cbd5e1" />
                 </View>
-                <Text style={[styles.emptyText, isTablet && { fontSize: 22 }]}>မှတ်တမ်းမရှိသေးပါ</Text>
-                <Text style={[styles.emptySubText, isTablet && { fontSize: 16 }]}>အရောင်းအဝယ်ပြုလုပ်သည့်အခါ ဤနေရာတွင် ပေါ်လာပါမည်</Text>
+                <Text style={[styles.emptyText, isTablet && { fontSize: 22 }]}>{t.noHistoryYet || "No history yet"}</Text>
+                <Text style={[styles.emptySubText, isTablet && { fontSize: 16 }]}>{t.historyDesc || "Transactions will appear here when you make them"}</Text>
               </View>
             }
           />
@@ -171,14 +174,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white'
   },
-
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 15,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f8fafc'
   },
   headerTitle: {
     fontSize: 20,
@@ -205,12 +207,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 12,
-    backgroundColor: '#fff1f2',
+    backgroundColor: '#fff1f2'
   },
   tabletBtn: {
     width: 50,
     height: 50,
-    borderRadius: 16,
+    borderRadius: 16
   },
   redDot: {
     position: 'absolute',
@@ -223,7 +225,6 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: '#fff1f2'
   },
-
   tabWrapper: {
     paddingHorizontal: 20,
     marginBottom: 10,
@@ -238,13 +239,13 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
     shadowRadius: 10,
-    elevation: 3,
+    elevation: 3
   },
   tabBtn: {
     flex: 1,
     paddingVertical: 12,
     alignItems: 'center',
-    borderRadius: 12,
+    borderRadius: 12
   },
   activeTabBtn: {
     backgroundColor: '#E11D48',
@@ -263,14 +264,11 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: '700'
   },
-
   listContent: {
     paddingHorizontal: 20,
     paddingTop: 10,
-    paddingBottom: 40,
+    paddingBottom: 40
   },
-
-  // 🔥 Card Styles
   card: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -284,7 +282,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
-    elevation: 2,
+    elevation: 2
   },
   tabletCard: {
     flexDirection: 'column',
@@ -293,7 +291,6 @@ const styles = StyleSheet.create({
     height: 180,
     justifyContent: 'space-between'
   },
-
   iconBox: {
     width: 48,
     height: 48,
@@ -314,7 +311,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%'
   },
-
   content: {
     flex: 1,
     justifyContent: 'center'
@@ -340,13 +336,12 @@ const styles = StyleSheet.create({
     marginBottom: 4
   },
   tabletSubTitle: {
-    fontSize: 14,
+    fontSize: 14
   },
   date: {
     fontSize: 11,
     color: '#94a3b8'
   },
-
   rightSection: {
     alignItems: 'flex-end'
   },
@@ -366,7 +361,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginBottom: 0
   },
-
   statusInfoRow: {
     flexDirection: 'row',
     alignItems: 'center'
@@ -383,11 +377,10 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700'
   },
-
   emptyState: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 100,
+    marginTop: 100
   },
   emptyIconCircle: {
     width: 80,

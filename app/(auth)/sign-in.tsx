@@ -1,3 +1,4 @@
+import { useAuth } from "@/structure/hooks/useAuth";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -16,9 +17,8 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import Toast from "react-native-toast-message";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useAuth } from "@/structure/hooks/useAuth";
+import Toast from "react-native-toast-message";
 
 const { width } = Dimensions.get("window");
 const isTablet = width > 600;
@@ -163,7 +163,7 @@ const LoginScreen = () => {
                 </View>
 
                 <TouchableOpacity style={styles.googleBtn} activeOpacity={0.8}>
-                  <AntDesign name="google" size={22} color="black" />
+                  <AntDesign name="google" size={22} color="black" style={{ left: 70 }} />
                   <Text style={styles.googleText}>Sign in with Google</Text>
                 </TouchableOpacity>
 
@@ -276,7 +276,9 @@ const styles = StyleSheet.create({
   btnText: {
     color: "white",
     fontSize: 18,
-    fontWeight: "bold"
+    fontWeight: "bold",
+    flex: 1,
+    marginTop: 15
   },
 
   dividerBox: {
@@ -309,13 +311,14 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 5,
-    elevation: 2
+    elevation: 2,
   },
   googleText: {
-    marginLeft: 10,
+    marginLeft: 85,
     fontSize: 16,
     fontWeight: "700",
-    color: COLORS.dark
+    color: COLORS.dark,
+    flex: 1
   },
 
   footer: {

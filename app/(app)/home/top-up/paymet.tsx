@@ -20,6 +20,7 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 
 import { useWalletStore } from "@/store/useWalletStore";
+import useTranslation from "@/structure/hooks/useTranslation";
 
 const { width } = Dimensions.get('window');
 
@@ -76,6 +77,7 @@ export default function PhoneBillDetailScreen() {
     const packageImage = image ? Number(image) : null;
 
     const buyPhoneBill = useWalletStore((state) => state.buyPhoneBill);
+    const { t } = useTranslation();
 
     const [paymentMethod, setPaymentMethod] = useState<"MM" | "TH">("MM");
     const activeBank = BANK_DATA[paymentMethod];
@@ -102,18 +104,22 @@ export default function PhoneBillDetailScreen() {
 
     const handleHelpPress = () => {
         Alert.alert(
-            "Instructions",
-            "1. Please verify the phone number carefully.\n2. Transfer the exact amount shown.\n3. Upload a clear screenshot of the transaction.\n4. Processing time is usually 5-10 minutes.",
-            [{ text: "Got it" }]
+            t.instructionsTitle || "Instructions",
+            t.instructionsBody || "1. Please verify the phone number carefully.\n2. Transfer the exact amount shown.\n3. Upload a clear screenshot of the transaction.\n4. Processing time is usually 5-10 minutes.",
+            [{ text: t.gotIt || "Got it" }]
         );
     };
 
     const copyToClipboard = async () => {
         await Clipboard.setStringAsync(activeBank.accountNumber);
+        const copiedDesc = t.bankCopiedDesc
+            ? t.bankCopiedDesc.replace("{bankName}", activeBank.name)
+            : `${activeBank.name} number copied to clipboard.`;
+
         Toast.show({
             type: 'success',
-            text1: 'Copied!',
-            text2: `${activeBank.name} number copied to clipboard.`,
+            text1: t.copiedTitle || 'Copied!',
+            text2: copiedDesc,
             position: 'bottom',
             topOffset: 60,
             visibilityTime: 1500,
@@ -135,8 +141,8 @@ export default function PhoneBillDetailScreen() {
         if (!slipImage) {
             Toast.show({
                 type: 'error',
-                text1: 'Receipt Required',
-                text2: 'Please upload the payment slip.',
+                text1: t.receiptRequiredTitle || 'Receipt Required',
+                text2: t.uploadSlipDesc || 'Please upload the payment slip.',
                 position: 'top',
                 topOffset: 60,
                 visibilityTime: 2000,
@@ -161,8 +167,8 @@ export default function PhoneBillDetailScreen() {
 
             Toast.show({
                 type: 'success',
-                text1: 'Order Successful!',
-                text2: 'Check your order history.',
+                text1: t.orderSuccessTitle || 'Order Successful!',
+                text2: t.checkOrderHistory || 'Check your order history.',
                 position: 'top',
                 topOffset: 60,
                 visibilityTime: 1500,
@@ -177,7 +183,9 @@ export default function PhoneBillDetailScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
                     <Ionicons name="arrow-back" size={24} color="#1e293b" />
                 </TouchableOpacity>
-                <DynamicText fontWeight="bold" fontSize="lg" style={{ color: "#1e293b" }}>Checkout</DynamicText>
+                <DynamicText fontWeight="bold" fontSize="lg" style={{ color: "#1e293b" }}>
+                    {t.checkout || "Checkout"}
+                </DynamicText>
 
                 <TouchableOpacity onPress={handleHelpPress} style={styles.backBtn}>
                     <Ionicons name="help-circle-outline" size={24} color="#1e293b" />
@@ -190,7 +198,9 @@ export default function PhoneBillDetailScreen() {
                     <View style={styles.miniOrderCard}>
                         {packageImage && <Image source={packageImage} style={styles.pkgImage} resizeMode="contain" />}
                         <View style={{ marginLeft: 15, flex: 1 }}>
-                            <DynamicText style={{ color: "#64748b", fontSize: 12 }}>Top-up to</DynamicText>
+                            <DynamicText style={{ color: "#64748b", fontSize: 12 }}>
+                                {t.topUpTo || "Top-up to"}
+                            </DynamicText>
                             <DynamicText fontWeight="bold" fontSize="lg" style={{ color: "#1e293b" }}>{phoneNumber}</DynamicText>
                         </View>
                         <View style={styles.badge}>
@@ -206,7 +216,7 @@ export default function PhoneBillDetailScreen() {
                             onPress={() => setPaymentMethod("TH")}
                         >
                             <DynamicText style={{ fontSize: 13, fontWeight: "600", color: paymentMethod === "TH" ? "#E11D48" : "#64748b" }}>
-                                🇹🇭 Thai Payment
+                                {t.thaiPayment || "🇹🇭 Thai Payment"}
                             </DynamicText>
                         </TouchableOpacity>
                         <TouchableOpacity
@@ -214,18 +224,22 @@ export default function PhoneBillDetailScreen() {
                             onPress={() => setPaymentMethod("MM")}
                         >
                             <DynamicText style={{ fontSize: 13, fontWeight: "600", color: paymentMethod === "MM" ? "#E11D48" : "#64748b" }}>
-                                🇲🇲 MM Payment
+                                {t.mmPayment || "🇲🇲 MM Payment"}
                             </DynamicText>
                         </TouchableOpacity>
                     </View>
                 </Animated.View>
 
                 <Animated.View entering={FadeInDown.delay(200).springify()} style={styles.section}>
-                    <DynamicText fontWeight="bold" style={styles.sectionTitle}>Transfer Details</DynamicText>
+                    <DynamicText fontWeight="bold" style={styles.sectionTitle}>
+                        {t.transferDetails || "Transfer Details"}
+                    </DynamicText>
 
                     <View style={styles.paymentCard}>
                         <View style={styles.amountSection}>
-                            <DynamicText style={{ color: "#64748b", fontSize: 13, marginBottom: 4 }}>Transfer Amount</DynamicText>
+                            <DynamicText style={{ color: "#64748b", fontSize: 13, marginBottom: 4 }}>
+                                {t.transferAmount || "Transfer Amount"}
+                            </DynamicText>
                             <DynamicText fontWeight="bold" fontSize="3xl" style={{ color: "#E11D48" }}>{displayPrice}</DynamicText>
                         </View>
 
@@ -236,7 +250,9 @@ export default function PhoneBillDetailScreen() {
 
                         <View style={styles.accountSection}>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
-                                <DynamicText style={{ color: "#64748b", fontSize: 13 }}>To Account</DynamicText>
+                                <DynamicText style={{ color: "#64748b", fontSize: 13 }}>
+                                    {t.toAccount || "To Account"}
+                                </DynamicText>
                                 <DynamicText style={{ color: "#64748b", fontSize: 13 }}>{activeBank.name}</DynamicText>
                             </View>
 
@@ -250,14 +266,16 @@ export default function PhoneBillDetailScreen() {
                             </TouchableOpacity>
 
                             <DynamicText style={{ color: "#94a3b8", fontSize: 13, marginTop: 8 }}>
-                                Name: <DynamicText style={{ color: "#64748b", fontWeight: "600" }}>{activeBank.accountName}</DynamicText>
+                                {t.accountName || "Name:"} <DynamicText style={{ color: "#64748b", fontWeight: "600" }}>{activeBank.accountName}</DynamicText>
                             </DynamicText>
                         </View>
                     </View>
                 </Animated.View>
 
                 <Animated.View entering={FadeInDown.delay(300).springify()} style={styles.section}>
-                    <DynamicText fontWeight="bold" style={styles.sectionTitle}>Payment Slip</DynamicText>
+                    <DynamicText fontWeight="bold" style={styles.sectionTitle}>
+                        {t.paymentSlipTitle || "Payment Slip"}
+                    </DynamicText>
 
                     <TouchableOpacity onPress={pickImage} activeOpacity={0.8} style={styles.uploadArea}>
                         {slipImage ? (
@@ -267,14 +285,18 @@ export default function PhoneBillDetailScreen() {
                                 <View style={styles.plusIcon}>
                                     <Ionicons name="cloud-upload-outline" size={28} color="#64748b" />
                                 </View>
-                                <DynamicText style={{ color: "#64748b", marginTop: 8, fontWeight: "500" }}>Tap to upload receipt</DynamicText>
+                                <DynamicText style={{ color: "#64748b", marginTop: 8, fontWeight: "500" }}>
+                                    {t.tapToUploadReceipt || "Tap to upload receipt"}
+                                </DynamicText>
                             </View>
                         )}
                     </TouchableOpacity>
 
                     {slipImage && (
                         <TouchableOpacity onPress={pickImage} style={{ alignSelf: "center", marginTop: 12 }}>
-                            <DynamicText style={{ color: "#E11D48", fontWeight: "600" }}>Change Photo</DynamicText>
+                            <DynamicText style={{ color: "#E11D48", fontWeight: "600" }}>
+                                {t.changePhoto || "Change Photo"}
+                            </DynamicText>
                         </TouchableOpacity>
                     )}
                 </Animated.View>
@@ -292,7 +314,9 @@ export default function PhoneBillDetailScreen() {
                         {loading ? (
                             <ActivityIndicator color="white" />
                         ) : (
-                            <DynamicText fontWeight="bold" style={{ color: "white", fontSize: 17 }}>Confirm Payment</DynamicText>
+                            <DynamicText fontWeight="bold" style={{ color: "white", fontSize: 17 }}>
+                                {t.confirmPayment || "Confirm Payment"}
+                            </DynamicText>
                         )}
                     </LinearGradient>
                 </TouchableOpacity>

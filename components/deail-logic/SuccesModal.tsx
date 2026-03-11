@@ -1,7 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from "react";
-import { Image, Modal, StyleSheet, TouchableOpacity, View, Dimensions, Text } from "react-native";
+import { Dimensions, Image, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, { ZoomIn } from "react-native-reanimated";
+
+import useTranslation from "@/structure/hooks/useTranslation";
 
 const { width } = Dimensions.get("window");
 const isTablet = width > 600;
@@ -20,6 +22,8 @@ export default function SuccessModal({ visible, onClose, item, payment }: Succes
     const today = new Date().toLocaleDateString();
     const transactionID = "9231 5213 " + Math.floor(1000 + Math.random() * 9000);
 
+    const { t } = useTranslation();
+
     return (
         <Modal visible={visible} animationType="fade" transparent={false}>
             <View style={styles.container}>
@@ -34,45 +38,65 @@ export default function SuccessModal({ visible, onClose, item, payment }: Succes
                             <Ionicons name="checkmark" size={isTablet ? 60 : 45} color="#ea580c" />
                         </Animated.View>
 
-                        <Text className='font-bold' style={[styles.title, isTablet && { fontSize: 32 }]}>Payment Successful</Text>
-                        <Text style={[styles.subtitle, isTablet && { fontSize: 18, marginTop: 5 }]}>Thanks for your order, it now confirmed.</Text>
+                        <Text className='font-bold' style={[styles.title, isTablet && { fontSize: 32 }]}>
+                            {t.paymentSuccessful || "Payment Successful"}
+                        </Text>
+                        <Text style={[styles.subtitle, isTablet && { fontSize: 18, marginTop: 5 }]}>
+                            {t.thanksForOrder || "Thanks for your order, it now confirmed."}
+                        </Text>
                     </View>
 
                     <View style={[styles.receiptCard, isTablet && { padding: 40, borderRadius: 30 }]}>
-                        <Text className='font-bold' style={[styles.cardTitle, isTablet && { fontSize: 20, marginBottom: 20 }]}>Payment details</Text>
+                        <Text className='font-bold' style={[styles.cardTitle, isTablet && { fontSize: 20, marginBottom: 20 }]}>
+                            {t.paymentDetailsCard || "Payment details"}
+                        </Text>
 
                         <View style={styles.divider} />
 
                         <View style={[styles.row, isTablet && { marginBottom: 20 }]}>
-                            <Text style={[styles.label, isTablet && { fontSize: 16 }]}>Transaction ID</Text>
+                            <Text style={[styles.label, isTablet && { fontSize: 16 }]}>
+                                {t.transactionId || "Transaction ID"}
+                            </Text>
                             <Text className='font-bold' style={[styles.value, isTablet && { fontSize: 16 }]}>{transactionID}</Text>
                         </View>
 
                         <View style={[styles.row, isTablet && { marginBottom: 20 }]}>
-                            <Text style={[styles.label, isTablet && { fontSize: 16 }]}>Date</Text>
+                            <Text style={[styles.label, isTablet && { fontSize: 16 }]}>
+                                {t.date || "Date"}
+                            </Text>
                             <Text className='font-bold' style={[styles.value, isTablet && { fontSize: 16 }]}>{today}</Text>
                         </View>
 
                         <View style={[styles.row, isTablet && { marginBottom: 20 }]}>
-                            <Text style={[styles.label, isTablet && { fontSize: 16 }]}>Payment Method</Text>
+                            <Text style={[styles.label, isTablet && { fontSize: 16 }]}>
+                                {t.method || "Payment Method"}
+                            </Text>
                             <View style={styles.methodBadge}>
                                 {payment?.image && <Image source={payment.image} style={[styles.miniIcon, isTablet && { width: 30, height: 30 }]} />}
-                                <Text className='font-bold' style={[styles.value, isTablet && { fontSize: 16 }]}>{payment?.name || "Wallet"}</Text>
+                                <Text className='font-bold' style={[styles.value, isTablet && { fontSize: 16 }]}>
+                                    {payment?.name || (t.wallet || "Wallet")}
+                                </Text>
                             </View>
                         </View>
 
                         <View style={styles.divider} />
 
                         <View style={[styles.row, isTablet && { marginBottom: 20 }]}>
-                            <Text style={[styles.label, isTablet && { fontSize: 16 }]}>Total</Text>
+                            <Text style={[styles.label, isTablet && { fontSize: 16 }]}>
+                                {t.total || "Total"}
+                            </Text>
                             <Text className='font-bold' style={[styles.totalValue, isTablet && { fontSize: 24 }]}>{item?.price}</Text>
                         </View>
 
                         <View style={[styles.row, isTablet && { marginBottom: 10 }]}>
-                            <Text style={[styles.label, isTablet && { fontSize: 16 }]}>Status</Text>
+                            <Text style={[styles.label, isTablet && { fontSize: 16 }]}>
+                                {t.status || "Status"}
+                            </Text>
                             <View style={styles.successBadge}>
                                 <Ionicons name="checkmark-circle" size={isTablet ? 20 : 16} color="#16a34a" />
-                                <Text className='font-bold' style={[styles.successText, isTablet && { fontSize: 16 }]}>Success</Text>
+                                <Text className='font-bold' style={[styles.successText, isTablet && { fontSize: 16 }]}>
+                                    {t.success || "Success"}
+                                </Text>
                             </View>
                         </View>
                     </View>
@@ -83,7 +107,9 @@ export default function SuccessModal({ visible, onClose, item, payment }: Succes
                             onPress={onClose}
                             activeOpacity={0.9}
                         >
-                            <Text className='font-bold' style={[styles.buttonText, isTablet && { fontSize: 20 }]}>Continue</Text>
+                            <Text className='font-bold' style={[styles.buttonText, isTablet && { fontSize: 20 }]}>
+                                {t.continueBtn || "Continue"}
+                            </Text>
                             <Ionicons name="arrow-forward" size={isTablet ? 24 : 20} color="#ea580c" />
                         </TouchableOpacity>
                     </View>
@@ -102,7 +128,6 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center"
     },
-
 
     contentWrapper: {
         width: '100%',

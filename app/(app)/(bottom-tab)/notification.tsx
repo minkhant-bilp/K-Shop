@@ -4,7 +4,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { Platform, StatusBar, StyleSheet, TouchableOpacity, View, Dimensions, Text } from 'react-native';
+import { Dimensions, Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
+import useTranslation from "@/structure/hooks/useTranslation";
 
 const { width } = Dimensions.get("window");
 const isTablet = width > 600;
@@ -12,6 +14,8 @@ const isTablet = width > 600;
 const NOTIFICATIONS: NotificationData[] = [];
 
 const Notification = () => {
+
+    const { t } = useTranslation();
 
     const hasNotifications = NOTIFICATIONS.length > 0;
 
@@ -30,7 +34,7 @@ const Notification = () => {
                         className='font-bold'
                         style={[styles.headerTitle, isTablet && { fontSize: 30 }]}
                     >
-                        Notifications
+                        {t.notifications || "Notifications"}
                     </Text>
 
                     {hasNotifications && (
@@ -79,13 +83,13 @@ const Notification = () => {
                             className='font-bold'
                             style={[styles.emptyText, isTablet && { fontSize: 28, marginBottom: 15 }]}
                         >
-                            No Notifications Yet
+                            {t.noNotificationsYet || "No Notifications Yet"}
                         </Text>
 
                         <Text
                             style={[styles.emptySubText, isTablet && { fontSize: 18, lineHeight: 28 }]}
                         >
-                            Well let you know when updates{"\n"}and promos arrive!
+                            {t.noNotiDesc || "We'll let you know when updates\nand promos arrive!"}
                         </Text>
 
                     </View>

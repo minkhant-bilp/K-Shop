@@ -3,14 +3,20 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React from "react";
-import { StyleSheet, TouchableOpacity, View, Text, Dimensions } from "react-native";
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import DynamicText from "../ui/dynamic-text/dynamic-text";
+
+import useTranslation from "@/structure/hooks/useTranslation";
 
 const { width } = Dimensions.get("window");
 const isTablet = width > 600;
 
 export default function WalletCard() {
   const router = useRouter();
+
+
+  const { t } = useTranslation();
+
 
   const { mmBalance, thBalance, selectedCountry, setCountry } = useWalletStore();
 
@@ -36,9 +42,11 @@ export default function WalletCard() {
               <DynamicText style={{ fontSize: 18, lineHeight: 24 }}>
                 {selectedCountry === "MM" ? "🇲🇲" : "🇹🇭"}
               </DynamicText>
+
               <DynamicText style={styles.label}>
-                {selectedCountry === "MM" ? "MM Wallet" : "TH Wallet"}
+                {selectedCountry === "MM" ? (t.mmWallet || "MM Wallet") : (t.thWallet || "TH Wallet")}
               </DynamicText>
+
               <Ionicons
                 name="chevron-down"
                 size={14}
@@ -68,7 +76,7 @@ export default function WalletCard() {
             </View>
 
             <DynamicText fontWeight="bold" style={styles.topUpText}>
-              ငွေဖြည့်ရန်
+              {t.topup || "Top Up"}
             </DynamicText>
           </TouchableOpacity>
         </View>
@@ -78,8 +86,9 @@ export default function WalletCard() {
         <View style={styles.bottomSection}>
           <TouchableOpacity activeOpacity={0.6} style={styles.actionBtn} onPress={() => router.navigate("/home/balance/order")}>
             <Ionicons name="time-outline" size={18} color="white" />
+
             <DynamicText style={styles.actionText}>
-              အော်ဒါမှတ်တမ်း
+              {t.order || "Order"}
             </DynamicText>
           </TouchableOpacity>
 
@@ -87,8 +96,9 @@ export default function WalletCard() {
 
           <TouchableOpacity activeOpacity={0.6} style={styles.actionBtn} onPress={() => router.navigate("/home/balance/despoit")}>
             <Ionicons name="document-text-outline" size={18} color="white" />
+
             <DynamicText style={styles.actionText}>
-              ငွေဖြည့်မှတ်တမ်း
+              {t.deposits || "Deposit"}
             </DynamicText>
           </TouchableOpacity>
         </View>

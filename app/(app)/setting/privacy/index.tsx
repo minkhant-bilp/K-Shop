@@ -1,50 +1,52 @@
-import DynamicText from '@/components/ui/dynamic-text/dynamic-text';
 import ScreenWrapper from '@/components/ui/layout/screen-wrapper';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import {
+    Dimensions,
     Platform,
     ScrollView,
     StatusBar,
     StyleSheet,
+    Text,
     TouchableOpacity,
-    View,
-    Dimensions,
-    Text
+    View
 } from 'react-native';
+
+import useTranslation from "@/structure/hooks/useTranslation";
 
 const { width } = Dimensions.get("window");
 const isTablet = width > 600;
 
 const CONTENT_MAX_WIDTH = 700;
 
-const POLICY_SECTIONS = [
-    {
-        title: "1. Introduction",
-        content: "Welcome to GameShop. We value your privacy and are committed to protecting your personal information. This policy explains how we handle your data."
-    },
-    {
-        title: "2. Information We Collect",
-        content: "We collect information you provide directly to us, such as your name, email address, and transaction details when you make a purchase."
-    },
-    {
-        title: "3. How We Use Your Data",
-        content: "Your data is used to process transactions, improve our services, and send you important updates regarding your account."
-    },
-    {
-        title: "4. Data Security",
-        content: "We implement top-tier security measures to protect your data. Your payment information is encrypted and never shared with third parties."
-    },
-    {
-        title: "5. Contact Us",
-        content: "If you have any questions about this Privacy Policy, please contact our support team via the 'Help Center'."
-    }
-];
-
 export default function Privacy() {
     const router = useRouter();
+    const { t } = useTranslation();
+
+    const POLICY_SECTIONS = [
+        {
+            title: t.privacyIntroTitle || "1. Introduction",
+            content: t.privacyIntroDesc || "Welcome to GameShop. We value your privacy and are committed to protecting your personal information. This policy explains how we handle your data."
+        },
+        {
+            title: t.privacyCollectTitle || "2. Information We Collect",
+            content: t.privacyCollectDesc || "We collect information you provide directly to us, such as your name, email address, and transaction details when you make a purchase."
+        },
+        {
+            title: t.privacyUseTitle || "3. How We Use Your Data",
+            content: t.privacyUseDesc || "Your data is used to process transactions, improve our services, and send you important updates regarding your account."
+        },
+        {
+            title: t.privacySecurityTitle || "4. Data Security",
+            content: t.privacySecurityDesc || "We implement top-tier security measures to protect your data. Your payment information is encrypted and never shared with third parties."
+        },
+        {
+            title: t.privacyContactTitle || "5. Contact Us",
+            content: t.privacyContactDesc || "If you have any questions about this Privacy Policy, please contact our support team via the 'Help Center'."
+        }
+    ];
 
     return (
         <ScreenWrapper headerShown={false} isSafeArea={false}>
@@ -53,7 +55,7 @@ export default function Privacy() {
 
             <LinearGradient
                 colors={["#991b1b", "#dc2626", "#ef4444"]}
-                style={[styles.header, isTablet && { paddingBottom: 60, alignItems: 'center' }]} // Tablet Header Padding & Center
+                style={[styles.header, isTablet && { paddingBottom: 60, alignItems: 'center' }]}
             >
                 <View style={{ height: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }} />
 
@@ -61,13 +63,15 @@ export default function Privacy() {
                     <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, isTablet && { width: 50, height: 50, borderRadius: 16 }]}>
                         <Ionicons name="arrow-back" size={isTablet ? 28 : 24} color="#dc2626" />
                     </TouchableOpacity>
-                    <Text className='font-bold' style={[styles.headerTitle, isTablet && { fontSize: 26 }]}>Privacy Policy</Text>
+                    <Text className='font-bold' style={[styles.headerTitle, isTablet && { fontSize: 26 }]}>
+                        {t.privacyPolicyy || "Privacy Policy"}
+                    </Text>
                     <View style={{ width: isTablet ? 50 : 40 }} />
                 </View>
 
                 <View style={[styles.dateSection, isTablet && { marginTop: 25 }]}>
                     <Text style={[styles.dateText, isTablet && { fontSize: 16, paddingHorizontal: 20, paddingVertical: 6, borderRadius: 25 }]}>
-                        Last Updated: Jan 20, 2026
+                        {t.lastUpdated || "Last Updated: Jan 20, 2026"}
                     </Text>
                 </View>
             </LinearGradient>
@@ -91,9 +95,9 @@ export default function Privacy() {
                     ))}
 
                     <Text style={[styles.footerText, isTablet && { fontSize: 14, marginTop: 20 }]}>
-                        By using our app, you agree to our Terms of Service.
+                        {t.termsAgreement || "By using our app, you agree to our Terms of Service."}
                     </Text>
-
+                    <View className='h-12'></View>
                 </ScrollView>
             </View>
 

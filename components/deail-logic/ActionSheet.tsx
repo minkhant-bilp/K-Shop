@@ -1,11 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { Image, Modal, StyleSheet, TouchableOpacity, View, Dimensions, Platform, Text } from "react-native";
+import { Dimensions, Image, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, { Easing, SlideInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import DynamicText from "../ui/dynamic-text/dynamic-text";
 
 import { useWalletStore } from "@/store/useWalletStore";
+import useTranslation from "@/structure/hooks/useTranslation";
 
 const { width } = Dimensions.get("window");
 const isTablet = width > 600;
@@ -25,6 +26,9 @@ export default function ActionSheet({ visible, onClose, onSubmit, item, userId, 
 
     const { mmBalance, thBalance, selectedCountry } = useWalletStore();
     const insets = useSafeAreaInsets();
+
+
+    const { t } = useTranslation();
 
     if (!item) return null;
 
@@ -54,7 +58,9 @@ export default function ActionSheet({ visible, onClose, onSubmit, item, userId, 
                 <View style={[styles.sheetHandle, isTablet && { width: 60, height: 6, marginBottom: 30 }]} />
 
                 <View style={styles.sheetContent}>
-                    <Text className="font-bold" style={[styles.sheetTitle, isTablet && { fontSize: 28, marginBottom: 30 }]}>Checkout</Text>
+                    <Text className="font-bold" style={[styles.sheetTitle, isTablet && { fontSize: 28, marginBottom: 30 }]}>
+                        {t.checkout || "Checkout"}
+                    </Text>
 
                     <View style={[styles.productCard, isTablet && { padding: 20, marginBottom: 30, borderRadius: 20 }]}>
                         <Image
@@ -63,7 +69,9 @@ export default function ActionSheet({ visible, onClose, onSubmit, item, userId, 
                             resizeMode="contain"
                         />
                         <View style={styles.productInfo}>
-                            <Text style={[styles.label, isTablet && { fontSize: 16, marginBottom: 5 }]}>Package</Text>
+                            <Text style={[styles.label, isTablet && { fontSize: 16, marginBottom: 5 }]}>
+                                {t.packageLabel || "Package"}
+                            </Text>
                             <Text className="font-bold" style={[styles.itemName, isTablet && { fontSize: 24 }]}>{item.amount}</Text>
                         </View>
                         <Text className="font-bold" style={[styles.itemPrice, isTablet && { fontSize: 24 }]}>{item.price}</Text>
@@ -71,7 +79,9 @@ export default function ActionSheet({ visible, onClose, onSubmit, item, userId, 
 
                     {/* User Info */}
                     <View style={[styles.infoRow, isTablet && { marginBottom: 25 }]}>
-                        <Text style={[styles.infoLabel, isTablet && { fontSize: 18 }]}>User ID:</Text>
+                        <Text style={[styles.infoLabel, isTablet && { fontSize: 18 }]}>
+                            {t.userIdLabel || "User ID:"}
+                        </Text>
                         <Text className="font-bold" style={[styles.infoValue, isTablet && { fontSize: 18 }]}>{userId} ({zoneId})</Text>
                     </View>
 
@@ -82,7 +92,9 @@ export default function ActionSheet({ visible, onClose, onSubmit, item, userId, 
                         <View style={[styles.walletRow, isTablet && { marginBottom: 10 }]}>
                             <View style={[styles.walletLabelGroup, isTablet && { gap: 10 }]}>
                                 <Ionicons name="wallet-outline" size={isTablet ? 28 : 18} color="#64748b" />
-                                <Text style={[styles.walletLabel, isTablet && { fontSize: 18 }]}>Your Balance:</Text>
+                                <Text style={[styles.walletLabel, isTablet && { fontSize: 18 }]}>
+                                    {t.yourBalance || "Your Balance:"}
+                                </Text>
                             </View>
 
                             <DynamicText
@@ -101,7 +113,7 @@ export default function ActionSheet({ visible, onClose, onSubmit, item, userId, 
                             <View style={[styles.errorContainer, isTablet && { padding: 12, marginTop: 10 }]}>
                                 <Ionicons name="alert-circle" size={isTablet ? 20 : 14} color="#ef4444" />
                                 <Text style={[styles.errorText, isTablet && { fontSize: 16 }]}>
-                                    ငွေပမာဏ မလုံလောက်ပါ။ ကျေးဇူးပြု၍ ငွေဖြည့်ပါ။
+                                    {t.insufficientBalanceDesc || "ငွေပမာဏ မလုံလောက်ပါ။ ကျေးဇူးပြု၍ ငွေဖြည့်ပါ။"}
                                 </Text>
                             </View>
                         )}
@@ -110,7 +122,7 @@ export default function ActionSheet({ visible, onClose, onSubmit, item, userId, 
                     <TouchableOpacity
                         style={[
                             styles.sheetConfirmBtn,
-                            isTablet && { paddingVertical: 20, borderRadius: 20 }, // Tablet Button Size
+                            isTablet && { paddingVertical: 20, borderRadius: 20 },
                             !isSufficient && styles.disabledBtn
                         ]}
                         activeOpacity={0.8}
@@ -118,7 +130,10 @@ export default function ActionSheet({ visible, onClose, onSubmit, item, userId, 
                         disabled={!isSufficient}
                     >
                         <Text className="font-bold" style={[styles.sheetConfirmText, isTablet && { fontSize: 20 }]}>
-                            {isSufficient ? "Confirm Payment" : "Insufficient Balance"}
+                            {isSufficient
+                                ? (t.confirmPayment || "Confirm Payment")
+                                : (t.insufficientBalance || "Insufficient Balance")
+                            }
                         </Text>
                     </TouchableOpacity>
 

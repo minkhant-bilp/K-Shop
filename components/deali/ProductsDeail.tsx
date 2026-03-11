@@ -11,6 +11,8 @@ import ActionSheet from '../deail-logic/ActionSheet';
 import ListHeader from '../deail-logic/ListHeader';
 import SuccessModal from '../deail-logic/SuccesModal';
 
+import useTranslation from "@/structure/hooks/useTranslation";
+
 type Country = "MM" | "TH";
 type PackageItem = { id: number; amount: string; price: string; image: any; };
 
@@ -41,6 +43,8 @@ export default function GameDetailScreen() {
     const router = useRouter();
     const params = useLocalSearchParams();
 
+    const { t } = useTranslation();
+
     const { mmBalance, thBalance, selectedCountry, setCountry, buyPackage } = useWalletStore();
 
     const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -57,9 +61,9 @@ export default function GameDetailScreen() {
     const handleBuyNow = () => {
         if (!userId.trim() || !zoneId.trim()) {
             if (Platform.OS === 'android') {
-                ToastAndroid.show("ကျေးဇူးပြု၍ User ID နှင့် Zone ID ဖြည့်ပေးပါ!", ToastAndroid.SHORT);
+                ToastAndroid.show(t.fillUserAndZoneId || "ကျေးဇူးပြု၍ User ID နှင့် Zone ID ဖြည့်ပေးပါ!", ToastAndroid.SHORT);
             } else {
-                Alert.alert("သတိပေးချက်", "ကျေးဇူးပြု၍ User ID နှင့် Zone ID ဖြည့်ပေးပါ!");
+                Alert.alert(t.warning || "သတိပေးချက်", t.fillUserAndZoneId || "ကျေးဇူးပြု၍ User ID နှင့် Zone ID ဖြည့်ပေးပါ!");
             }
             return;
         }
@@ -73,7 +77,6 @@ export default function GameDetailScreen() {
         }
 
         setShowPurchaseSheet(false);
-
         setShowSuccessModal(true);
     };
 
@@ -105,7 +108,9 @@ export default function GameDetailScreen() {
                         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                             <DynamicText fontWeight="bold" style={styles.whiteText}>←</DynamicText>
                         </TouchableOpacity>
-                        <DynamicText fontWeight="bold" style={styles.headerTitle}>Game Shop</DynamicText>
+                        <DynamicText fontWeight="bold" style={styles.headerTitle}>
+                            {t.gameShop || "Game Shop"}
+                        </DynamicText>
                     </View>
 
                     <View style={styles.balanceBadge}>
@@ -122,7 +127,12 @@ export default function GameDetailScreen() {
                     <View style={styles.gameImageWrapper}>{imageSource ? <Image source={imageSource} style={styles.gameImage} /> : <View style={styles.gameImagePlaceholder} />}</View>
                     <View style={styles.gameInfoTextWrapper}>
                         <DynamicText fontWeight="bold" style={styles.gameName}>{params.title || "Mobile Legends"}</DynamicText>
-                        <View style={styles.secureBadge}><View style={styles.greenDot} /><DynamicText style={styles.secureText}>လုံခြုံသော ငွေပေးချေမှုများ</DynamicText></View>
+                        <View style={styles.secureBadge}>
+                            <View style={styles.greenDot} />
+                            <DynamicText style={styles.secureText}>
+                                {t.securePayments || "လုံခြုံသော ငွေပေးချေမှုများ"}
+                            </DynamicText>
+                        </View>
                     </View>
                 </View>
 
@@ -131,14 +141,18 @@ export default function GameDetailScreen() {
                         onPress={() => { setCountry("MM"); setSelectedId(null); }}
                         style={selectedCountry === "MM" ? styles.toggleButtonActive : styles.toggleButtonInactive}
                     >
-                        <DynamicText fontWeight="bold" style={styles.whiteText}>Myanmar 🇲🇲</DynamicText>
+                        <DynamicText fontWeight="bold" style={styles.whiteText}>
+                            {t.myanmarFlag || "Myanmar 🇲🇲"}
+                        </DynamicText>
                     </TouchableOpacity>
 
                     <TouchableOpacity
                         onPress={() => { setCountry("TH"); setSelectedId(null); }}
                         style={selectedCountry === "TH" ? styles.toggleButtonActive : styles.toggleButtonInactive}
                     >
-                        <DynamicText fontWeight="bold" style={styles.whiteText}>Thailand 🇹🇭</DynamicText>
+                        <DynamicText fontWeight="bold" style={styles.whiteText}>
+                            {t.thailandFlag || "Thailand 🇹🇭"}
+                        </DynamicText>
                     </TouchableOpacity>
                 </View>
             </Animated.View>
@@ -157,8 +171,12 @@ export default function GameDetailScreen() {
             {!showPurchaseSheet && !showSuccessModal && (
                 <Animated.View entering={FadeInUp.duration(500)} exiting={FadeInDown.duration(300)} style={styles.footerContainer}>
                     <TouchableOpacity style={selectedId ? styles.buyButtonActive : styles.buyButtonInactive} disabled={!selectedId} onPress={handleBuyNow}>
-                        <Ionicons name="cart-outline" size={24} color="white" style={styles.cartIcon} />
-                        <DynamicText fontWeight="bold" style={styles.buyButtonText}>Buy Now</DynamicText>
+                        <View style={styles.cartIconContainer}>
+                            <Ionicons name="cart-outline" size={24} color="white" style={styles.cartIcon} />
+                        </View>
+                        <DynamicText fontWeight="bold" style={styles.buyButtonText}>
+                            {t.buyNow || "Buy Now"}
+                        </DynamicText>
                     </TouchableOpacity>
                 </Animated.View>
             )}
@@ -425,6 +443,10 @@ const styles = StyleSheet.create({
         color: "white",
         fontSize: 18,
         letterSpacing: 0.5
+    },
+    cartIconContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     cartIcon: {
         marginRight: 8

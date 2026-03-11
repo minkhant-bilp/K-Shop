@@ -5,18 +5,20 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
+    Dimensions,
     Image,
     Keyboard,
     Platform,
     ScrollView,
     StatusBar,
     StyleSheet,
+    Text,
     TouchableOpacity,
     TouchableWithoutFeedback,
-    View,
-    Dimensions,
-    Text
+    View
 } from 'react-native';
+
+import useTranslation from "@/structure/hooks/useTranslation";
 
 const { width } = Dimensions.get("window");
 const isTablet = width > 600;
@@ -25,6 +27,7 @@ const CONTENT_MAX_WIDTH = 600;
 
 const SettingProfile = () => {
     const router = useRouter();
+    const { t } = useTranslation();
 
     const [name, setName] = useState("Aung Myo Khant");
     const [email] = useState("aungmyokhant459@gmail.com");
@@ -37,7 +40,7 @@ const SettingProfile = () => {
 
                 <LinearGradient
                     colors={["#991b1b", "#dc2626", "#ef4444"]}
-                    style={[styles.header, isTablet && { paddingBottom: 50, alignItems: 'center' }]} // Tablet Header Padding & Center
+                    style={[styles.header, isTablet && { paddingBottom: 50, alignItems: 'center' }]}
                 >
                     <View style={{ height: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }} />
 
@@ -45,9 +48,15 @@ const SettingProfile = () => {
                         <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, isTablet && { width: 50, height: 50, borderRadius: 16 }]}>
                             <Ionicons name="arrow-back" size={isTablet ? 28 : 24} color="#dc2626" />
                         </TouchableOpacity>
-                        <Text className='font-bold' style={[styles.headerTitle, isTablet && { fontSize: 24 }]}>Edit Profile</Text>
+
+                        <Text className='font-bold' style={[styles.headerTitle, isTablet && { fontSize: 24 }]}>
+                            {t.editProfile || "Edit Profile"}
+                        </Text>
+
                         <TouchableOpacity style={[styles.saveBtn, isTablet && { paddingHorizontal: 24, paddingVertical: 10, borderRadius: 25 }]}>
-                            <Text className='font-bold' style={[styles.saveText, isTablet && { fontSize: 16 }]}>Save</Text>
+                            <Text className='font-bold' style={[styles.saveText, isTablet && { fontSize: 16 }]}>
+                                {t.save || "Save"}
+                            </Text>
                         </TouchableOpacity>
                     </View>
 
@@ -79,17 +88,17 @@ const SettingProfile = () => {
                     >
                         <View style={isTablet && { gap: 20 }}>
                             <EditProfileItem
-                                label="Full Name"
+                                label={t.fullName || "Full Name"}
                                 value={name}
-                                placeholder="Enter your name"
+                                placeholder={t.enterName || "Enter your name"}
                                 icon="person-outline"
                                 onChangeText={setName}
                             />
 
                             <EditProfileItem
-                                label="Email Address"
+                                label={t.emailAddress || "Email Address"}
                                 value={email}
-                                placeholder="Enter email address"
+                                placeholder={t.enterEmail || "Enter email address"}
                                 icon="mail-outline"
                                 isEditable={false}
                             />
