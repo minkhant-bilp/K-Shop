@@ -1,5 +1,5 @@
 import type { LoginReq, RegisterReq } from "@/structure/api/apiReqModel";
-import type { LoginRes, RegisterRes } from "@/structure/api/apiResModel";
+import type { LoginRes, RegisterRes, User } from "@/structure/api/apiResModel";
 import { API_ENDPOINTS } from "@/structure/api/endpoints";
 import apiHelper from "@/structure/utils/apiHelper";
 
@@ -16,6 +16,10 @@ export const AuthServices = {
       API_ENDPOINTS.login,
       reqBody,
     );
+    return response.data;
+  },
+  getCurrentUser: async (): Promise<User> => {
+    const response = await apiHelper.get<User>(API_ENDPOINTS.getCurrentUser);
     return response.data;
   },
 };

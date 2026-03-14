@@ -1,5 +1,5 @@
 import type { LoginReq, RegisterReq } from "@/structure/api/apiReqModel";
-import type { LoginRes, RegisterRes } from "@/structure/api/apiResModel";
+import type { LoginRes, RegisterRes, User } from "@/structure/api/apiResModel";
 import { AuthServices } from "@/structure/api/services/authServices";
 import useAuthStore from "@/structure/stores/useAuthStore";
 import { useMutation } from "@tanstack/react-query";
@@ -20,6 +20,11 @@ export const useAuth = () => {
       setAuth(data.token, data.user);
     },
   });
+
+  const getCurrentUser = async (): Promise<User> => {
+    const response = await AuthServices.getCurrentUser();
+    return response;
+  };
 
   return {
     register: registerMutation.mutateAsync,
@@ -44,5 +49,6 @@ export const useAuth = () => {
       data: loginMutation.data,
       reset: loginMutation.reset,
     },
+    getCurrentUser,
   };
 };
