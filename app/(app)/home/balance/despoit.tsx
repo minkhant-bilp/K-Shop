@@ -3,11 +3,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
 import React from "react";
-import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-import { useWalletStore } from "@/store/useWalletStore";
-// 🔥 Translation Hook
-import useTranslation from '@/structure/hooks/useTranslation'; // လမ်းကြောင်းမှန်ကန်မှုရှိမရှိ စစ်ဆေးပါ (ဥပမာ - "@/structure/hooks/useTranslation")
+// 📍 API Hook ကို Import လုပ်ပါပြီ
+import { useCoin } from "@/structure/hooks/useCoin";
+import useTranslation from '@/structure/hooks/useTranslation';
 
 const { height } = Dimensions.get('window');
 
@@ -26,11 +26,11 @@ const COLORS = {
 
 const Deposit = () => {
     const router = useRouter();
-    const { t } = useTranslation(); // 🔥 Translation ယူသုံးထားပါသည်
+    const { t } = useTranslation();
 
-    const { transactions } = useWalletStore();
-
-    const depositList = transactions.filter(t => t.type === 'deposit');
+    // 📍 API ကနေ Data ကို တိုက်ရိုက်ဆွဲယူပါမယ်
+    const { rechargeHistory, walletQuery } = useCoin();
+    const depositList = rechargeHistory || [];
 
     const getStatusColor = (status: string) => {
         const s = status ? status.toLowerCase() : "pending";
@@ -42,7 +42,6 @@ const Deposit = () => {
         }
     };
 
-    // 🔥 Status ကို ဘာသာစကားအလိုက် ပြောင်းပေးမည့် Function
     const getTranslatedStatus = (status: string) => {
         const s = status ? status.toLowerCase() : "pending";
         switch (s) {
@@ -54,9 +53,33 @@ const Deposit = () => {
     };
 
     const getImageForMethod = (title: string) => {
+        if (!title) return require('@/assets/game_image/wave.png');
         if (title.includes("KBZ")) return require('@/assets/game_image/wave.png');
         if (title.includes("Wave")) return require('@/assets/game_image/wave.png');
+        // TrueMoney လိုမျိုး ထပ်ဖြည့်ချင်ရင် ဒီမှာ ဖြည့်လို့ရပါတယ်
+        if (title.toLowerCase().includes("true")) return require('@/assets/game_image/truemoney.png');
         return require('@/assets/game_image/wave.png');
+    };
+
+    // 📍 Date ကို အတိအကျနဲ့ လှလှပပပေါ်အောင် ပြောင်းပေးမယ့် Function
+    const formatDate = (dateInput: any) => {
+        if (!dateInput) return t.justNow || "Just now";
+
+        // Server က Milliseconds နဲ့လာလာ၊ String နဲ့လာလာ Date object အဖြစ်ပြောင်းပေးပါတယ်
+        const date = new Date(dateInput);
+
+        // Date မှားနေရင်
+        if (isNaN(date.getTime())) return t.justNow || "Just now";
+
+        // ဥပမာ - "15 Mar 2026, 10:30 AM" ပုံစံဖြင့် ပြပေးပါမယ်
+        return date.toLocaleString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        });
     };
 
     const EmptyState = () => (
@@ -78,19 +101,29 @@ const Deposit = () => {
         const translatedStatus = getTranslatedStatus(item.status);
         const isFailed = item.status === 'failed';
 
-        const displayImage = item.image ? item.image : getImageForMethod(item.title);
-        const displayAmount = item.amount ? `+${item.amount.toLocaleString()} ${item.currency}` : "+0 Ks";
-        const displayTitle = item.title || (t.topupTitle || "Topup");
-        const txnId = item.id ? `TXN-${item.id.slice(-6)}` : "TXN-000";
+        // Backend ကလာတဲ့ data keys တွေကို မှန်းပြီး ထည့်ပေးထားပါတယ်။ Backend နဲ့ မကိုက်ရင် နာမည်လေးတွေ ပြင်ပေးရပါမယ်။
+        const methodTitle = item.paymentMethod || item.title || t.topupTitle || "Topup";
+        const displayImage = item.image ? { uri: item.image } : getImageForMethod(methodTitle);
+
+        const amount = item.amount || 0;
+        const currency = item.currency || "Ks";
+        const displayAmount = `+${Number(amount).toLocaleString()} ${currency}`;
+
+        const txnId = item.id ? `TXN-${String(item.id).slice(-6)}` : "TXN-000";
+
+        // 📍 Backend က ဘယ်လိုနာမည်နဲ့ Date ကိုပေးလဲဆိုတာပေါ်မူတည်ပြီး ယူသုံးပါတယ်။ 
+        // ဥပမာ - item.createdDateInMilliSeconds သို့မဟုတ် item.createdAt
+        const exactDate = item.createdDateInMilliSeconds || item.createdAt || item.date;
+        const displayDate = formatDate(exactDate);
 
         return (
             <View style={styles.card}>
                 <View style={styles.cardTop}>
                     <View style={styles.logoBox}>
-                        <Image source={displayImage} style={styles.logoImage} resizeMode="contain" />
+                        <Image source={displayImage as any} style={styles.logoImage} resizeMode="contain" />
                     </View>
                     <View style={{ flex: 1, marginLeft: 12 }}>
-                        <Text style={styles.methodTitle}>{displayTitle}</Text>
+                        <Text style={styles.methodTitle}>{methodTitle}</Text>
                         <Text style={styles.txnId}>{txnId}</Text>
                     </View>
 
@@ -110,7 +143,8 @@ const Deposit = () => {
                 <View style={styles.divider} />
 
                 <View style={styles.cardBottom}>
-                    <Text style={styles.dateText}>{item.date || (t.justNow || "Just now")}</Text>
+                    {/* 📍 Date အတိအကျ ပေါ်မယ့်နေရာ */}
+                    <Text style={styles.dateText}>{displayDate}</Text>
 
                     <Text style={[
                         styles.amountText,
@@ -137,15 +171,26 @@ const Deposit = () => {
                 </View>
 
                 <View style={{ flex: 1 }}>
-                    <FlashList
-                        data={depositList}
-                        renderItem={renderItem}
-                        estimatedItemSize={120}
-                        keyExtractor={(item) => item.id}
-                        contentContainerStyle={{ padding: 20 }}
-                        showsVerticalScrollIndicator={false}
-                        ListEmptyComponent={EmptyState}
-                    />
+                    {/* 📍 API ခေါ်နေတုန်း Loading ပြပေးပါမယ် */}
+                    {walletQuery.isLoading ? (
+                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                            <ActivityIndicator size="large" color={COLORS.primary} />
+                            <Text style={{ marginTop: 12, color: COLORS.textGray, fontSize: 14 }}>
+                                {t.loading || "Loading records..."}
+                            </Text>
+                        </View>
+                    ) : (
+                        <FlashList
+                            data={depositList}
+                            renderItem={renderItem}
+                            estimatedItemSize={120}
+                            // 📍 ဒီနေရာမှာ (item: any, index: number) လို့ Type သတ်မှတ်ပေးလိုက်ပါ
+                            keyExtractor={(item: any, index: number) => item.id?.toString() || index.toString()}
+                            contentContainerStyle={{ padding: 20 }}
+                            showsVerticalScrollIndicator={false}
+                            ListEmptyComponent={EmptyState}
+                        />
+                    )}
                 </View>
 
             </View>
@@ -153,6 +198,7 @@ const Deposit = () => {
     );
 };
 
+// Styles အပိုင်းက အရင်အတိုင်းမို့ မပြောင်းလဲပါဘူး
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -178,7 +224,6 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
         justifyContent: 'center'
     },
-
     emptyWrapper: {
         flex: 1,
         justifyContent: 'center',
@@ -229,7 +274,6 @@ const styles = StyleSheet.create({
         fontWeight: "700",
         fontSize: 14
     },
-
     card: {
         backgroundColor: COLORS.card,
         borderRadius: 18,

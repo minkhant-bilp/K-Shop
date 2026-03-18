@@ -218,6 +218,9 @@ const my = {
   notifications: "အသိပေးချက်များ",
   noNotificationsYet: "အသိပေးချက်များ မရှိသေးပါ",
   noNotiDesc: "အသစ်ထွက်ရှိမှုများနှင့် ပရိုမိုရှင်းများ ရောက်လာပါက\nသင့်အား အသိပေးပါမည်!",
+  //loading
+   loading: "ခေတ္တစောင့်ပါ...",
+   searching: "ရှာဖွေနေသည်"
 };
 
 export default my;

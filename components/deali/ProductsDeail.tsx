@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { FlashList } from "@shopify/flash-list";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
-import { Alert, Image, Platform, StyleSheet, ToastAndroid, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, Image, Platform, StyleSheet, ToastAndroid, TouchableOpacity, View } from "react-native";
 import Animated, { FadeIn, FadeInDown, FadeInUp, LinearTransition } from "react-native-reanimated";
 import DynamicText from '../ui/dynamic-text/dynamic-text';
 
@@ -12,10 +12,13 @@ import ListHeader from '../deail-logic/ListHeader';
 import SuccessModal from '../deail-logic/SuccesModal';
 
 import useTranslation from "@/structure/hooks/useTranslation";
+// 📍 API Hook ကို ထည့်သွင်းထားပါသည်
+import { useCoin } from "@/structure/hooks/useCoin";
 
 type Country = "MM" | "TH";
 type PackageItem = { id: number; amount: string; price: string; image: any; };
 
+// လက်ရှိ Hardcoded ထည့်ထားသော Packages များ
 const PACKAGES_BY_COUNTRY: Record<Country, PackageItem[]> = {
     MM: [
         { id: 1, amount: "10 Diamonds", price: "500 Ks", image: require("@/assets/game_image/diamond.png") },
@@ -45,6 +48,10 @@ export default function GameDetailScreen() {
 
     const { t } = useTranslation();
 
+    // 📍 API ကနေ Wallet Data အစစ်ကို ဆွဲယူပါမယ်
+    const { wallet, walletQuery } = useCoin();
+
+    // mmBalance, thBalance တွေကို Fallback အနေနဲ့ပဲ ထားပါတော့မယ်
     const { mmBalance, thBalance, selectedCountry, setCountry, buyPackage } = useWalletStore();
 
     const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -113,13 +120,20 @@ export default function GameDetailScreen() {
                         </DynamicText>
                     </View>
 
+                    {/* 📍 API ချိတ်ဆက်ထားသော Balance Badge */}
                     <View style={styles.balanceBadge}>
                         <Ionicons name="wallet" size={16} color="#FFD700" style={{ marginRight: 6 }} />
-                        <DynamicText fontWeight="bold" style={styles.balanceText}>
-                            {selectedCountry === "MM"
-                                ? `${mmBalance.toLocaleString()} Ks`
-                                : `${thBalance.toLocaleString()} ฿`}
-                        </DynamicText>
+                        {walletQuery.isLoading ? (
+                            <View style={{ height: 20, justifyContent: 'center' }}>
+                                <ActivityIndicator size="small" color="#FFD700" />
+                            </View>
+                        ) : (
+                            <DynamicText fontWeight="bold" style={styles.balanceText}>
+                                {selectedCountry === "MM"
+                                    ? `${(wallet?.balance ?? mmBalance).toLocaleString()} Ks`
+                                    : `${(wallet?.balance ?? thBalance).toLocaleString()} ฿`}
+                            </DynamicText>
+                        )}
                     </View>
                 </View>
 
@@ -201,254 +215,44 @@ export default function GameDetailScreen() {
     );
 }
 
+// ... Styles များသည် မူလအတိုင်းဖြစ်ပါသည် ...
 const styles = StyleSheet.create({
-    screenContainer: {
-        flex: 1,
-        backgroundColor: "#f1f5f9"
-    },
-    listContent: {
-        padding: 16,
-        paddingBottom: 100
-    },
-    headerContainer: {
-        backgroundColor: "#0f172a",
-        paddingTop: 50,
-        paddingBottom: 25,
-        paddingHorizontal: 20,
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
-        zIndex: 10,
-        elevation: 10
-    },
-    navRow: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        marginBottom: 20
-    },
-    leftNavGroup: {
-        flexDirection: "row",
-        alignItems: "center"
-    },
-    backButton: {
-        padding: 5,
-        backgroundColor: "rgba(255,255,255,0.2)",
-        borderRadius: 5,
-        marginRight: 15
-    },
-    whiteText: {
-        color: "white",
-        top: -3
-    },
-    headerTitle: {
-        color: "white",
-        fontSize: 18
-    },
-    balanceBadge: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: "rgba(0,0,0,0.4)",
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 20,
-        borderWidth: 1,
-        borderColor: "rgba(255,255,255,0.1)"
-    },
-    balanceText: {
-        color: "#FFD700",
-        fontSize: 14
-    },
-    gameInfoRow: {
-        flexDirection: "row",
-        alignItems: "center"
-    },
-    gameImageWrapper: {
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        elevation: 5
-    },
-    gameImage: {
-        width: 80,
-        height: 80,
-        borderRadius: 16,
-        borderWidth: 2,
-        borderColor: "#334155"
-    },
-    gameImagePlaceholder: {
-        width: 80,
-        height: 80,
-        borderRadius: 16,
-        backgroundColor: "#334155"
-    },
-    gameInfoTextWrapper: {
-        marginLeft: 16,
-        flex: 1
-    },
-    gameName: {
-        color: "white",
-        fontSize: 20,
-        marginBottom: 6
-    },
-    secureBadge: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: "rgba(255,255,255,0.1)",
-        alignSelf: "flex-start",
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 6
-    },
-    greenDot: {
-        width: 6,
-        height: 6,
-        borderRadius: 3,
-        backgroundColor: "#4ade80",
-        marginRight: 6
-    },
-    secureText: {
-        color: "#cbd5e1",
-        fontSize: 12
-    },
-    toggleRow: {
-        flexDirection: "row",
-        marginTop: 20,
-        backgroundColor: "rgba(255,255,255,0.1)",
-        padding: 4,
-        borderRadius: 12
-    },
-    toggleButtonActive: {
-        flex: 1,
-        paddingVertical: 10,
-        borderRadius: 10,
-        alignItems: "center",
-        backgroundColor: "#e11d48"
-    },
-    toggleButtonInactive: {
-        flex: 1,
-        paddingVertical: 10,
-        borderRadius: 10,
-        alignItems: "center",
-        backgroundColor: "transparent"
-    },
-    gridItemLeft: {
-        flex: 1,
-        marginRight: 10,
-        marginBottom: 12
-    },
-    gridItemRight: {
-        flex: 1,
-        marginRight: 0,
-        marginBottom: 12
-    },
-    cardNormal: {
-        width: '100%',
-        paddingVertical: 16,
-        paddingHorizontal: 8,
-        borderRadius: 16,
-        borderWidth: 2,
-        alignItems: "center",
-        elevation: 2,
-        shadowColor: "#000",
-        shadowOpacity: 0.05,
-        shadowRadius: 5,
-        borderColor: "#f1f5f9",
-        backgroundColor: "white"
-    },
-    cardSelected: {
-        width: '100%',
-        paddingVertical: 16,
-        paddingHorizontal: 8,
-        borderRadius: 16,
-        borderWidth: 2,
-        alignItems: "center",
-        elevation: 2,
-        shadowColor: "#000",
-        shadowOpacity: 0.05,
-        shadowRadius: 5,
-        borderColor: "#e11d48",
-        backgroundColor: "#fff1f2"
-    },
-    cardImage: {
-        width: 45,
-        height: 45,
-        marginBottom: 8
-    },
-    cardAmount: {
-        fontSize: 14,
-        color: "#0f172a",
-        textAlign: "center"
-    },
-    cardPriceNormal: {
-        fontSize: 13,
-        marginTop: 4,
-        color: "#64748b"
-    },
-    cardPriceSelected: {
-        fontSize: 13,
-        marginTop: 4,
-        color: "#e11d48"
-    },
-    checkMark: {
-        position: "absolute",
-        top: 8,
-        right: 8,
-        backgroundColor: "#e11d48",
-        width: 18,
-        height: 18,
-        borderRadius: 9,
-        alignItems: "center",
-        justifyContent: "center"
-    },
-    checkMarkText: {
-        color: "white",
-        fontSize: 10
-    },
-    footerContainer: {
-        position: "absolute",
-        bottom: 40, alignSelf: "center",
-        backgroundColor: "transparent",
-        elevation: 0,
-        zIndex: 20
-    },
-    buyButtonActive: {
-        flexDirection: "row",
-        paddingHorizontal: 40,
-        paddingVertical: 14,
-        borderRadius: 50,
-        alignItems: "center",
-        justifyContent: "center",
-        shadowColor: "#e11d48",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.4,
-        shadowRadius: 8,
-        elevation: 10,
-        backgroundColor: "#e11d48"
-    },
-    buyButtonInactive: {
-        flexDirection: "row",
-        paddingHorizontal: 40,
-        paddingVertical: 14,
-        borderRadius: 50,
-        alignItems: "center",
-        justifyContent: "center",
-        shadowColor: "#e11d48",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.4,
-        shadowRadius: 8,
-        elevation: 10,
-        backgroundColor: "#cbd5e1"
-    },
-    buyButtonText: {
-        color: "white",
-        fontSize: 18,
-        letterSpacing: 0.5
-    },
-    cartIconContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    cartIcon: {
-        marginRight: 8
-    },
+    screenContainer: { flex: 1, backgroundColor: "#f1f5f9" },
+    listContent: { padding: 16, paddingBottom: 100 },
+    headerContainer: { backgroundColor: "#0f172a", paddingTop: 50, paddingBottom: 25, paddingHorizontal: 20, borderBottomLeftRadius: 24, borderBottomRightRadius: 24, zIndex: 10, elevation: 10 },
+    navRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 20 },
+    leftNavGroup: { flexDirection: "row", alignItems: "center" },
+    backButton: { padding: 5, backgroundColor: "rgba(255,255,255,0.2)", borderRadius: 5, marginRight: 15 },
+    whiteText: { color: "white", top: -3 },
+    headerTitle: { color: "white", fontSize: 18 },
+    balanceBadge: { flexDirection: "row", alignItems: "center", backgroundColor: "rgba(0,0,0,0.4)", paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1, borderColor: "rgba(255,255,255,0.1)", minWidth: 80, justifyContent: 'center' },
+    balanceText: { color: "#FFD700", fontSize: 14 },
+    gameInfoRow: { flexDirection: "row", alignItems: "center" },
+    gameImageWrapper: { shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, elevation: 5 },
+    gameImage: { width: 80, height: 80, borderRadius: 16, borderWidth: 2, borderColor: "#334155" },
+    gameImagePlaceholder: { width: 80, height: 80, borderRadius: 16, backgroundColor: "#334155" },
+    gameInfoTextWrapper: { marginLeft: 16, flex: 1 },
+    gameName: { color: "white", fontSize: 20, marginBottom: 6 },
+    secureBadge: { flexDirection: "row", alignItems: "center", backgroundColor: "rgba(255,255,255,0.1)", alignSelf: "flex-start", paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
+    greenDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#4ade80", marginRight: 6 },
+    secureText: { color: "#cbd5e1", fontSize: 12 },
+    toggleRow: { flexDirection: "row", marginTop: 20, backgroundColor: "rgba(255,255,255,0.1)", padding: 4, borderRadius: 12 },
+    toggleButtonActive: { flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: "center", backgroundColor: "#e11d48" },
+    toggleButtonInactive: { flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: "center", backgroundColor: "transparent" },
+    gridItemLeft: { flex: 1, marginRight: 10, marginBottom: 12 },
+    gridItemRight: { flex: 1, marginRight: 0, marginBottom: 12 },
+    cardNormal: { width: '100%', paddingVertical: 16, paddingHorizontal: 8, borderRadius: 16, borderWidth: 2, alignItems: "center", elevation: 2, shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 5, borderColor: "#f1f5f9", backgroundColor: "white" },
+    cardSelected: { width: '100%', paddingVertical: 16, paddingHorizontal: 8, borderRadius: 16, borderWidth: 2, alignItems: "center", elevation: 2, shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 5, borderColor: "#e11d48", backgroundColor: "#fff1f2" },
+    cardImage: { width: 45, height: 45, marginBottom: 8 },
+    cardAmount: { fontSize: 14, color: "#0f172a", textAlign: "center" },
+    cardPriceNormal: { fontSize: 13, marginTop: 4, color: "#64748b" },
+    cardPriceSelected: { fontSize: 13, marginTop: 4, color: "#e11d48" },
+    checkMark: { position: "absolute", top: 8, right: 8, backgroundColor: "#e11d48", width: 18, height: 18, borderRadius: 9, alignItems: "center", justifyContent: "center" },
+    checkMarkText: { color: "white", fontSize: 10 },
+    footerContainer: { position: "absolute", bottom: 40, alignSelf: "center", backgroundColor: "transparent", elevation: 0, zIndex: 20 },
+    buyButtonActive: { flexDirection: "row", paddingHorizontal: 40, paddingVertical: 14, borderRadius: 50, alignItems: "center", justifyContent: "center", shadowColor: "#e11d48", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.4, shadowRadius: 8, elevation: 10, backgroundColor: "#e11d48" },
+    buyButtonInactive: { flexDirection: "row", paddingHorizontal: 40, paddingVertical: 14, borderRadius: 50, alignItems: "center", justifyContent: "center", shadowColor: "#e11d48", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.4, shadowRadius: 8, elevation: 10, backgroundColor: "#cbd5e1" },
+    buyButtonText: { color: "white", fontSize: 18, letterSpacing: 0.5 },
+    cartIconContainer: { flexDirection: 'row', alignItems: 'center' },
+    cartIcon: { marginRight: 8 },
 });

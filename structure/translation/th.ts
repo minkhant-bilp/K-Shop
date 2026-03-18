@@ -219,6 +219,9 @@ const th = {
   notifications: "การแจ้งเตือน",
   noNotificationsYet: "ยังไม่มีการแจ้งเตือน",
   noNotiDesc: "เราจะแจ้งให้คุณทราบเมื่อมีการอัปเดต\nและโปรโมชันใหม่ๆ!",
+  //loading
+   loading:  "กำลังโหลด",
+    searching: "กำลังค้นหา"
 };
 
 export default th;

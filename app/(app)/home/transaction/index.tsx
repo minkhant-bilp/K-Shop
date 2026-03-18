@@ -3,6 +3,7 @@ import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
+  ActivityIndicator,
   Dimensions,
   Image,
   StyleSheet,
@@ -12,18 +13,21 @@ import {
 } from 'react-native';
 
 import ScreenWrapper from '@/components/ui/layout/screen-wrapper';
-import { TransactionData, useWalletStore } from '@/store/useWalletStore';
 
+// 📍 Store အစား API Hook ကို Import လုပ်ပါမယ်
+import { useCoin } from '@/structure/hooks/useCoin';
 import useTranslation from "@/structure/hooks/useTranslation";
 
 const { width } = Dimensions.get("window");
 const isTablet = width > 600;
 
-const TransactionItem = ({ item }: { item: TransactionData }) => {
+// 📍 Item Type အသစ် (API ကလာတဲ့ ပုံစံအတိုင်း အကြမ်းဖျင်း)
+const TransactionItem = ({ item }: { item: any }) => {
   const { t } = useTranslation();
 
   const getStatusConfig = (status: string) => {
-    switch (status) {
+    const s = status ? status.toLowerCase() : "pending";
+    switch (s) {
       case 'success':
         return { color: '#10B981', icon: 'checkmark-circle', bg: '#ECFDF5', text: t.statusSuccesse || 'Success' };
       case 'failed':
@@ -36,20 +40,38 @@ const TransactionItem = ({ item }: { item: TransactionData }) => {
   const statusInfo = getStatusConfig(item.status);
   const isIncome = item.type === 'deposit';
 
+  // 📍 Date Format လုပ်တဲ့ Function
+  const formatDate = (dateInput: any) => {
+    if (!dateInput) return "Just now";
+    const date = new Date(dateInput);
+    if (isNaN(date.getTime())) return "Just now";
+    return date.toLocaleString('en-GB', {
+      day: '2-digit', month: 'short', year: 'numeric',
+      hour: '2-digit', minute: '2-digit', hour12: true
+    });
+  };
+
+  // 📍 API Data ကနေ လိုအပ်တာတွေ ဆွဲထုတ်ပါမယ်
+  const displayTitle = item.paymentMethod || item.title || (isIncome ? "Deposit" : "Purchase");
+  const displaySubTitle = item.subTitle || (item.id ? `TXN-${String(item.id).slice(-6)}` : "Transaction");
+  const displayAmount = item.amount || 0;
+  const displayCurrency = item.currency || "Ks";
+  const displayDate = formatDate(item.createdDateInMilliSeconds || item.createdAt || item.date);
+
   return (
     <View style={[styles.card, isTablet && styles.tabletCard]}>
       <View style={[styles.iconBox, isTablet && styles.tabletIconBox]}>
         {item.image ? (
-          <Image source={item.image} style={styles.image} resizeMode="contain" />
+          <Image source={{ uri: item.image }} style={styles.image} resizeMode="contain" />
         ) : (
           <Ionicons name={isIncome ? "wallet" : "cart"} size={isTablet ? 32 : 24} color="#64748b" />
         )}
       </View>
 
       <View style={[styles.content, isTablet && styles.tabletContent]}>
-        <Text style={[styles.title, isTablet && styles.tabletTitle]} numberOfLines={1}>{item.title}</Text>
-        <Text style={[styles.subTitle, isTablet && styles.tabletSubTitle]} numberOfLines={1}>{item.subTitle}</Text>
-        {!isTablet && <Text style={styles.date}>{item.date}</Text>}
+        <Text style={[styles.title, isTablet && styles.tabletTitle]} numberOfLines={1}>{displayTitle}</Text>
+        <Text style={[styles.subTitle, isTablet && styles.tabletSubTitle]} numberOfLines={1}>{displaySubTitle}</Text>
+        {!isTablet && <Text style={styles.date}>{displayDate}</Text>}
       </View>
 
       <View style={[styles.rightSection, isTablet && styles.tabletRightSection]}>
@@ -59,11 +81,11 @@ const TransactionItem = ({ item }: { item: TransactionData }) => {
           item.status === 'failed' && { color: '#94a3b8', textDecorationLine: 'line-through' },
           isTablet && styles.tabletAmount
         ]}>
-          {isIncome ? '+' : '-'}{item.amount.toLocaleString()} {item.currency}
+          {isIncome ? '+' : '-'}{Number(displayAmount).toLocaleString()} {displayCurrency}
         </Text>
 
         <View style={[styles.statusInfoRow, isTablet && { width: '100%', justifyContent: 'space-between', marginTop: 8 }]}>
-          {isTablet && <Text style={styles.date}>{item.date}</Text>}
+          {isTablet && <Text style={styles.date}>{displayDate}</Text>}
 
           <View style={[styles.statusBadge, { backgroundColor: statusInfo.bg }, isTablet && { alignSelf: 'flex-end' }]}>
             <Ionicons name={statusInfo.icon as any} size={12} color={statusInfo.color} />
@@ -88,12 +110,25 @@ const Transaction = () => {
   ] as const;
 
   const [activeTab, setActiveTab] = useState<string>('All');
-  const transactions = useWalletStore((state) => state.transactions);
 
+  // 📍 API ကနေ Data ယူပါမယ်
+  const { rechargeHistory, topupHistory, walletQuery } = useCoin();
+
+  // 📍 အဝင်နဲ့ အထွက်ကို Type သတ်မှတ်ပြီး ပေါင်းပါမယ်
+  const incomeData = (rechargeHistory || []).map((item: any) => ({ ...item, type: 'deposit' }));
+  const expenseData = (topupHistory || []).map((item: any) => ({ ...item, type: 'purchase' }));
+  const allTransactions = [...incomeData, ...expenseData].sort((a, b) => {
+    // အသစ်ဆုံးကို အပေါ်မှာထားဖို့ (Optional)
+    const dateA = a.createdDateInMilliSeconds || a.createdAt || a.date || 0;
+    const dateB = b.createdDateInMilliSeconds || b.createdAt || b.date || 0;
+    return new Date(dateB).getTime() - new Date(dateA).getTime();
+  });
+
+  // 📍 Tab အလိုက် စစ်ထုတ်ပါမယ်
   const getFilteredData = () => {
-    if (activeTab === 'All') return transactions;
-    if (activeTab === 'Income') return transactions.filter(i => i.type === 'deposit');
-    return transactions.filter(i => i.type === 'purchase');
+    if (activeTab === 'All') return allTransactions;
+    if (activeTab === 'Income') return incomeData;
+    return expenseData;
   };
 
   const filteredData = getFilteredData();
@@ -135,32 +170,40 @@ const Transaction = () => {
         </View>
 
         <View style={{ flex: 1 }}>
-          <FlashList
-            data={filteredData}
-            numColumns={isTablet ? 3 : 1}
-            key={isTablet ? 'tablet-grid' : 'mobile-list'}
-            estimatedItemSize={85}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <View style={isTablet ? { padding: 8, width: '100%' } : {}}>
-                <TransactionItem item={item} />
-              </View>
-            )}
-            contentContainerStyle={{
-              ...styles.listContent,
-              ...(isTablet ? { paddingHorizontal: 22 } : {})
-            }}
-            showsVerticalScrollIndicator={false}
-            ListEmptyComponent={
-              <View style={styles.emptyState}>
-                <View style={[styles.emptyIconCircle, isTablet && { width: 100, height: 100, borderRadius: 50 }]}>
-                  <Ionicons name="receipt-outline" size={isTablet ? 50 : 40} color="#cbd5e1" />
+          {/* 📍 Loading ပြပါမယ် */}
+          {walletQuery.isLoading ? (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <ActivityIndicator size="large" color="#E11D48" />
+              <Text style={{ marginTop: 10, color: '#64748b' }}>{t.loading || "Loading records..."}</Text>
+            </View>
+          ) : (
+            <FlashList
+              data={filteredData}
+              numColumns={isTablet ? 3 : 1}
+              key={isTablet ? 'tablet-grid' : 'mobile-list'}
+              estimatedItemSize={85}
+              keyExtractor={(item, index) => item.id?.toString() || index.toString()}
+              renderItem={({ item }) => (
+                <View style={isTablet ? { padding: 8, width: '100%' } : {}}>
+                  <TransactionItem item={item} />
                 </View>
-                <Text style={[styles.emptyText, isTablet && { fontSize: 22 }]}>{t.noHistoryYet || "No history yet"}</Text>
-                <Text style={[styles.emptySubText, isTablet && { fontSize: 16 }]}>{t.historyDesc || "Transactions will appear here when you make them"}</Text>
-              </View>
-            }
-          />
+              )}
+              contentContainerStyle={{
+                ...styles.listContent,
+                ...(isTablet ? { paddingHorizontal: 22 } : {})
+              }}
+              showsVerticalScrollIndicator={false}
+              ListEmptyComponent={
+                <View style={styles.emptyState}>
+                  <View style={[styles.emptyIconCircle, isTablet && { width: 100, height: 100, borderRadius: 50 }]}>
+                    <Ionicons name="receipt-outline" size={isTablet ? 50 : 40} color="#cbd5e1" />
+                  </View>
+                  <Text style={[styles.emptyText, isTablet && { fontSize: 22 }]}>{t.noHistoryYet || "No history yet"}</Text>
+                  <Text style={[styles.emptySubText, isTablet && { fontSize: 16 }]}>{t.historyDesc || "Transactions will appear here when you make them"}</Text>
+                </View>
+              }
+            />
+          )}
         </View>
       </View>
     </ScreenWrapper>

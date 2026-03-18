@@ -4,11 +4,11 @@ import { FlashList } from "@shopify/flash-list";
 import * as Clipboard from 'expo-clipboard';
 import { useRouter } from "expo-router";
 import React from "react";
-import { Alert, Dimensions, Image, Platform, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, Dimensions, Image, Platform, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from "react-native";
 
-import { useWalletStore } from "@/store/useWalletStore";
-// 🔥 Translation Hook ကို Import လုပ်ထားပါသည်
-import useTranslation from "@/structure/hooks/useTranslation"; // လမ်းကြောင်းမှန်ကန်မှုရှိမရှိ စစ်ဆေးပါ
+// 📍 API Hook ကို Import လုပ်ပါပြီ
+import { useCoin } from "@/structure/hooks/useCoin";
+import useTranslation from "@/structure/hooks/useTranslation";
 
 const { width } = Dimensions.get("window");
 const isTablet = width > 600;
@@ -31,10 +31,13 @@ const COLORS = {
 
 const Order = () => {
     const router = useRouter();
-    const { t } = useTranslation(); // 🔥 Translation ခေါ်ယူထားပါသည်
+    const { t } = useTranslation();
 
-    const transactions = useWalletStore((state) => state.transactions);
-    const orderList = transactions.filter((t) => t.type === 'purchase');
+    // 📍 API ကနေ Data ကို တိုက်ရိုက်ဆွဲယူပါမယ် (Purchase ဖြစ်တဲ့အတွက် topupHistory ကို သုံးပါတယ်)
+    const { topupHistory, walletQuery } = useCoin();
+
+    // API ကလာတဲ့ Data ကို orderList အဖြစ်သုံးပါမယ်
+    const orderList = topupHistory || [];
 
     const numColumns = isTablet ? 2 : 1;
 
@@ -48,7 +51,8 @@ const Order = () => {
     };
 
     const getStatusStyles = (status: string) => {
-        switch (status.toLowerCase()) {
+        const s = status ? status.toLowerCase() : "pending";
+        switch (s) {
             case "success": return { bg: COLORS.successBg, text: COLORS.success, icon: "checkmark-circle" };
             case "pending": return { bg: COLORS.pendingBg, text: COLORS.pending, icon: "time" };
             case "failed": return { bg: COLORS.failedBg, text: COLORS.failed, icon: "close-circle" };
@@ -64,6 +68,17 @@ const Order = () => {
             case "failed": return t.statusFaileds || "Failed";
             default: return t.statusPending || "Pending";
         }
+    };
+
+    // 📍 Date ကို အတိအကျနဲ့ လှလှပပပေါ်အောင် ပြောင်းပေးမယ့် Function
+    const formatDate = (dateInput: any) => {
+        if (!dateInput) return t.justNow || "Just now";
+        const date = new Date(dateInput);
+        if (isNaN(date.getTime())) return t.justNow || "Just now";
+        return date.toLocaleString('en-GB', {
+            day: '2-digit', month: 'short', year: 'numeric',
+            hour: '2-digit', minute: '2-digit', hour12: true
+        });
     };
 
     const EmptyState = () => (
@@ -87,8 +102,16 @@ const Order = () => {
     const renderItem = ({ item, index }: { item: any, index: number }) => {
         const statusStyle = getStatusStyles(item.status);
         const translatedStatus = getTranslatedStatus(item.status);
-        const priceDisplay = `${item.amount.toLocaleString()} ${item.currency}`;
-        const imageSource = item.image ? item.image : null;
+
+        // 📍 API Data ကနေ လိုအပ်တာတွေ ဆွဲထုတ်ပါမယ်
+        const displayAmount = item.amount || 0;
+        const displayCurrency = item.currency || "Ks";
+        const priceDisplay = `${Number(displayAmount).toLocaleString()} ${displayCurrency}`;
+        const imageSource = item.image ? { uri: item.image } : null;
+        const displayTitle = item.paymentMethod || item.title || "Purchase";
+        const txnId = item.id ? `TXN-${String(item.id).slice(-6)}` : "TXN-000";
+        const exactDate = item.createdDateInMilliSeconds || item.createdAt || item.date;
+        const displayDate = formatDate(exactDate);
 
         return (
             <View
@@ -101,7 +124,7 @@ const Order = () => {
                 <View style={styles.cardHeader}>
                     <View style={[styles.iconContainer, isTablet && { width: 64, height: 64, borderRadius: 18 }]}>
                         {imageSource ? (
-                            <Image source={imageSource} style={styles.itemImage} resizeMode="contain" />
+                            <Image source={imageSource as any} style={styles.itemImage} resizeMode="contain" />
                         ) : (
                             <Ionicons name="game-controller" size={isTablet ? 32 : 24} color={COLORS.primary} />
                         )}
@@ -111,15 +134,15 @@ const Order = () => {
                         <TouchableOpacity
                             style={styles.idRow}
                             activeOpacity={0.6}
-                            onPress={() => handleCopyID(item.transactionId || "N/A")}
+                            onPress={() => handleCopyID(item.id?.toString() || txnId)}
                         >
                             <Text style={[styles.transIdLabel, isTablet && { fontSize: 14 }]}>ID:</Text>
-                            <Text style={[styles.transIdText, isTablet && { fontSize: 15 }]}>{item.transactionId || "N/A"}</Text>
+                            <Text style={[styles.transIdText, isTablet && { fontSize: 15 }]}>{txnId}</Text>
                             <Ionicons name="copy-outline" size={isTablet ? 16 : 14} color={COLORS.primary} style={{ marginLeft: 4 }} />
                         </TouchableOpacity>
 
-                        <Text style={[styles.itemTitle, isTablet && { fontSize: 20 }]} numberOfLines={1}>{item.title}</Text>
-                        <Text style={[styles.itemSubTitle, isTablet && { fontSize: 15 }]} numberOfLines={1}>{item.subTitle}</Text>
+                        <Text style={[styles.itemTitle, isTablet && { fontSize: 20 }]} numberOfLines={1}>{displayTitle}</Text>
+                        <Text style={[styles.itemSubTitle, isTablet && { fontSize: 15 }]} numberOfLines={1}>{item.subTitle || "Order Item"}</Text>
                     </View>
 
                     <View style={[styles.statusBadge, { backgroundColor: statusStyle.bg }, isTablet && { paddingHorizontal: 14, paddingVertical: 8 }]}>
@@ -135,7 +158,7 @@ const Order = () => {
                 <View style={styles.cardFooter}>
                     <View style={styles.dateRow}>
                         <Ionicons name="calendar-outline" size={isTablet ? 18 : 14} color={COLORS.textGray} />
-                        <Text style={[styles.dateText, isTablet && { fontSize: 14 }]}>{item.date}</Text>
+                        <Text style={[styles.dateText, isTablet && { fontSize: 14 }]}>{displayDate}</Text>
                     </View>
                     <Text style={[styles.priceText, isTablet && { fontSize: 20 }]}>{priceDisplay}</Text>
                 </View>
@@ -160,23 +183,32 @@ const Order = () => {
                 </View>
 
                 <View style={[styles.listContainer, isTablet && { paddingHorizontal: 30 }]}>
-                    <FlashList
-                        data={orderList}
-                        renderItem={renderItem}
-                        numColumns={numColumns}
-                        key={isTablet ? 'tablet-2-cols' : 'mobile-1-col'}
-                        estimatedItemSize={140}
-                        keyExtractor={(item) => item.id}
-                        contentContainerStyle={isTablet ? styles.listContentTablet : styles.listContent}
-                        showsVerticalScrollIndicator={false}
-                        ListEmptyComponent={EmptyState}
-                    />
+                    {/* 📍 Loading ပြပါမယ် */}
+                    {walletQuery.isLoading ? (
+                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                            <ActivityIndicator size="large" color={COLORS.primary} />
+                            <Text style={{ marginTop: 10, color: COLORS.textGray }}>{t.loading || "Loading orders..."}</Text>
+                        </View>
+                    ) : (
+                        <FlashList
+                            data={orderList}
+                            renderItem={renderItem}
+                            numColumns={numColumns}
+                            key={isTablet ? 'tablet-2-cols' : 'mobile-1-col'}
+                            estimatedItemSize={140}
+                            keyExtractor={(item: any, index: number) => item.id?.toString()}
+                            contentContainerStyle={isTablet ? styles.listContentTablet : styles.listContent}
+                            showsVerticalScrollIndicator={false}
+                            ListEmptyComponent={EmptyState}
+                        />
+                    )}
                 </View>
 
             </View>
         </ScreenWrapper>
     );
 };
+
 
 const styles = StyleSheet.create({
     container: {

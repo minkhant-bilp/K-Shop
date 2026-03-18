@@ -3,9 +3,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React from "react";
-import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Dimensions, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import DynamicText from "../ui/dynamic-text/dynamic-text";
 
+// 📍 API ခေါ်မယ့် Hook ကို Import လုပ်ပါပြီ
+import { useCoin } from "@/structure/hooks/useCoin";
 import useTranslation from "@/structure/hooks/useTranslation";
 
 const { width } = Dimensions.get("window");
@@ -13,11 +15,12 @@ const isTablet = width > 600;
 
 export default function WalletCard() {
   const router = useRouter();
-
-
   const { t } = useTranslation();
 
+  // 📍 API ကနေ Data ကို ဒီနေရာမှာ လှမ်းယူပါမယ်
+  const { wallet, walletQuery } = useCoin();
 
+  // Store က အချက်အလက်တွေ
   const { mmBalance, thBalance, selectedCountry, setCountry } = useWalletStore();
 
   const toggleCountry = () => {
@@ -54,16 +57,24 @@ export default function WalletCard() {
               />
             </TouchableOpacity>
 
-            <Text
-              className="font-bold"
-              style={[styles.balance, isTablet && styles.tabletBalance]}
-              numberOfLines={1}
-              adjustsFontSizeToFit
-            >
-              {selectedCountry === "MM"
-                ? `${mmBalance.toLocaleString()} Ks`
-                : ` ${thBalance.toLocaleString()} ฿`}
-            </Text>
+            {/* 📍 API က Data ယူနေတုန်း Loading Spinner ပြမယ့်နေရာ */}
+            {walletQuery.isLoading ? (
+              <View style={{ height: 38, justifyContent: 'center', alignItems: 'flex-start', marginLeft: 4 }}>
+                <ActivityIndicator size="small" color="#ffffff" />
+              </View>
+            ) : (
+              <Text
+                className="font-bold"
+                style={[styles.balance, isTablet && styles.tabletBalance]}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+              >
+                {/* 📍 API ကရတဲ့ balance (wallet?.balance) ကို အရင်ယူသုံးမယ်။ API က မရရင် Store ထဲက default balance ကို ယူပြမယ် */}
+                {selectedCountry === "MM"
+                  ? `${(wallet?.balance ?? mmBalance).toLocaleString()} Ks`
+                  : ` ${(wallet?.balance ?? thBalance).toLocaleString()} ฿`}
+              </Text>
+            )}
           </View>
 
           <TouchableOpacity

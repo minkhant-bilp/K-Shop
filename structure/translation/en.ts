@@ -217,6 +217,10 @@ const en = {
   notifications: "Notifications",
   noNotificationsYet: "No Notifications Yet",
   noNotiDesc: "We'll let you know when updates\nand promos arrive!",
+  //loading
+  loading: "Loading...",
+  searching: "Searching" 
+
 };
 
 export default en;
